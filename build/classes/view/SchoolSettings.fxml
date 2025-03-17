@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.net.URL?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.RowConstraints?>
+
+<AnchorPane id="AnchorPane" prefHeight="400.0" prefWidth="600.0" styleClass="mainFxmlClass" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/23.0.1" fx:controller="controller.SchoolSettingsController">
+    <stylesheets>
+        <URL value="@schoolsettings.css" />
+    </stylesheets>
+   <children>
+      <HBox layoutX="3.0" prefHeight="131.0" prefWidth="600.0">
+         <children>
+            <GridPane prefHeight="131.0" prefWidth="162.0">
+              <columnConstraints>
+                <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+              </columnConstraints>
+              <rowConstraints>
+                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                  <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                  <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+              </rowConstraints>
+               <children>
+                  <Label prefHeight="17.0" prefWidth="92.0" text="Gestionar Curso" />
+                  <Label text="Nivel" GridPane.rowIndex="1" />
+                  <Label text="Grado" GridPane.rowIndex="2" />
+                  <Label text="Paralelo" GridPane.rowIndex="3" />
+                  <Label text="Cupo" GridPane.rowIndex="4" />
+                  <TextField GridPane.columnIndex="1" GridPane.rowIndex="3" />
+                  <TextField text="30" GridPane.columnIndex="1" GridPane.rowIndex="4" />
+                  <ComboBox prefWidth="150.0" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                  <ComboBox prefWidth="150.0" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+               </children>
+            </GridPane>
+            <Button mnemonicParsing="false" text="Guardar" />
+            <TableView prefHeight="131.0" prefWidth="400.0">
+              <columns>
+                <TableColumn prefWidth="50.0" text="ID" />
+                <TableColumn prefWidth="65.0" text="Nivel" />
+                  <TableColumn prefWidth="48.0" text="Grado" />
+                  <TableColumn prefWidth="54.0" text="Paralelo" />
+                  <TableColumn prefWidth="81.0" text="Cupo" />
+                  <TableColumn prefWidth="101.0" text="Opciones" />
+              </columns>
+            </TableView>
+         </children>
+      </HBox>
+      <HBox layoutX="3.0" layoutY="131.0" prefHeight="149.0" prefWidth="600.0">
+         <children>
+            <GridPane>
+              <columnConstraints>
+                <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+              </columnConstraints>
+              <rowConstraints>
+                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                  <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+              </rowConstraints>
+               <children>
+                  <Label text="Gestionar Documentos" />
+                  <Label text="Nombre" GridPane.rowIndex="1" />
+                  <Label text="Obligatorio" GridPane.rowIndex="2" />
+                  <TextField GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                  <Button mnemonicParsing="false" text="Guardar" GridPane.rowIndex="3" />
+               </children>
+            </GridPane>
+            <TableView prefHeight="149.0" prefWidth="399.0">
+              <columns>
+                <TableColumn prefWidth="62.0" text="ID" />
+                <TableColumn prefWidth="112.0" text="Nombre" />
+                  <TableColumn prefWidth="104.0" text="Obligatorio" />
+                  <TableColumn prefWidth="120.0" text="Opciones" />
+              </columns>
+            </TableView>
+         </children>
+      </HBox>
+      <HBox layoutX="3.0" layoutY="280.0" prefHeight="120.0" prefWidth="600.0">
+         <children>
+            <GridPane>
+              <columnConstraints>
+                <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+              </columnConstraints>
+              <rowConstraints>
+                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+              </rowConstraints>
+               <children>
+                  <Label text="Gestionar Materia" />
+                  <Button mnemonicParsing="false" text="Guardar" GridPane.rowIndex="2" />
+                  <Label text="Nombre" GridPane.rowIndex="1" />
+                  <TextField GridPane.columnIndex="1" GridPane.rowIndex="1" />
+               </children>
+            </GridPane>
+            <TableView prefHeight="120.0" prefWidth="400.0">
+              <columns>
+                <TableColumn prefWidth="75.0" text="ID" />
+                <TableColumn prefWidth="155.0" text="Nombre" />
+                  <TableColumn prefWidth="168.0" text="Opciones" />
+              </columns>
+            </TableView>
+         </children>
+      </HBox>
+   </children>
+</AnchorPane>
