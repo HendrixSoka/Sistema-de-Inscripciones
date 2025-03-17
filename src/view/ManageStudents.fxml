@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.net.URL?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Hyperlink?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.shape.Line?>
+
+<AnchorPane id="AnchorPane" prefHeight="400.0" prefWidth="600.0" styleClass="mainFxmlClass" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/23.0.1" fx:controller="controller.ManageStudentsController">
+    <stylesheets>
+        <URL value="@managestudents.css" />
+    </stylesheets>
+   <children>
+      <ImageView fitHeight="70.0" fitWidth="93.0" layoutX="25.0" layoutY="16.0" pickOnBounds="true" preserveRatio="true" />
+      <Line endX="495.0" layoutX="128.0" layoutY="96.0" startX="-117.0" />
+      <Label layoutX="128.0" layoutY="34.0" text="Sistema de Registro de Estudiantes" />
+      <Label layoutX="128.0" layoutY="61.0" text="Unidad Educativa Jorge Oblitas" />
+      <Label layoutX="473.0" layoutY="34.0" text="Turno" />
+      <Label layoutX="473.0" layoutY="61.0" text="Usuario" />
+      <Line endX="495.0" layoutX="128.0" layoutY="122.0" startX="-117.0" />
+      <HBox layoutX="11.0" layoutY="97.0" prefHeight="24.0" prefWidth="613.0">
+         <children>
+            <Hyperlink text="Menu Principal" />
+            <Label prefHeight="10.0" prefWidth="10.0" text="&gt;" translateY="3.0" />
+            <Hyperlink text="Gestionar Usuarios" />
+         </children>
+      </HBox>
+      <Button layoutX="25.0" layoutY="138.0" mnemonicParsing="false" text="Estudiante Nuevo" />
+      <Button layoutX="166.0" layoutY="138.0" mnemonicParsing="false" text="Estudiante Existente" />
+      <Label layoutX="314.0" layoutY="140.0" text="Buscar C.I.:" />
+      <TextField layoutX="371.0" layoutY="136.0" />
+      <Button layoutX="537.0" layoutY="136.0" mnemonicParsing="false" text="Buscar" />
+      <TableView layoutX="4.0" layoutY="163.0" prefHeight="238.0" prefWidth="613.0">
+        <columns>
+          <TableColumn prefWidth="39.0" text="ID" />
+          <TableColumn prefWidth="71.0" text="Nombre(s)" />
+            <TableColumn prefWidth="72.0" text="Apellido(s)" />
+            <TableColumn prefWidth="43.0" text="CI" />
+            <TableColumn prefWidth="75.0" text="F_Nacimiento" />
+            <TableColumn prefWidth="58.0" text="Genero" />
+            <TableColumn prefWidth="58.0" text="Direccion" />
+            <TableColumn prefWidth="51.0" text="Correo" />
+            <TableColumn prefWidth="35.0" text="Grado" />
+            <TableColumn minWidth="0.0" prefWidth="44.0" text="Paralelo" />
+            <TableColumn prefWidth="66.0" text="Opciones" />
+        </columns>
+      </TableView>
+   </children>
+</AnchorPane>
