@@ -13,7 +13,7 @@ public class MainApp extends Application {
     public void start(Stage primaryStage) {
         try {
             // Cargar la vista desde el archivo FXML
-            Parent root = FXMLLoader.load(getClass().getResource("/view/Login.fxml"));
+            Parent root = FXMLLoader.load(getClass().getResource("/view/MainMenu.fxml"));
             
             // Crear la escena con la vista cargada
             Scene scene = new Scene(root);

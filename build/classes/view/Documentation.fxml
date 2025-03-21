@@ -9,22 +9,20 @@
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.HBox?>
-<?import javafx.scene.layout.VBox?>
 <?import javafx.scene.shape.Line?>
 
-<AnchorPane id="AnchorPane" prefHeight="410.0" prefWidth="634.0" styleClass="mainFxmlClass" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/23.0.1" fx:controller="controller.DocumentationController">
+<AnchorPane id="AnchorPane" prefHeight="600.0" prefWidth="1024.0" styleClass="mainFxmlClass" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controller.DocumentationController">
     <stylesheets>
         <URL value="@documentation.css" />
     </stylesheets>
    <children>
-      <ImageView fitHeight="70.0" fitWidth="93.0" layoutX="35.0" layoutY="26.0" pickOnBounds="true" preserveRatio="true" />
-      <Line endX="501.0" layoutX="133.0" layoutY="107.0" startX="-133.0" />
-      <Label layoutX="138.0" layoutY="44.0" text="Sistema de Registro de Estudiantes" />
-      <Label layoutX="138.0" layoutY="71.0" text="Unidad Educativa Jorge Oblitas" />
-      <Label layoutX="483.0" layoutY="44.0" text="Turno" />
-      <Label layoutX="483.0" layoutY="71.0" text="Usuario" />
-      <Line endX="496.0" endY="-1.0" layoutX="138.0" layoutY="132.0" startX="-138.0" />
-      <HBox layoutX="21.0" layoutY="107.0" prefHeight="24.0" prefWidth="613.0">
+      <ImageView fitHeight="112.0" fitWidth="112.0" layoutY="-6.0" pickOnBounds="true" preserveRatio="true" />
+      <Line endX="1029.5" layoutX="133.0" layoutY="107.0" startX="-133.0" />
+      <Label layoutX="123.0" layoutY="27.0" text="Sistema de Registro de Estudiantes" />
+      <Label layoutX="123.0" layoutY="62.0" text="Unidad Educativa Jorge Oblitas" />
+      <Label layoutX="867.0" layoutY="53.0" text="Usuario" />
+      <Line endX="1024.5" layoutX="138.0" layoutY="132.0" startX="-144.0" />
+      <HBox layoutY="107.0" prefHeight="24.0" prefWidth="1163.0">
          <children>
             <Hyperlink text="Menu Principal" />
             <Label prefHeight="10.0" prefWidth="10.0" text="&gt;" translateY="3.0" />
@@ -34,35 +32,33 @@
             <Label text="&gt;Documentacion" translateY="3.0" />
          </children>
       </HBox>
-      <VBox layoutX="16.0" layoutY="133.0" prefHeight="120.0" prefWidth="613.0">
-         <children>
-            <Label text="Documentacion General" />
-            <TableView prefHeight="200.0" prefWidth="200.0">
-              <columns>
-                <TableColumn prefWidth="75.0" text="ID" />
-                <TableColumn prefWidth="153.0" text="Nombre" />
-                  <TableColumn prefWidth="108.0" text="Obligatorio" />
-                  <TableColumn prefWidth="114.0" text="Entregado" />
-                  <TableColumn prefWidth="161.0" text="Fecha de entrega" />
-              </columns>
-            </TableView>
-         </children>
-      </VBox>
-      <VBox layoutX="16.0" layoutY="253.0" prefHeight="120.0" prefWidth="613.0">
-         <children>
-            <Label text="Documentacion Graduacion" />
-            <TableView prefHeight="200.0" prefWidth="200.0">
-               <columns>
-                  <TableColumn prefWidth="75.0" text="ID" />
-                  <TableColumn prefWidth="153.0" text="Nombre" />
-                  <TableColumn prefWidth="108.0" text="Obligatorio" />
-                  <TableColumn prefWidth="114.0" text="Entregado" />
-                  <TableColumn prefWidth="161.0" text="Fecha de entrega" />
-               </columns>
-            </TableView>
-         </children>
-      </VBox>
-      <Button layoutX="205.0" layoutY="374.0" mnemonicParsing="false" text="Guardar" />
-      <Button layoutX="328.0" layoutY="374.0" mnemonicParsing="false" text="Cancelar" />
+      <Button layoutX="358.0" layoutY="515.0" mnemonicParsing="false" text="GUARDAR" />
+      <Button layoutX="731.0" layoutY="516.0" mnemonicParsing="false" text="CANCELAR" />
+      <Label layoutX="14.0" layoutY="310.0" text="Documentacion Graduacion" />
+      <TableView layoutX="14.0" layoutY="335.0" prefHeight="140.0" prefWidth="1135.0">
+         <columns>
+            <TableColumn prefWidth="75.0" text="ID" />
+            <TableColumn prefWidth="153.0" text="Nombre" />
+            <TableColumn prefWidth="108.0" text="Obligatorio" />
+            <TableColumn prefWidth="114.0" text="Entregado" />
+            <TableColumn prefWidth="161.0" text="Fecha de entrega" />
+         </columns>
+         <columnResizePolicy>
+            <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
+         </columnResizePolicy>
+      </TableView>
+      <TableView layoutX="14.0" layoutY="163.0" prefHeight="140.0" prefWidth="1135.0">
+        <columns>
+          <TableColumn prefWidth="75.0" text="ID" />
+          <TableColumn prefWidth="153.0" text="Nombre" />
+            <TableColumn prefWidth="108.0" text="Obligatorio" />
+            <TableColumn prefWidth="114.0" text="Entregado" />
+            <TableColumn prefWidth="161.0" text="Fecha de entrega" />
+        </columns>
+         <columnResizePolicy>
+            <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
+         </columnResizePolicy>
+      </TableView>
+      <Label layoutX="13.0" layoutY="138.0" text="Documentacion General" />
    </children>
 </AnchorPane>
