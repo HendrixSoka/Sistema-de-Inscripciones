@@ -8,10 +8,17 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
+import model.Database;
+import java.sql.Connection;
+import java.sql.SQLException;
+
 public class MainApp extends Application {
 @Override
     public void start(Stage primaryStage) {
         try {
+            
+            verificarConexion();
+               
             // Cargar la vista desde el archivo FXML
             Parent root = FXMLLoader.load(getClass().getResource("/view/Login.fxml"));
             
@@ -29,5 +36,18 @@ public class MainApp extends Application {
 
     public static void main(String[] args) {
         launch(args);
+    }
+
+    private void verificarConexion() {
+        try {
+            Connection connection = Database.getConnection();
+            if (connection != null) {
+                System.out.println("¡Conexión exitosa!");
+            } else {
+                System.out.println("Error: No se pudo establecer la conexión.");
+            }
+        } catch (SQLException e) {
+            System.out.println("Error al conectar: " + e.getMessage());
+        }
     }
 }
