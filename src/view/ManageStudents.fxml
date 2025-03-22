@@ -12,44 +12,43 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.shape.Line?>
 
-<AnchorPane id="AnchorPane" prefHeight="400.0" prefWidth="600.0" styleClass="mainFxmlClass" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/23.0.1" fx:controller="controller.ManageStudentsController">
+<AnchorPane id="AnchorPane" prefHeight="600.0" prefWidth="1024.0" styleClass="mainFxmlClass" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controller.ManageStudentsController">
     <stylesheets>
         <URL value="@managestudents.css" />
     </stylesheets>
    <children>
-      <ImageView fitHeight="70.0" fitWidth="93.0" layoutX="25.0" layoutY="16.0" pickOnBounds="true" preserveRatio="true" />
-      <Line endX="495.0" layoutX="128.0" layoutY="96.0" startX="-117.0" />
-      <Label layoutX="128.0" layoutY="34.0" text="Sistema de Registro de Estudiantes" />
-      <Label layoutX="128.0" layoutY="61.0" text="Unidad Educativa Jorge Oblitas" />
-      <Label layoutX="473.0" layoutY="34.0" text="Turno" />
-      <Label layoutX="473.0" layoutY="61.0" text="Usuario" />
-      <Line endX="495.0" layoutX="128.0" layoutY="122.0" startX="-117.0" />
-      <HBox layoutX="11.0" layoutY="97.0" prefHeight="24.0" prefWidth="613.0">
+      <HBox layoutX="1.0" layoutY="116.0" prefHeight="24.0" prefWidth="1168.0">
          <children>
             <Hyperlink text="Menu Principal" />
             <Label prefHeight="10.0" prefWidth="10.0" text="&gt;" translateY="3.0" />
-            <Hyperlink text="Gestionar Usuarios" />
+            <Hyperlink text="Gestionar Estudiantes" />
          </children>
       </HBox>
-      <Button layoutX="25.0" layoutY="138.0" mnemonicParsing="false" text="Estudiante Nuevo" />
-      <Button layoutX="166.0" layoutY="138.0" mnemonicParsing="false" text="Estudiante Existente" />
-      <Label layoutX="314.0" layoutY="140.0" text="Buscar C.I.:" />
-      <TextField layoutX="371.0" layoutY="136.0" />
-      <Button layoutX="537.0" layoutY="136.0" mnemonicParsing="false" text="Buscar" />
-      <TableView layoutX="4.0" layoutY="163.0" prefHeight="238.0" prefWidth="613.0">
+      <Button layoutX="25.0" layoutY="165.0" mnemonicParsing="false" text="ESTUDIANTE NUEVO" />
+      <Button layoutX="185.0" layoutY="165.0" mnemonicParsing="false" text="ESTUDIANTE EXISTENTE" />
+      <Label layoutX="751.0" layoutY="170.0" text="BUSCAR C.I.:" />
+      <TextField layoutX="862.0" layoutY="165.0" />
+      <Button layoutX="1058.0" layoutY="165.0" mnemonicParsing="false" text="BUSCAR" />
+      <TableView layoutX="25.0" layoutY="220.0" prefHeight="350.0" prefWidth="1120.0">
         <columns>
           <TableColumn prefWidth="39.0" text="ID" />
-          <TableColumn prefWidth="71.0" text="Nombre(s)" />
-            <TableColumn prefWidth="72.0" text="Apellido(s)" />
-            <TableColumn prefWidth="43.0" text="CI" />
-            <TableColumn prefWidth="75.0" text="F_Nacimiento" />
-            <TableColumn prefWidth="58.0" text="Genero" />
-            <TableColumn prefWidth="58.0" text="Direccion" />
-            <TableColumn prefWidth="51.0" text="Correo" />
-            <TableColumn prefWidth="35.0" text="Grado" />
-            <TableColumn minWidth="0.0" prefWidth="44.0" text="Paralelo" />
-            <TableColumn prefWidth="66.0" text="Opciones" />
+          <TableColumn prefWidth="132.0" text="Nombre(s)" />
+            <TableColumn prefWidth="96.00001525878906" text="Apellido(s)" />
+            <TableColumn minWidth="0.0" prefWidth="33.5" text="CI" />
+            <TableColumn minWidth="0.0" prefWidth="101.0" text="F_Nacimiento" />
+            <TableColumn minWidth="9.0" prefWidth="96.0" text="Genero" />
+            <TableColumn prefWidth="177.0" text="Direccion" />
+            <TableColumn prefWidth="172.0" text="Correo" />
+            <TableColumn prefWidth="126.0" text="Grado" />
+            <TableColumn minWidth="0.0" prefWidth="62.0" text="Paralelo" />
+            <TableColumn prefWidth="84.00006103515625" text="Opciones" />
         </columns>
       </TableView>
+      <Line endX="1029.5" layoutX="143.0" layoutY="117.0" startX="-143.0" startY="-7.62939453125E-6" />
+      <Line endX="1024.5" layoutX="148.0" layoutY="142.0" startX="-148.0" />
+      <ImageView fitHeight="112.0" fitWidth="112.0" layoutX="1.0" layoutY="2.0" pickOnBounds="true" preserveRatio="true" />
+      <Label layoutX="133.0" layoutY="37.0" text="Sistema de Registro de Estudiantes" />
+      <Label layoutX="133.0" layoutY="72.0" text="Unidad Educativa Jorge Oblitas" />
+      <Label layoutX="877.0" layoutY="63.0" text="Usuario" />
    </children>
 </AnchorPane>
