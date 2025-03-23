@@ -24,9 +24,9 @@
           <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
         </rowConstraints>
          <children>
-            <Button mnemonicParsing="false" prefHeight="75.0" prefWidth="178.0" text="Curso" />
-            <Button layoutX="10.0" layoutY="10.0" mnemonicParsing="false" prefHeight="75.0" prefWidth="171.0" text="Estudiante" GridPane.columnIndex="1" />
-            <Button layoutX="310.0" layoutY="10.0" mnemonicParsing="false" prefHeight="75.0" prefWidth="173.0" text="Estadisticas" GridPane.columnIndex="2" />
+            <Button fx:id="btnCurso" mnemonicParsing="false" prefHeight="75.0" prefWidth="178.0" text="Curso" />
+            <Button fx:id="btnEstudiante" layoutX="10.0" layoutY="10.0" mnemonicParsing="false" prefHeight="75.0" prefWidth="171.0" text="Estudiante" GridPane.columnIndex="1" />
+            <Button fx:id="btnEstadisticas" layoutX="310.0" layoutY="10.0" mnemonicParsing="false" prefHeight="75.0" prefWidth="173.0" text="Estadisticas" GridPane.columnIndex="2" />
          </children>
       </GridPane>
    </children>

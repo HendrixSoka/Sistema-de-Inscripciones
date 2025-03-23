@@ -2,6 +2,74 @@
  * Empty Stylesheet file.
  */
 
-.mainFxmlClass {
 
+/* Estilo general del fondo */
+.mainFxmlClass {
+    -fx-background-color: linear-gradient(to bottom, #1a252f, #2ecc71);
+}
+
+
+/* Estilo de los Labels */
+Label {
+    -fx-text-fill: white;
+    -fx-font-size: 14px;
+    -fx-font-family: "Open Sans";
+    
+}
+
+/* Estilo del título */
+Label[layoutY="37.0"] {
+    -fx-font-size: 18px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #ecf0f1;
+}
+
+/* Estilo de los TextFields */
+TextField {
+    -fx-pref-width: 240px;
+    -fx-padding: 8px;
+    -fx-border-radius: 5px;
+    -fx-background-radius: 5px;
+    -fx-border-color: #ecf0f1;
+    -fx-background-color: rgba(255, 255, 255, 0.2);
+    -fx-text-fill: white;
+}
+
+TextField:focused {
+    -fx-border-color: #3498db;
+    -fx-background-color: rgba(255, 255, 255, 0.3);
+}
+PasswordField {
+    -fx-pref-width: 240px;
+    -fx-padding: 8px;
+    -fx-border-radius: 5px;
+    -fx-background-radius: 5px;
+    -fx-border-color: #ecf0f1;
+    -fx-background-color: rgba(255, 255, 255, 0.2);
+    -fx-text-fill: white;
+}
+
+PasswordField:focused {
+    -fx-border-color: #3498db;
+    -fx-background-color: rgba(255, 255, 255, 0.3);
+}
+/* Estilo del botón */
+Button {
+    -fx-background-color: #3498db;
+    -fx-text-fill: white;
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-padding: 8px 16px;
+    -fx-border-radius: 5px;
+    -fx-background-radius: 5px;
+    -fx-cursor: hand;
+    -fx-effect: dropshadow(three-pass-box, rgba(0, 0, 0, 0.2), 5, 0, 0, 2);
+}
+
+Button:hover {
+    -fx-background-color: #2980b9;
+}
+
+Button:pressed {
+    -fx-background-color: #1f618d;
 }

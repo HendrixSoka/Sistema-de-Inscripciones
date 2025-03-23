@@ -4,23 +4,37 @@
  */
 package controller;
 
+import interfaces.MainControllerAware;
 import java.net.URL;
 import java.util.ResourceBundle;
+import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.control.Button;
 
-/**
- * FXML Controller class
- *
- * @author intel
- */
-public class ManageStudentsController implements Initializable {
+public class ManageStudentsController implements Initializable, MainControllerAware {
 
-    /**
-     * Initializes the controller class.
-     */
+    @FXML
+    private Button btnEstudianteNuevo;
+    
+    private MainMenuController mainController;
+
+    @Override
+    public void setMainController(MainMenuController mainController) {
+        this.mainController = mainController;
+    }
+    
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-        // TODO
+        btnEstudianteNuevo.setOnAction(e -> navigateTo("Estudiante Nuevo","ExistingStudent"));
     }    
     
+    public void navigateTo(String pageName, String fxmlName){
+        System.out.println("Presionado " + pageName);
+        if (mainController != null) {
+            mainController.loadView(fxmlName);
+            mainController.addPage(pageName,fxmlName);
+        } else {
+            System.out.println("Error: MainMenuController no está disponible.");
+        }
+    }
 }

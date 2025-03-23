@@ -27,7 +27,7 @@
         <columns>
           <TableColumn prefWidth="214.0" text="Materia" />
             <TableColumn prefWidth="168.0" text="Nota" />
-            <TableColumn prefWidth="217.0" text="Opciones" />
+            <TableColumn prefWidth="213.0" text="Opciones" />
         </columns>
       </TableView>
       <HBox layoutY="45.0" prefHeight="46.0" prefWidth="600.0">

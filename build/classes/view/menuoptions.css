@@ -2,6 +2,7 @@
  * Empty Stylesheet file.
  */
 
+/* Estilo general del fondo con tema verde */
 .mainFxmlClass {
     -fx-background-color: linear-gradient(to bottom, #1b5e20, #66bb6a);
 }
@@ -22,6 +23,7 @@ Button {
     -fx-background-radius: 8px;
     -fx-cursor: hand;
     -fx-effect: dropshadow(three-pass-box, rgba(0, 0, 0, 0.2), 5, 0, 0, 2);
+    -fx-text-wrap: true;
 }
 
 Button:hover {
@@ -37,4 +39,5 @@ GridPane {
     -fx-padding: 20px;
     -fx-hgap: 10px;
     -fx-vgap: 10px;
+    -fx-alignment: center;
 }
