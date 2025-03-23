@@ -8,38 +8,42 @@
 <?import javafx.scene.control.TableView?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
 
 <AnchorPane id="AnchorPane" prefHeight="400.0" prefWidth="600.0" styleClass="mainFxmlClass" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controller.SubjectGradesController">
     <stylesheets>
         <URL value="@subjectgrades.css" />
     </stylesheets>
    <children>
-      <HBox prefHeight="71.0" prefWidth="600.0">
-         <children>
-            <Label prefHeight="44.0" prefWidth="119.0" text="Materia " />
-            <Label text="Grado" />
-            <ComboBox prefHeight="25.0" prefWidth="69.0" />
-            <Label text="Paralelo" />
-            <ComboBox prefHeight="25.0" prefWidth="86.0" />
-            <Label text="Materia" />
-            <ComboBox prefHeight="25.0" prefWidth="118.0" />
-            <Button mnemonicParsing="false" text="Buscar" />
-         </children>
-      </HBox>
-      <TableView layoutX="3.0" layoutY="71.0" prefHeight="279.0" prefWidth="600.0">
+      <TableView layoutX="3.0" layoutY="120.0" prefHeight="230.0" prefWidth="600.0">
         <columns>
-          <TableColumn prefWidth="75.0" text="Nombre(s)" />
-          <TableColumn prefWidth="75.0" text="Apellido(s)" />
-            <TableColumn prefWidth="75.0" text="CI" />
-            <TableColumn prefWidth="110.0" text="Fecha Nacimiento" />
-            <TableColumn prefWidth="75.0" text="Genero" />
-            <TableColumn prefWidth="96.0" text="Nota" />
-            <TableColumn prefWidth="93.0" text="Opciones" />
+          <TableColumn prefWidth="129.0" text="Nombre(s)" />
+          <TableColumn prefWidth="154.0" text="Apellido(s)" />
+            <TableColumn prefWidth="109.0" text="CI" />
+            <TableColumn prefWidth="94.0" text="Nota" />
+            <TableColumn prefWidth="111.0" text="Opciones" />
         </columns>
       </TableView>
-      <Button layoutX="95.0" layoutY="361.0" mnemonicParsing="false" text="Aceptar" />
-      <Label layoutX="231.0" layoutY="365.0" text="O elige un archivo" />
-      <Label layoutX="405.0" layoutY="365.0" text="Ningun Archivo Seleccionado" />
-      <Button layoutX="336.0" layoutY="361.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="69.0" text="Importar" />
+      <Button layoutX="244.0" layoutY="350.0" mnemonicParsing="false" text="Aceptar" />
+      <VBox layoutX="3.0" prefHeight="118.0" prefWidth="600.0">
+         <children>
+            <HBox prefHeight="59.0" prefWidth="600.0">
+               <children>
+                  <Label prefHeight="44.0" prefWidth="119.0" text="Notas por Materia " />
+                  <Label text="Grado" />
+                  <ComboBox prefHeight="25.0" prefWidth="97.0" />
+                  <Label text="Paralelo" />
+                  <ComboBox prefHeight="25.0" prefWidth="103.0" />
+               </children>
+            </HBox>
+            <HBox prefHeight="44.0" prefWidth="200.0">
+               <children>
+                  <Label text="Materia" />
+                  <ComboBox prefHeight="25.0" prefWidth="118.0" />
+                  <Button mnemonicParsing="false" text="Buscar" />
+               </children>
+            </HBox>
+         </children>
+      </VBox>
    </children>
 </AnchorPane>
