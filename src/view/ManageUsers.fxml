@@ -4,7 +4,6 @@
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.control.Label?>
-<?import javafx.scene.control.TableColumn?>
 <?import javafx.scene.control.TableView?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.AnchorPane?>
@@ -19,9 +18,9 @@
     </stylesheets>
     <children>
 
-        <VBox layoutX="1.0" layoutY="26.0" prefHeight="285.0" prefWidth="165.0">
+              <VBox layoutX="25.0" layoutY="148.0" prefHeight="331.0" prefWidth="344.0">
             <children>
-                <Label text="Registar Usuario" />
+                <Label fx:id="txttitle" text="Registar Usuario" />
                 <GridPane prefHeight="272.0" prefWidth="165.0">
                     <columnConstraints>
                         <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
@@ -35,6 +34,7 @@
                         <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
                         <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
                         <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                  <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
                     </rowConstraints>
                     <children>
                         <Label text="Nombre(s)" />
@@ -48,29 +48,20 @@
                         <TextField fx:id="TextEmailUser" GridPane.columnIndex="1" GridPane.rowIndex="4" />
                         <Label text="Cargo" GridPane.columnSpan="2" GridPane.rowIndex="5" />
                         <TextField fx:id="TextCiUser" GridPane.columnIndex="1" GridPane.rowIndex="2" />
-                        <Label text="Contraseña" GridPane.rowIndex="6" />
-                        <TextField fx:id="TextPasswordUser" GridPane.columnIndex="1" GridPane.rowIndex="6" />
+                        <Label text="Contraseña" GridPane.rowIndex="7" />
+                        <TextField fx:id="TextPasswordUser" GridPane.columnIndex="1" GridPane.rowIndex="7" />
                         <ComboBox fx:id="CboCharge" prefWidth="150.0" GridPane.columnIndex="1" GridPane.rowIndex="5" />
+                  <Label text="Usuario" GridPane.rowIndex="6" />
+                  <TextField fx:id="TextUserUser" GridPane.columnIndex="1" GridPane.rowIndex="6" />
                     </children>
                 </GridPane>
             </children>
         </VBox>
-        <TableView fx:id="tblUser" layoutX="175.0" layoutY="78.0" prefHeight="235.0" prefWidth="439.0">
-            <columns>
-                <TableColumn fx:id="colId" prefWidth="23.0" text="ID" />
-                <TableColumn fx:id="colNombre" prefWidth="75.5" text="Nombre" />
-                <TableColumn fx:id="colApellidos" prefWidth="72.87542724609375" text="Apellidos" />
-                <TableColumn fx:id="colCI" prefWidth="67.0" text="C.I." />
-                <TableColumn fx:id="colCelular" prefWidth="70.0" text="Celular" />
-                <TableColumn fx:id="colCargo" prefWidth="70.0" text="Cargo" />
-                <TableColumn fx:id="colUsuario" prefWidth="70.0" text="Usuario" />
-                <TableColumn fx:id="colCorreo" prefWidth="56.0" text="Correo" />
-                <TableColumn fx:id="colContrasena" maxWidth="75.0" prefWidth="69.0" text="Contraseña" />
-            </columns>
-        </TableView>
-        <Label layoutX="280.0" layoutY="45.0" text="Buscar C.I.:" />
-        <TextField fx:id="TextBuscarfCi" layoutX="361.0" layoutY="39.0" />
-        <Button fx:id="BtnBuscar" layoutX="524.0" layoutY="37.0" mnemonicParsing="false" text="Buscar" />
-        <Button fx:id="BtnAdd" layoutX="36.0" layoutY="333.0" mnemonicParsing="false" onAction="#BtnAddOnAction" text="AGREGAR" />
+        <TableView fx:id="tblUser" layoutX="407.0" layoutY="175.0" prefHeight="506.0" prefWidth="778.0" />
+        <Label layoutX="756.0" layoutY="138.0" text="Buscar C.I.:" />
+        <TextField fx:id="TextBuscarfCi" layoutX="871.0" layoutY="132.0" />
+        <Button fx:id="BtnBuscar" layoutX="1061.0" layoutY="133.0" mnemonicParsing="false" text="Buscar" />
+        <Button fx:id="BtnAdd" layoutX="144.0" layoutY="506.0" mnemonicParsing="false" onAction="#BtnAddOnAction" text="AGREGAR" />
+      <Button fx:id="BtnCancelar" disable="true" layoutX="139.0" layoutY="591.0" mnemonicParsing="false" onAction="#BtnCancelarOnAction" text="CANCELAR" />
     </children>
 </AnchorPane>

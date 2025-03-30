@@ -5,7 +5,6 @@
 package controller;
 
 import Dao.UserDao;
-import java.awt.SystemColor;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
@@ -22,17 +21,24 @@ import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
 import java.util.Arrays;
 import java.util.Base64;
+import java.util.List;
 import java.util.Random;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import javafx.event.EventHandler;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ComboBox;
+import javafx.scene.control.ContextMenu;
+import javafx.scene.control.MenuItem;
+import javafx.scene.control.TableCell;
+import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.layout.GridPane;
+import javafx.scene.layout.Priority;
 import javafx.stage.StageStyle;
 import javax.crypto.Cipher;
 import javax.crypto.spec.SecretKeySpec;
-import javax.swing.JOptionPane;
 import model.User;
 
 /**
@@ -50,6 +56,8 @@ public class ManageUsersController implements Initializable {
     @FXML
     private Button BtnBuscar;
     @FXML
+    private Button BtnCancelar;
+    @FXML
     private TextField TextBuscarfCi;
     @FXML
     private TextField TextCiUser;
@@ -66,115 +74,243 @@ public class ManageUsersController implements Initializable {
     @FXML
     private TableView<User> tblUser;
     @FXML
-    private TableColumn<User, Integer> colId;
-    @FXML
-    private TableColumn<User, String> colNombre;
-    @FXML
-    private TableColumn<User, String> colApellidos;
-    @FXML
-    private TableColumn<User, String> colCI;
-    @FXML
-    private TableColumn<User, String> colCelular;
-    @FXML
-    private TableColumn<User, Integer> colCargo;
-    @FXML
-    private TableColumn<User, String> colUsuario;
-    @FXML
-    private TableColumn<User, String> colCorreo;
-    @FXML
-    private TableColumn<User, String> colContrasena;
-    @FXML
     private ComboBox<String> CboCharge;
+    @FXML
+    private TextField TextUserUser;
 
     @FXML
     void BtnAddOnAction(ActionEvent event) throws NoSuchAlgorithmException, Exception {
-        //Verificar si se quiere guardar algun NULL
-        if (TextFnameUser.getText().isEmpty() || TextLnameUser.getText().isEmpty()
-                || TextCiUser.getText().isEmpty() || TextPhoneUser.getText().isEmpty()
-                || TextEmailUser.getText().isEmpty() || TextPasswordUser.getText().isEmpty()) {
+        if (selectUser == null) {
+            //Verificar si se quiere guardar algun NULL
+            if (TextFnameUser.getText().isEmpty() || TextLnameUser.getText().isEmpty()
+                    || TextCiUser.getText().isEmpty() || TextPhoneUser.getText().isEmpty()
+                    || TextEmailUser.getText().isEmpty() || TextPasswordUser.getText().isEmpty()) {
 
-            Alert alert = new Alert(Alert.AlertType.WARNING);
-            alert.setTitle("Error");
-            alert.setHeaderText(null);
-            alert.setContentText("Todos los campos deben ser llenados.");
-            alert.initStyle(StageStyle.UTILITY);
-            alert.showAndWait();
-            return;
-        }
+                Alert alert = new Alert(Alert.AlertType.WARNING);
+                alert.setTitle("Error");
+                alert.setHeaderText(null);
+                alert.setContentText("Todos los campos deben ser llenados.");
+                alert.initStyle(StageStyle.UTILITY);
+                alert.showAndWait();
+                return;
+            }
 
-        User usuario = new User();
+            User usuario = new User();
 
-        //Nombre
-        usuario.setNombre(TextFnameUser.getText());
-        //Apellido
-        usuario.setApellido(TextLnameUser.getText());
-        //Cedula_Identidad
-        usuario.setCedula_identidad(TextCiUser.getText());
-        //Celular, verifica si es valido
-        if (VerifyNumberUser(TextPhoneUser.getText())) {
-            usuario.setCelular(TextPhoneUser.getText());
+            //Nombre
+            usuario.setNombre(TextFnameUser.getText());
+            //Apellido
+            usuario.setApellido(TextLnameUser.getText());
+            //Cedula_Identidad
+            usuario.setCedula_identidad(TextCiUser.getText());
+            //Celular, verifica si es valido
+            if (VerifyNumberUser(TextPhoneUser.getText())) {
+                usuario.setCelular(TextPhoneUser.getText());
+            } else {
+                Alert alert = new Alert(Alert.AlertType.WARNING);
+                alert.setTitle("Error");
+                alert.setHeaderText(null);
+                alert.setContentText("Numero de celular invalido");
+                alert.initStyle(StageStyle.UTILITY);
+                alert.showAndWait();
+                TextPhoneUser.clear();
+            }
+            //Correo, verifica si es valido
+            if (VerifyEmailUser(TextEmailUser.getText())) {
+                usuario.setCorreo(TextEmailUser.getText());
+            } else {
+                Alert alert = new Alert(Alert.AlertType.WARNING);
+                alert.setTitle("Error");
+                alert.setHeaderText(null);
+                alert.setContentText("Formato de correo invalido");
+                alert.initStyle(StageStyle.UTILITY);
+                alert.showAndWait();
+                TextEmailUser.clear();
+            }
+            //Agrega cargo
+            String selectedCargo = CboCharge.getValue();
+            ObservableList<String> items = CboCharge.getItems();
+            int selectedIndex = items.indexOf(selectedCargo);
+            usuario.setCargo(selectedIndex);
+            //Crear Usuario en cuanto se ingrese el nombre
+            usuario.setUsuario(TextUserUser.getText());
+            //TextUserUser.setEditable(false);
+            //encriptar contraseña
+            String pass = Encrypt(TextPasswordUser.getText());
+            usuario.setContrasena(pass);
+
+            //Para verificar si se puede guardar en la base de datos
+            boolean rsp = this.userdao.register(usuario);
+
+            if (rsp) {
+                Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                alert.setTitle("Exito");
+                alert.setHeaderText(null);
+                alert.setContentText("Se registro correctamente el usuario");
+                alert.initStyle(StageStyle.UTILITY);
+                alert.showAndWait();
+
+                ClearFiels();
+                LoadUsers();
+
+            } else {
+                Alert alert = new Alert(Alert.AlertType.ERROR);
+                alert.setTitle("Error");
+                alert.setHeaderText(null);
+                alert.setContentText("Hubo un error al guardar");
+                alert.initStyle(StageStyle.UTILITY);
+                alert.showAndWait();
+            }
         } else {
-            Alert alert = new Alert(Alert.AlertType.WARNING);
-            alert.setTitle("Error");
-            alert.setHeaderText(null);
-            alert.setContentText("Numero de celular invalido");
-            alert.initStyle(StageStyle.UTILITY);
-            alert.showAndWait();
-            TextPhoneUser.clear();
-        }
-        //Correo, verifica si es valido
-        if (VerifyEmailUser(TextEmailUser.getText())) {
-            usuario.setCorreo(TextEmailUser.getText());
-        } else {
-            Alert alert = new Alert(Alert.AlertType.WARNING);
-            alert.setTitle("Error");
-            alert.setHeaderText(null);
-            alert.setContentText("Formato de correo invalido");
-            alert.initStyle(StageStyle.UTILITY);
-            alert.showAndWait();
-            TextEmailUser.clear();
-        }
-        //Agrega cargo
-        String selectedCargo = CboCharge.getValue();
-        ObservableList<String> items = CboCharge.getItems();
-        int selectedIndex = items.indexOf(selectedCargo);
-        usuario.setCargo(selectedIndex);
-        //Genera usuario en base a su nombre(s) y 3 numeros aleatorios
-        usuario.setUsuario(GenerateUser(TextFnameUser.getText()));
-        //encriptar contraseña
-        String pass = Encrypt(TextPasswordUser.getText());
-        usuario.setContrasena(pass);
+            
+            if (TextFnameUser.getText().isEmpty() || TextLnameUser.getText().isEmpty()
+                    || TextCiUser.getText().isEmpty() || TextPhoneUser.getText().isEmpty()
+                    || TextEmailUser.getText().isEmpty() || TextPasswordUser.getText().isEmpty()) {
 
-        //Para verificar si se puede guardar en la base de datos
-        boolean rsp = this.userdao.register(usuario);
+                Alert alert = new Alert(Alert.AlertType.WARNING);
+                alert.setTitle("Error");
+                alert.setHeaderText(null);
+                alert.setContentText("Todos los campos deben ser llenados.");
+                alert.initStyle(StageStyle.UTILITY);
+                alert.showAndWait();
+                return;
+            }
 
-        if (rsp) {
-            Alert alert = new Alert(Alert.AlertType.INFORMATION);
-            alert.setTitle("Exito");
-            alert.setHeaderText(null);
-            alert.setContentText("Se registro correctamente el usuario");
-            alert.initStyle(StageStyle.UTILITY);
-            alert.showAndWait();
+            selectUser.setNombre(TextFnameUser.getText());
+            selectUser.setApellido(TextLnameUser.getText());
+            selectUser.setCelular(TextPhoneUser.getText());
+            selectUser.setCorreo(TextEmailUser.getText());
+            String selectedCargo = CboCharge.getValue();
+            ObservableList<String> items = CboCharge.getItems();
+            int selectedIndex = items.indexOf(selectedCargo);
+            selectUser.setCargo(selectedIndex);
+            selectUser.setUsuario(TextUserUser.getText());
+            selectUser.setContrasena(Encrypt(TextPasswordUser.getText()));
 
-            TextFnameUser.clear();
-            TextLnameUser.clear();
-            TextCiUser.clear();
-            TextPhoneUser.clear();
-            TextEmailUser.clear();
-            TextPasswordUser.clear();
-            CboCharge.setValue(null);
+            boolean rsp = this.userdao.Edit(selectUser);
 
-        } else {
-            Alert alert = new Alert(Alert.AlertType.ERROR);
-            alert.setTitle("Error");
-            alert.setHeaderText(null);
-            alert.setContentText("Hubo un error al guardar");
-            alert.initStyle(StageStyle.UTILITY);
-            alert.showAndWait();
+            if (rsp) {
+                Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                alert.setTitle("Exito");
+                alert.setHeaderText(null);
+                alert.setContentText("Se guardo correctamente el usuario");
+                alert.initStyle(StageStyle.UTILITY);
+                alert.showAndWait();
+
+                ClearFiels();
+                LoadUsers();
+
+                selectUser = null;
+
+                BtnCancelar.setDisable(true);
+
+            } else {
+                Alert alert = new Alert(Alert.AlertType.ERROR);
+                alert.setTitle("Error");
+                alert.setHeaderText(null);
+                alert.setContentText("Hubo un error al modificar");
+                alert.initStyle(StageStyle.UTILITY);
+                alert.showAndWait();
+            }
         }
     }
+    
+    @FXML
+    void BtnCancelarOnAction(ActionEvent event) {
+        
+        selectUser = null;
+        
+        ClearFiels();
+        
+        BtnCancelar.setDisable(true);
+        
+    }
 
-    private ObservableList<User> users;
+    private void ClearFiels() {
+        TextFnameUser.clear();
+        TextLnameUser.clear();
+        TextCiUser.clear();
+        TextPhoneUser.clear();
+        TextEmailUser.clear();
+        TextUserUser.clear();
+        TextPasswordUser.clear();
+        CboCharge.getSelectionModel().select("Seleccione");
+    }
+
+    public void LoadUsers() {
+
+        tblUser.getItems().clear();
+        tblUser.getColumns().clear();
+
+        List<User> users = this.userdao.tolist();
+
+        ObservableList<User> data = FXCollections.observableArrayList(users);
+
+        TableColumn Idcol = new TableColumn("ID");
+        Idcol.setCellValueFactory(new PropertyValueFactory("id"));
+
+        TableColumn Namecol = new TableColumn("NOMBRE(S)");
+        Namecol.setCellValueFactory(new PropertyValueFactory("nombre"));
+
+        TableColumn Surnamecol = new TableColumn("APELLIDO(S)");
+        Surnamecol.setCellValueFactory(new PropertyValueFactory("apellido"));
+
+        TableColumn CIcol = new TableColumn("CI");
+        CIcol.setCellValueFactory(new PropertyValueFactory("cedula_identidad"));
+
+        TableColumn Phonecol = new TableColumn("CELULAR");
+        Phonecol.setCellValueFactory(new PropertyValueFactory("celular"));
+
+        TableColumn Emailcol = new TableColumn("CORREO");
+        Emailcol.setCellValueFactory(new PropertyValueFactory("correo"));
+
+        TableColumn Chargecol = new TableColumn("CARGO");
+        Chargecol.setCellValueFactory(new PropertyValueFactory("cargo"));
+        Chargecol.setCellFactory(col -> new TableCell<User, Integer>() {
+            @Override
+            protected void updateItem(Integer item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty || item == null) {
+                    setText(null);
+                } else {
+
+                    String[] cargos = {"Director/a", "Secretario/a", "Asesor/a", "Regente/a"};
+                    setText(cargos[item]);
+
+                }
+            }
+        });
+
+        TableColumn Usercol = new TableColumn("USUARIO");
+        Usercol.setCellValueFactory(new PropertyValueFactory("usuario"));
+
+        TableColumn Passwordcol = new TableColumn("CONTRASEÑA");
+        Passwordcol.setCellFactory(col -> new TableCell<User, String>() {
+            @Override
+            protected void updateItem(String item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty || item == null) {
+                    setText(null);
+                } else {
+
+                    setText(Decrypt(item));
+                }
+            }
+        });
+        Passwordcol.setCellValueFactory(new PropertyValueFactory("contrasena"));
+
+        tblUser.setItems(data);
+        tblUser.getColumns().addAll(Idcol, Namecol, Surnamecol, CIcol, Phonecol, Emailcol, Chargecol, Usercol, Passwordcol);
+
+    }
+
+    public boolean EditUsers() {
+        try {
+
+        } catch (Exception e) {
+        }
+        return true;
+    }
 
     private static final String EMAIL_REGEX = "^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$";
 
@@ -250,6 +386,10 @@ public class ManageUsersController implements Initializable {
 
     private UserDao userdao;
 
+    private ContextMenu OptionsUsers;
+
+    private User selectUser;
+
     @Override
     public void initialize(URL url, ResourceBundle rb) {
 
@@ -257,12 +397,55 @@ public class ManageUsersController implements Initializable {
         ObservableList<String> items = FXCollections.observableArrayList(cargos);
         CboCharge.setItems(items);
         CboCharge.setValue("Seleccione");
+        TextUserUser.setEditable(false);
 
         try {
             this.userdao = new UserDao();
         } catch (ClassNotFoundException ex) {
             Logger.getLogger(ManageUsersController.class.getName()).log(Level.SEVERE, null, ex);
         }
+
+        LoadUsers();
+        TextFnameUser.textProperty().addListener((observable, oldValue, newValue) -> {
+            if (!newValue.trim().isEmpty()) {
+                String generatedUsername = GenerateUser(newValue);
+                TextUserUser.setText(generatedUsername);
+            } else {
+                TextUserUser.setText("");
+            }
+        });
+        OptionsUsers = new ContextMenu();
+
+        MenuItem edit = new MenuItem("Editar");
+
+        OptionsUsers.getItems().addAll(edit);
+
+        edit.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent t) {
+
+                int index = tblUser.getSelectionModel().getSelectedIndex();
+
+                selectUser = tblUser.getItems().get(index);
+
+                TextFnameUser.setText(selectUser.getNombre());
+                TextLnameUser.setText(selectUser.getApellido());
+                TextCiUser.setText(selectUser.getCedula_identidad());
+                TextCiUser.setEditable(false);
+                TextPhoneUser.setText(selectUser.getCelular());
+                TextEmailUser.setText(selectUser.getCorreo());
+                CboCharge.getSelectionModel().select(selectUser.getCargo());
+                TextUserUser.setText(selectUser.getUsuario());
+                TextUserUser.setEditable(true);
+                TextPasswordUser.setText(Decrypt(selectUser.getContrasena()));
+
+                BtnCancelar.setDisable(false);
+
+            }
+
+        });
+
+        tblUser.setContextMenu(OptionsUsers);
 
     }
 

@@ -11,6 +11,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.ResultSet;
+import java.util.ArrayList;
 import java.util.List;
 import javafx.scene.control.Alert;
 
@@ -68,10 +69,93 @@ public class UserDao {
                 sentence.setString(8, usuario.getContrasena());
 
                 sentence.executeUpdate();
+                sentence.close();
                 return true;
             }
         } catch (SQLException e) {
             System.err.println("Ocurrio un error al registrar usuario");
+            System.err.println("Mensaje del error: " + e.getMessage());
+            System.err.println("Detalle del error: ");
+
+            e.printStackTrace();
+
+            return false;
+        }
+    }
+
+    public List<User> tolist() {
+
+        List<User> listUsers = new ArrayList<>();
+
+        try {
+
+            String SQL = "SELECT * FROM usuario";
+
+            Connection connection = this.UserConnection.getConnection();
+
+            PreparedStatement sentence = connection.prepareStatement(SQL);
+
+            ResultSet data = sentence.executeQuery();
+
+            while (data.next() == true) {
+
+                User user = new User();
+
+                user.setId(data.getInt(1));
+                user.setNombre(data.getString(2));
+                user.setApellido(data.getString(3));
+                user.setCedula_identidad(data.getString(4));
+                user.setCelular(data.getString(5));
+                user.setCorreo(data.getString(6));
+                user.setCargo(data.getInt(7));
+                user.setUsuario(data.getString(8));
+                user.setContrasena(data.getString(9));
+
+                listUsers.add(user);
+            }
+            data.close();
+            sentence.close();
+
+        } catch (SQLException e) {
+            System.err.println("Ocurrio un error al listar usuarios");
+            System.err.println("Mensaje del error: " + e.getMessage());
+            System.err.println("Detalle del error: ");
+
+            e.printStackTrace();
+
+        }
+        return listUsers;
+    }
+
+    public boolean Edit(User user) {
+
+        try {
+
+            String SQL = "UPDATE usuario SET nombre = ?, apellido = ?, celular = ?, correo = ?, cargo = ?, usuario = ?, contrasena = ?"
+                    + " WHERE idusuario = ?";
+
+            Connection connection = this.UserConnection.getConnection();
+
+            PreparedStatement sentence = connection.prepareStatement(SQL);
+
+            sentence.setString(1, user.getNombre());
+            sentence.setString(2, user.getApellido());
+            sentence.setString(3, user.getCelular());
+            sentence.setString(4, user.getCorreo());
+            sentence.setInt(5, user.getCargo());
+            sentence.setString(6, user.getUsuario());
+            sentence.setString(7, user.getContrasena());
+
+            sentence.setInt(8, user.getId());
+
+            sentence.executeUpdate();
+
+            sentence.close();
+
+            return true;
+
+        } catch (Exception e) {
+            System.err.println("Ocurrio un error al editar usuario");
             System.err.println("Mensaje del error: " + e.getMessage());
             System.err.println("Detalle del error: ");
 

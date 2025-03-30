@@ -27,6 +27,7 @@ Button:pressed {
     -fx-background-color: #0d3d14;
 }
 
+
 /* Estilo de los Labels */
 Label {
     -fx-text-fill: white;
