@@ -20,16 +20,8 @@ public class User {
     public String usuario;
     public String contrasena;
 
-    public User(int id, String nombre, String apellido, String cedula_identidad, String celular, String correo, int cargo, String usuario, String contrasena) {
-        this.id = id;
-        this.nombre = nombre;
-        this.apellido = apellido;
-        this.cedula_identidad = cedula_identidad;
-        this.celular = celular;
-        this.correo = correo;
-        this.cargo = cargo;
-        this.usuario = usuario;
-        this.contrasena = contrasena;
+    public User() {
+        
     }
 
     public int getId() {

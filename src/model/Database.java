@@ -8,18 +8,40 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 
-
-
 /**
- * 
+ *  
+ *
  * @author mauricioteranlimari
  */
 public class Database {
+
+    private Connection connection;
     private static final String url = "jdbc:mysql://nozomi.proxy.rlwy.net:21344/railway";
     private static final String user = "root";
     private static final String password = "dWblBrkXyDkFdTmPYHRVxIVnxSImvQXO";
-    
-    public static Connection getConnection() throws SQLException {
-        return DriverManager.getConnection(url,user,password);
+    private static final String driver = "com.mysql.cj.jdbc.Driver";
+
+    public Database() throws ClassNotFoundException {
+
+        try {
+            Class.forName(driver);
+            connection = DriverManager.getConnection(url, user, password);
+            if (connection != null) {
+                System.out.println("¡Conexión exitosa!");
+            } else {
+                System.out.println("Error: No se pudo establecer la conexión.");
+            }
+        } catch (SQLException e) {
+            System.err.println("Ocurrio un error en la conexion");
+            System.err.println("Mensaje del error: " + e.getMessage());
+            System.err.println("Detalle del error: ");
+
+            e.printStackTrace();
+        }
     }
+
+    public Connection getConnection() {
+        return connection;
+    }
+
 }

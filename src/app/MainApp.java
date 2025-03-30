@@ -3,6 +3,7 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
 package app;
+
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -13,18 +14,17 @@ import java.sql.Connection;
 import java.sql.SQLException;
 
 public class MainApp extends Application {
-@Override
+
+    @Override
     public void start(Stage primaryStage) {
         try {
-            
-            verificarConexion();
-               
+            Database verify = new Database();
             // Cargar la vista desde el archivo FXML
-            Parent root = FXMLLoader.load(getClass().getResource("/view/Login.fxml"));
-            
+            Parent root = FXMLLoader.load(getClass().getResource("/view/ManageUsers.fxml"));
+
             // Crear la escena con la vista cargada
             Scene scene = new Scene(root);
-            
+
             // Configurar la ventana principal
             primaryStage.setTitle("Sistema de Registro de Estudiantes");
             primaryStage.setScene(scene);
@@ -36,18 +36,5 @@ public class MainApp extends Application {
 
     public static void main(String[] args) {
         launch(args);
-    }
-
-    private void verificarConexion() {
-        try {
-            Connection connection = Database.getConnection();
-            if (connection != null) {
-                System.out.println("¡Conexión exitosa!");
-            } else {
-                System.out.println("Error: No se pudo establecer la conexión.");
-            }
-        } catch (SQLException e) {
-            System.out.println("Error al conectar: " + e.getMessage());
-        }
     }
 }

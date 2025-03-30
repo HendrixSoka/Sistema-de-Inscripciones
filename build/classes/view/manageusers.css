@@ -61,7 +61,7 @@ TableView {
     -fx-alignment: CENTER;
     -fx-font-size: 14px;
     -fx-background-color: #388e3c;
-    -fx-text-fill: white;
+    -fx-text-fill: #ffffff;
     -fx-border-radius: 8px;
     -fx-background-radius: 8px;
     -fx-padding: 5px;
@@ -78,4 +78,15 @@ TableView {
     -fx-text-fill: white;
     -fx-font-size: 14px;
     -fx-font-weight: bold;
+}
+
+.table-cell {
+    -fx-background-radius: 0px;
+    -fx-border-radius: 0px;
+}
+
+.table-view .column-header,
+.table-column {
+    -fx-background-radius: 0;
+    -fx-border-radius: 0;
 }
