@@ -5,10 +5,11 @@
 package controller;
 
 import Dao.UserDao;
-import com.sun.jfx.incubator.scene.control.richtext.FxPathBuilder;
+import java.awt.SystemColor;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.security.SecureRandom;
 import java.util.ResourceBundle;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -17,14 +18,10 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
-import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
-import javafx.scene.control.Alert;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.util.Arrays;
+import java.util.Base64;
 import java.util.Random;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -33,11 +30,9 @@ import java.util.regex.Pattern;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ComboBox;
 import javafx.stage.StageStyle;
-import javax.crypto.SecretKeyFactory;
-import javax.crypto.spec.PBEKeySpec;
-import javax.swing.JFrame;
+import javax.crypto.Cipher;
+import javax.crypto.spec.SecretKeySpec;
 import javax.swing.JOptionPane;
-import model.Database;
 import model.User;
 
 /**
@@ -144,12 +139,11 @@ public class ManageUsersController implements Initializable {
         ObservableList<String> items = CboCharge.getItems();
         int selectedIndex = items.indexOf(selectedCargo);
         usuario.setCargo(selectedIndex);
+        //Genera usuario en base a su nombre(s) y 3 numeros aleatorios
         usuario.setUsuario(GenerateUser(TextFnameUser.getText()));
-        //Encripta Constrasenas
-        String password = TextPasswordUser.getText();
-        byte[] salt = getSalt();
-        String hashedPassword = hashPassword(password, salt);
-        usuario.setContrasena(hashedPassword);
+        //encriptar contraseña
+        String pass = Encrypt(TextPasswordUser.getText());
+        usuario.setContrasena(pass);
 
         //Para verificar si se puede guardar en la base de datos
         boolean rsp = this.userdao.register(usuario);
@@ -174,7 +168,7 @@ public class ManageUsersController implements Initializable {
             Alert alert = new Alert(Alert.AlertType.ERROR);
             alert.setTitle("Error");
             alert.setHeaderText(null);
-            alert.setContentText("Hubo un error");
+            alert.setContentText("Hubo un error al guardar");
             alert.initStyle(StageStyle.UTILITY);
             alert.showAndWait();
         }
@@ -204,33 +198,54 @@ public class ManageUsersController implements Initializable {
         return firstName + secondLetter + randomNumber;
     }
 
-    public static byte[] getSalt() throws NoSuchAlgorithmException {
-        SecureRandom secureRandom = new SecureRandom();
-        byte[] salt = new byte[16];
-        secureRandom.nextBytes(salt);
-        return salt;
-    }
+    private String key = "PumasAndinos";
 
-    public static String hashPassword(String password, byte[] salt) throws Exception {
-        PBEKeySpec spec = new PBEKeySpec(password.toCharArray(), salt, 10000, 256);
-        SecretKeyFactory factory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA1");
-        byte[] hashedPassword = factory.generateSecret(spec).getEncoded();
+    public SecretKeySpec CreateKey(String password) {
+        try {
+            byte[] chain = password.getBytes("UTF-8");
+            MessageDigest md = MessageDigest.getInstance("SHA-1");
+            chain = md.digest(chain);
+            chain = Arrays.copyOf(chain, 16);
+            SecretKeySpec secretKeySpec = new SecretKeySpec(chain, "AES");
+            return secretKeySpec;
 
-        return bytesToHex(hashedPassword);
-    }
-
-    public static String bytesToHex(byte[] bytes) {
-        StringBuilder sb = new StringBuilder();
-        for (byte b : bytes) {
-            sb.append(String.format("%02x", b));
+        } catch (Exception e) {
+            return null;
         }
-        return sb.toString();
     }
 
-    public static boolean verifyPassword(String password, byte[] salt, String storedHash) throws Exception {
-        String hashedPassword = hashPassword(password, salt);
+    //Encriptacion
+    public String Encrypt(String encrypt) {
+        try {
+            SecretKeySpec secretKeySpec = CreateKey(key);
+            Cipher cipher = Cipher.getInstance("AES");
+            cipher.init(Cipher.ENCRYPT_MODE, secretKeySpec);
 
-        return hashedPassword.equals(storedHash);
+            byte[] chain = encrypt.getBytes(StandardCharsets.UTF_8);
+            byte[] encrypted = cipher.doFinal(chain);
+            String chain_encrypted = Base64.getEncoder().encodeToString(encrypted);
+            return chain_encrypted;
+
+        } catch (Exception e) {
+            return " ";
+        }
+    }
+
+    //Desencriptar
+    public String Decrypt(String decrypt) {
+        try {
+            SecretKeySpec secretKeySpec = CreateKey(key);
+            Cipher cipher = Cipher.getInstance("AES");
+            cipher.init(Cipher.DECRYPT_MODE, secretKeySpec);
+
+            byte[] chain = Base64.getDecoder().decode(decrypt);
+            byte[] decrypted = cipher.doFinal(chain);
+            String chain_decrypted = new String(decrypted);
+            return chain_decrypted;
+
+        } catch (Exception e) {
+            return " ";
+        }
     }
 
     private UserDao userdao;
@@ -250,4 +265,5 @@ public class ManageUsersController implements Initializable {
         }
 
     }
+
 }

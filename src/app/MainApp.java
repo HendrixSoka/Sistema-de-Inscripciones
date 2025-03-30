@@ -4,21 +4,19 @@
  */
 package app;
 
+import controller.ManageUsersController;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
-import model.Database;
-import java.sql.Connection;
-import java.sql.SQLException;
+import javax.swing.JOptionPane;
 
 public class MainApp extends Application {
 
     @Override
     public void start(Stage primaryStage) {
         try {
-            Database verify = new Database();
             // Cargar la vista desde el archivo FXML
             Parent root = FXMLLoader.load(getClass().getResource("/view/ManageUsers.fxml"));
 

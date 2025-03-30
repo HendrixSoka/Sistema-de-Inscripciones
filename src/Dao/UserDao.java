@@ -4,12 +4,14 @@
  */
 package Dao;
 
+import controller.ManageUsersController;
 import model.Database;
 import model.User;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.ResultSet;
+import java.util.List;
 import javafx.scene.control.Alert;
 
 /**
@@ -19,12 +21,14 @@ import javafx.scene.control.Alert;
 public class UserDao {
 
     private Database UserConnection;
+    private ManageUsersController verify;
 
     public UserDao() throws ClassNotFoundException {
         this.UserConnection = new Database();
+        this.verify = new ManageUsersController();
     }
 
-    public boolean register(User usuario) {
+    public boolean register(User usuario) throws Exception {
         try {
             if (isValueExists("cedula_identidad", usuario.getCedula_identidad())) {
                 showAlert("Error", "La cédula de identidad ya está registrada.", Alert.AlertType.ERROR);
@@ -44,7 +48,7 @@ public class UserDao {
                 return false;
             }
             if (isValueExists("contrasena", usuario.getContrasena())) {
-                showAlert("Error", "La contrasena ya esta registrdo.", Alert.AlertType.ERROR);
+                showAlert("Error", "La contrasena ya está registrada.", Alert.AlertType.ERROR);
                 return false;
             }
             //Consulta para insertar nuevo usuario
@@ -53,22 +57,19 @@ public class UserDao {
 
             Connection connection = this.UserConnection.getConnection();
 
-            PreparedStatement sentence = connection.prepareStatement(SQL);
+            try (PreparedStatement sentence = connection.prepareStatement(SQL)) {
+                sentence.setString(1, usuario.getNombre());
+                sentence.setString(2, usuario.getApellido());
+                sentence.setString(3, usuario.getCedula_identidad());
+                sentence.setString(4, usuario.getCelular());
+                sentence.setString(5, usuario.getCorreo());
+                sentence.setInt(6, usuario.getCargo());
+                sentence.setString(7, usuario.getUsuario());
+                sentence.setString(8, usuario.getContrasena());
 
-            sentence.setString(1, usuario.getNombre());
-            sentence.setString(2, usuario.getApellido());
-            sentence.setString(3, usuario.getCedula_identidad());
-            sentence.setString(4, usuario.getCelular());
-            sentence.setString(5, usuario.getCorreo());
-            sentence.setInt(6, usuario.getCargo());
-            sentence.setString(7, usuario.getUsuario());
-            sentence.setString(8, usuario.getContrasena());
-
-            sentence.executeUpdate();
-            sentence.close();
-
-            return true;
-
+                sentence.executeUpdate();
+                return true;
+            }
         } catch (SQLException e) {
             System.err.println("Ocurrio un error al registrar usuario");
             System.err.println("Mensaje del error: " + e.getMessage());
@@ -82,18 +83,15 @@ public class UserDao {
 
     private boolean isValueExists(String field, String value) {
         try {
+
             String SQL = "SELECT COUNT(*) FROM usuario WHERE " + field + " = ?";
             Connection connection = this.UserConnection.getConnection();
             PreparedStatement sentence = connection.prepareStatement(SQL);
             sentence.setString(1, value);
 
             ResultSet resultSet = sentence.executeQuery();
-            resultSet.next();
-            int count = resultSet.getInt(1);
-            resultSet.close();
-            sentence.close();
+            return resultSet.next() && resultSet.getInt(1) > 0;
 
-            return count > 0;
         } catch (SQLException e) {
             System.err.println("Error al verificar la existencia del valor");
             e.printStackTrace();

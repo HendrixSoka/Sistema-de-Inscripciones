@@ -10,18 +10,18 @@ package model;
  */
 public class User {
 
-    public int id;
-    public String nombre;
-    public String apellido;
-    public String cedula_identidad;
-    public String celular;
-    public String correo;
-    public int cargo;
-    public String usuario;
-    public String contrasena;
+    private int id;
+    private String nombre;
+    private String apellido;
+    private String cedula_identidad;
+    private String celular;
+    private String correo;
+    private int cargo;
+    private String usuario;
+    private String contrasena;
 
     public User() {
-        
+
     }
 
     public int getId() {
@@ -95,7 +95,5 @@ public class User {
     public void setContrasena(String contrasena) {
         this.contrasena = contrasena;
     }
-    
-    
 
 }
