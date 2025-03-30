@@ -165,6 +165,33 @@ public class UserDao {
         }
     }
 
+    public boolean Detele(int id) {
+        try {
+
+            String SQL = "DELETE FROM usuario WHERE idusuario = ?";
+
+            Connection connection = this.UserConnection.getConnection();
+            PreparedStatement sentence = connection.prepareStatement(SQL);
+
+            sentence.setInt(1, id);
+
+            sentence.executeUpdate();
+
+            sentence.close();
+
+            return true;
+
+        } catch (Exception e) {
+            System.err.println("Ocurrio un error al editar usuario");
+            System.err.println("Mensaje del error: " + e.getMessage());
+            System.err.println("Detalle del error: ");
+
+            e.printStackTrace();
+
+            return false;
+        }
+    }
+
     private boolean isValueExists(String field, String value) {
         try {
 

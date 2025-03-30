@@ -22,6 +22,7 @@ import javafx.scene.control.TextField;
 import java.util.Arrays;
 import java.util.Base64;
 import java.util.List;
+import java.util.Optional;
 import java.util.Random;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -29,6 +30,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javafx.event.EventHandler;
 import javafx.scene.control.Alert;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.MenuItem;
@@ -162,7 +164,7 @@ public class ManageUsersController implements Initializable {
                 alert.showAndWait();
             }
         } else {
-            
+
             if (TextFnameUser.getText().isEmpty() || TextLnameUser.getText().isEmpty()
                     || TextCiUser.getText().isEmpty() || TextPhoneUser.getText().isEmpty()
                     || TextEmailUser.getText().isEmpty() || TextPasswordUser.getText().isEmpty()) {
@@ -214,16 +216,16 @@ public class ManageUsersController implements Initializable {
             }
         }
     }
-    
+
     @FXML
     void BtnCancelarOnAction(ActionEvent event) {
-        
+
         selectUser = null;
-        
+
         ClearFiels();
-        
+
         BtnCancelar.setDisable(true);
-        
+
     }
 
     private void ClearFiels() {
@@ -417,32 +419,70 @@ public class ManageUsersController implements Initializable {
         OptionsUsers = new ContextMenu();
 
         MenuItem edit = new MenuItem("Editar");
+        MenuItem delete = new MenuItem("Eliminar");
 
-        OptionsUsers.getItems().addAll(edit);
+        OptionsUsers.getItems().addAll(edit, delete);
 
-        edit.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent t) {
+        edit.setOnAction((ActionEvent t) -> {
+            int index = tblUser.getSelectionModel().getSelectedIndex();
+            
+            selectUser = tblUser.getItems().get(index);
+            
+            TextFnameUser.setText(selectUser.getNombre());
+            TextLnameUser.setText(selectUser.getApellido());
+            TextCiUser.setText(selectUser.getCedula_identidad());
+            TextCiUser.setEditable(false);
+            TextPhoneUser.setText(selectUser.getCelular());
+            TextEmailUser.setText(selectUser.getCorreo());
+            CboCharge.getSelectionModel().select(selectUser.getCargo());
+            TextUserUser.setText(selectUser.getUsuario());
+            TextUserUser.setEditable(true);
+            TextPasswordUser.setText(Decrypt(selectUser.getContrasena()));
+            
+            BtnCancelar.setDisable(false);
+        });
 
-                int index = tblUser.getSelectionModel().getSelectedIndex();
-
-                selectUser = tblUser.getItems().get(index);
-
-                TextFnameUser.setText(selectUser.getNombre());
-                TextLnameUser.setText(selectUser.getApellido());
-                TextCiUser.setText(selectUser.getCedula_identidad());
-                TextCiUser.setEditable(false);
-                TextPhoneUser.setText(selectUser.getCelular());
-                TextEmailUser.setText(selectUser.getCorreo());
-                CboCharge.getSelectionModel().select(selectUser.getCargo());
-                TextUserUser.setText(selectUser.getUsuario());
-                TextUserUser.setEditable(true);
-                TextPasswordUser.setText(Decrypt(selectUser.getContrasena()));
-
-                BtnCancelar.setDisable(false);
-
+        delete.setOnAction((ActionEvent t) -> {
+            int index = tblUser.getSelectionModel().getFocusedIndex();
+            
+            User deleteUser = tblUser.getItems().get(index);
+            
+            Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+            
+            alert.setTitle("Confirmacion");
+            alert.setHeaderText(null);
+            alert.setContentText("¿Desea eliminar el usuario: "
+                    + deleteUser.getNombre() +" "+ deleteUser.getApellido()
+                    + "?");
+            alert.initStyle(StageStyle.UTILITY);
+            
+            Optional<ButtonType> result = alert.showAndWait();
+            
+            if (result.get() == ButtonType.OK) {
+                
+                boolean rsp = userdao.Detele(deleteUser.getId());
+                
+                if (rsp) {
+                    
+                    Alert alert2 = new Alert(Alert.AlertType.INFORMATION);
+                    alert2.setTitle("Exito");
+                    alert2.setHeaderText(null);
+                    alert2.setContentText("Se elimino correctamente el usuario");
+                    alert2.initStyle(StageStyle.UTILITY);
+                    alert2.showAndWait();
+                    
+                    LoadUsers();
+                    
+                } else {
+                    
+                    Alert alert2 = new Alert(Alert.AlertType.ERROR);
+                    alert2.setTitle("Error");
+                    alert2.setHeaderText(null);
+                    alert2.setContentText("Hubo un error al eliminar");
+                    alert2.initStyle(StageStyle.UTILITY);
+                    alert2.showAndWait();
+                }
             }
-
         });
 
         tblUser.setContextMenu(OptionsUsers);
