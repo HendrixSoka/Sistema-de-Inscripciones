@@ -191,11 +191,42 @@ public class UserDao {
             return false;
         }
     }
+    
+
+    public boolean Login(String user, String password) {
+
+        try {
+
+            String SQL = "SELECT * FROM usuario WHERE usuario = ? AND contrasena = ?";
+
+            Connection connection = this.UserConnection.getConnection();
+            PreparedStatement sentence = connection.prepareStatement(SQL);
+            
+            ManageUsersController verify = new ManageUsersController();
+
+            sentence.setString(1, user);
+            sentence.setString(2, verify.Encrypt(password));
+
+            try (ResultSet result = sentence.executeQuery()) {
+                return result.next();
+
+            } 
+
+        } catch (SQLException e) {
+            System.err.println("Ocurrio un error al iniciar sesion");
+            System.err.println("Mensaje del error: " + e.getMessage());
+            System.err.println("Detalle del error: ");
+
+            e.printStackTrace();
+
+            return false;
+        }
+    }
 
     private boolean isValueExists(String field, String value) {
         try {
 
-            String SQL = "SELECT COUNT(*) FROM usuario WHERE " + field + " = ?";
+            String SQL = "SELECT COUNT(*) FROM usuario WHERE" + field + " = ?";
             Connection connection = this.UserConnection.getConnection();
             PreparedStatement sentence = connection.prepareStatement(SQL);
             sentence.setString(1, value);

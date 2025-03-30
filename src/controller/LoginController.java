@@ -4,8 +4,12 @@
  */
 package controller;
 
+import Dao.UserDao;
+import java.io.IOException;
 import java.net.URL;
+import java.util.Optional;
 import java.util.ResourceBundle;
+import javafx.animation.PauseTransition;
 import javafx.fxml.Initializable;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -14,60 +18,75 @@ import javafx.stage.Stage;
 
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.scene.Node;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
+import javafx.scene.control.ButtonType;
 //import javafx.scene.control.Button;
 //import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
+import javafx.util.Duration;
+import model.User;
 
 public class LoginController implements Initializable {
 
-    
-    
-    
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-       
-    }    
-     @FXML
-    private TextField usernameField;
+
+    }
+    @FXML
+    private Button BtnClose;
 
     @FXML
-    private PasswordField passwordField;
-    
-    @FXML
-    private Button LoginButton;
-
-    //@FXML
-    //private Label messageLabel;
+    private Button BtnLogin;
 
     @FXML
-    void handleLogin(ActionEvent event) {
-        String username = usernameField.getText();
-        String password = passwordField.getText();
-        System.out.println(username + " "+ password);
-        // Verificar si el usuario y la contraseña son "eu"
-        if ("eu".equals(username) && "eu".equals(password)) {
-            // cambiar vista
-            try {
-            // Cargar la nueva vista
-            Parent root = FXMLLoader.load(getClass().getResource("/view/MainMenu.fxml"));
+    private PasswordField TextPassword;
 
-            // Obtener el stage actual desde el botón
-            Stage stage = (Stage) LoginButton.getScene().getWindow();
+    @FXML
+    private TextField TextUser;
 
-            // Crear una nueva escena y establecerla en el stage
-            Scene scene = new Scene(root);
-            stage.setTitle("Sistema de Registro de Estudiantes");
-            stage.setScene(scene);
-        } catch (Exception e) {
+    @FXML
+    void BtnCloseOnAction(ActionEvent event) {
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+        alert.setTitle("Confirmar salida");
+        alert.setHeaderText(null);
+        alert.setContentText("¿Seguro que deseas salir?");
+
+        Optional<ButtonType> result = alert.showAndWait();
+        if (result.isPresent() && result.get() == ButtonType.OK) {
+            Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+            stage.close();
+        }
+    }
+
+    @FXML
+    void BtnLoginOnAction(ActionEvent event) {
+        if (TextUser.getText().isEmpty() || TextPassword.getText().isEmpty()) {
+            showAlert("Error", "Los campos no pueden estar vacios", Alert.AlertType.WARNING);
+            return;
+        }
+        try {
+            UserDao userdao = new UserDao();
+            boolean Sucesslogin = userdao.Login(TextUser.getText(), TextPassword.getText());
+
+            if (Sucesslogin) {
+                showAlert("Confirmacion", "Inicio de sesion exitoso", Alert.AlertType.CONFIRMATION);
+                Parent root = FXMLLoader.load(getClass().getResource("/view/MainMenu.fxml"));
+                Stage stage = (Stage) BtnLogin.getScene().getWindow();
+                Scene scene = new Scene(root);
+                stage.setTitle("Sistema de Registro de Estudiantes");
+                stage.setScene(scene);
+
+            } else {
+                showAlert("Error", "Usuario o Contraseña Incorrectos", Alert.AlertType.ERROR);
+            }
+        } catch (IOException | ClassNotFoundException e) {
+            showAlert("Error", "Problema en la base de datos", Alert.AlertType.ERROR);
             e.printStackTrace();
         }
-            
-        } else {
-            showAlert("Error", "Usuario o contraseña incorrectos", Alert.AlertType.ERROR);
-        }
+
     }
 
     private void showAlert(String title, String message, Alert.AlertType alertType) {
@@ -75,7 +94,11 @@ public class LoginController implements Initializable {
         alert.setTitle(title);
         alert.setHeaderText(null);
         alert.setContentText(message);
-        alert.showAndWait();
+        alert.show();
+        
+        PauseTransition pause = new PauseTransition(Duration.seconds(2));
+        pause.setOnFinished(event -> alert.close()); 
+        pause.play();
     }
-    
+
 }
