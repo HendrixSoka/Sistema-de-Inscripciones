@@ -4,17 +4,19 @@
 
 
 /* Estilo general del fondo */
+
 .mainFxmlClass {
-    -fx-background-color: linear-gradient(to bottom, #1a252f, #2ecc71);
+    -fx-background-color: linear-gradient(to bottom, #2ecc71, #1d3b28);
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.3), 10, 0.3, 0, 2);
 }
 
 
 /* Estilo de los Labels */
 Label {
     -fx-text-fill: white;
-    -fx-font-size: 14px;
+    -fx-font-size: 25px;
     -fx-font-family: "Open Sans";
-    
+
 }
 
 /* Estilo del título */
@@ -22,6 +24,8 @@ Label[layoutY="37.0"] {
     -fx-font-size: 18px;
     -fx-font-weight: bold;
     -fx-text-fill: #ecf0f1;
+    -fx-alignment: center;
+    -fx-text-alignment: center;
 }
 
 /* Estilo de los TextFields */
@@ -33,10 +37,11 @@ TextField {
     -fx-border-color: #ecf0f1;
     -fx-background-color: rgba(255, 255, 255, 0.2);
     -fx-text-fill: white;
+    -fx-font-family: "Segoe UI";
 }
 
 TextField:focused {
-    -fx-border-color: #3498db;
+    -fx-border-color: black;
     -fx-background-color: rgba(255, 255, 255, 0.3);
 }
 PasswordField {
@@ -47,17 +52,19 @@ PasswordField {
     -fx-border-color: #ecf0f1;
     -fx-background-color: rgba(255, 255, 255, 0.2);
     -fx-text-fill: white;
+    -fx-font-family: "Roboto";
 }
 
 PasswordField:focused {
-    -fx-border-color: #3498db;
+    -fx-border-color: black;
     -fx-background-color: rgba(255, 255, 255, 0.3);
 }
 /* Estilo del botón */
 Button {
-    -fx-background-color: #3498db;
-    -fx-text-fill: white;
+    -fx-background-color: white;
+    -fx-text-fill: #388e3c;
     -fx-font-size: 14px;
+    -fx-font-family: "Segoe UI";
     -fx-font-weight: bold;
     -fx-padding: 8px 16px;
     -fx-border-radius: 5px;
@@ -66,10 +73,11 @@ Button {
     -fx-effect: dropshadow(three-pass-box, rgba(0, 0, 0, 0.2), 5, 0, 0, 2);
 }
 
+
 Button:hover {
-    -fx-background-color: #2980b9;
+    -fx-background-color: #66bb6a;
 }
 
 Button:pressed {
-    -fx-background-color: #1f618d;
+    -fx-background-color: #388e3c;
 }

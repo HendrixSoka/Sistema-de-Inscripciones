@@ -10,6 +10,7 @@ import java.net.URL;
 import java.util.Optional;
 import java.util.ResourceBundle;
 import javafx.animation.PauseTransition;
+import javafx.application.Platform;
 import javafx.fxml.Initializable;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -18,23 +19,50 @@ import javafx.stage.Stage;
 
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
-//import javafx.scene.control.Button;
-//import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
 import javafx.util.Duration;
-import model.User;
 
 public class LoginController implements Initializable {
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
+        Image icon = new Image(getClass().getResourceAsStream("/resources/icons/user.png"));
+        IconLogin.setImage(icon);
+       
+        Platform.runLater(() -> {
+            double centerXLogin = (mainPane.getWidth() - BtnLogin.getWidth()) / 2;
+            double centerXClose = (mainPane.getWidth() - BtnClose.getWidth()) / 2;
+            BtnLogin.setLayoutX(centerXLogin);
+            BtnClose.setLayoutX(centerXClose);
+            containerBox.setAlignment(Pos.CENTER);
+            tittleBox.setAlignment(Pos.CENTER);
+            IconBox.setAlignment(Pos.TOP_CENTER);
+        });
 
     }
+    @FXML
+    private HBox IconBox;
+
+    @FXML
+    private ImageView IconLogin;
+
+    @FXML
+    private VBox containerBox;
+
+    @FXML
+    private VBox tittleBox;
+
     @FXML
     private Button BtnClose;
 
@@ -46,6 +74,9 @@ public class LoginController implements Initializable {
 
     @FXML
     private TextField TextUser;
+
+    @FXML
+    private AnchorPane mainPane;
 
     @FXML
     void BtnCloseOnAction(ActionEvent event) {
@@ -95,9 +126,9 @@ public class LoginController implements Initializable {
         alert.setHeaderText(null);
         alert.setContentText(message);
         alert.show();
-        
+
         PauseTransition pause = new PauseTransition(Duration.seconds(2));
-        pause.setOnFinished(event -> alert.close()); 
+        pause.setOnFinished(event -> alert.close());
         pause.play();
     }
 
