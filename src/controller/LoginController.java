@@ -103,7 +103,7 @@ public class LoginController implements Initializable {
             boolean Sucesslogin = userdao.Login(TextUser.getText(), TextPassword.getText());
 
             if (Sucesslogin) {
-                showAlert("Confirmacion", "Inicio de sesion exitoso", Alert.AlertType.CONFIRMATION);
+                //showAlert("Confirmacion", "Inicio de sesion exitoso", Alert.AlertType.CONFIRMATION);
                 Parent root = FXMLLoader.load(getClass().getResource("/view/MainMenu.fxml"));
                 Stage stage = (Stage) BtnLogin.getScene().getWindow();
                 Scene scene = new Scene(root);

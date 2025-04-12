@@ -5,8 +5,6 @@
 package controller;
 
 import interfaces.MainControllerAware;
-import java.net.URL;
-import java.util.ResourceBundle;
 import javafx.fxml.Initializable;
 import java.io.IOException;
 import java.net.URL;
@@ -16,7 +14,6 @@ import java.util.ResourceBundle;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.layout.AnchorPane;
-import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.layout.HBox;
 import javafx.scene.control.Label;
