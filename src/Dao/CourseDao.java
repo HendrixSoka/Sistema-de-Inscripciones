@@ -71,8 +71,7 @@ public class CourseDao {
 
             if (result.next()) {
                 parallel = result.getString("paralelo").charAt(0);
-                Course paralelo = new Course();
-                paralelo.setParalelo(parallel);
+
             }
 
             result.close();
@@ -84,10 +83,43 @@ public class CourseDao {
             System.err.println("Detalle del error: ");
 
             e.printStackTrace();
-            
+
             return '-';
         }
 
         return parallel;
+    }
+
+    public int returnIdcurso() {
+        int idcurso = -1;
+        try {
+
+            String SQL = "SELECT MAX(idcurso) AS maxid FROM curso";
+
+            Connection connection = this.CourseConnection.getConnection();
+
+            PreparedStatement sentence = connection.prepareStatement(SQL);
+
+            ResultSet result = sentence.executeQuery();
+
+            if (result.next()) {
+                
+                idcurso = result.getInt("maxid");
+
+            }
+            
+            result.close();
+            sentence.close();
+
+        } catch (Exception e) {
+            System.err.println("Ocurrio un error al buscar paralelo");
+            System.err.println("Mensaje del error: " + e.getMessage());
+            System.err.println("Detalle del error: ");
+
+            e.printStackTrace();
+
+            return -1;
+        }
+        return idcurso;
     }
 }

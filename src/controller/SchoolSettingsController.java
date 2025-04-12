@@ -6,11 +6,13 @@ package controller;
 
 import Dao.CourseDao;
 import Dao.DocumentationDao;
+import Dao.Subject_courseDao;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.ResourceBundle;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -25,6 +27,7 @@ import javafx.scene.control.TextField;
 import javafx.scene.control.ToggleGroup;
 import model.Course;
 import model.Documentation;
+import model.Subject_course;
 
 /**
  * FXML Controller class
@@ -86,6 +89,7 @@ public class SchoolSettingsController implements Initializable {
 
     private CourseDao coursedao;
     private DocumentationDao documentationdao;
+    private Subject_courseDao scoursedao;
     private char parallel;
 
     public char getParallel() {
@@ -157,6 +161,12 @@ public class SchoolSettingsController implements Initializable {
             boolean resp = this.coursedao.register(course);
             if (resp) {
                 showAlert("Exito", "Se registro correctamente el curso", Alert.AlertType.INFORMATION);
+                int tr = CboxGradeCourse.getSelectionModel().getSelectedIndex();
+                if (tr == 0 || tr == 1 || tr == 2) {
+                    addMaterialsForGrade(13);
+                } else if (tr == 3 || tr == 4 || tr == 5) {
+                    addMaterialsForGrade(12);
+                }
                 cleanFields();
                 diseble();
             } else {
@@ -192,6 +202,25 @@ public class SchoolSettingsController implements Initializable {
 
     }
 
+    private void addMaterialsForGrade(int numberOfSubjects) {
+        int idcurso = coursedao.returnIdcurso();
+        List<Subject_course> list = new ArrayList<>();
+
+        for (int i = 1; i <= numberOfSubjects; i++) {
+            Subject_course addmaterial = new Subject_course();
+            addmaterial.setId_materia(i);
+            addmaterial.setId_curso(idcurso);
+            list.add(addmaterial);
+        }
+
+        boolean res = this.scoursedao.addMaterial(list);
+        if (res) {
+            System.out.println("Se registraron las materias correctamente");
+        } else {
+            showAlert("Error", "Hubo un error", Alert.AlertType.ERROR);
+        }
+    }
+
     private void cleanFields() {
         CboxSelect.getSelectionModel().select("Seleccione");
         CboxLevelCourse.getSelectionModel().select("Seleccione");
@@ -213,79 +242,31 @@ public class SchoolSettingsController implements Initializable {
         String seleccion = CboxSelect.getValue();
 
         if (seleccion.equals("Gestionar Curso")) {
-            CboxLevelCourse.setDisable(false);
-            CboxGradeCourse.setDisable(false);
-            TextPalallel.setDisable(false);
-            TextPalallel.setEditable(false);
-            TableCourse.setDisable(false);
-            btnSave.setDisable(false);
-            TextNameDocumentation.setDisable(true);
-            RdNoO.setDisable(true);
-            RdYesO.setDisable(true);
-            RdNoCC.setDisable(true);
-            RdYesCC.setDisable(true);
-            RdNoAN.setDisable(true);
-            RdYesAN.setSelected(true);
-            RdYesAN.setDisable(true);
-            TableDocumentation.setDisable(true);
+            enableCourseField();
+            disableDocumentationField();
         } else if (seleccion.equals("Gestionar Documentacion")) {
-            TextNameDocumentation.setDisable(false);
-            RdYesO.setDisable(false);
-            RdNoO.setDisable(false);
-            btnSave.setDisable(false);
-            RdNoCC.setDisable(false);
-            RdYesCC.setDisable(false);
-            RdNoAN.setDisable(true);
-            RdYesAN.setDisable(true);
-            RdYesAN.setSelected(false);
-            CboxLevelCourse.setDisable(true);
-            CboxGradeCourse.setDisable(true);
-            TextPalallel.setDisable(true);
-            TextQuota.setDisable(true);
-            TableCourse.setDisable(true);
+            enableDocumentationField();
+            disableCourseField();
         } else {
-            CboxLevelCourse.setDisable(true);
-            CboxGradeCourse.setDisable(true);
-            TextPalallel.setDisable(true);
-            TextQuota.setDisable(true);
-            TableCourse.setDisable(true);
-
-            TextNameDocumentation.setDisable(true);
-            RdNoO.setDisable(true);
-            RdYesO.setDisable(true);
-            TableDocumentation.setDisable(true);
-
-            btnSave.setDisable(true);
-            btnCancelar.setDisable(true);
-            RdYesO.setDisable(true);
-            RdNoO.setDisable(true);
-            RdNoCC.setDisable(true);
-            RdYesCC.setDisable(true);
-            RdNoAN.setDisable(true);
-            RdYesAN.setDisable(true);
+            diseble();
         }
     }
 
     private char updateText() {
         char prueba = 'A';
-        if (CboxLevelCourse.getSelectionModel().getSelectedIndex() == -1
-                || CboxGradeCourse.getSelectionModel().getSelectedIndex() == -1) {
-            // showAlert("Error", "Los campos no pueden estar vacios", Alert.AlertType.ERROR);
-
-        } else if (CboxLevelCourse.getSelectionModel().getSelectedIndex() != -1 && CboxGradeCourse.getSelectionModel().getSelectedIndex() != -1) {
+        if (CboxLevelCourse.getSelectionModel().getSelectedIndex() != -1 && CboxGradeCourse.getSelectionModel().getSelectedIndex() != -1) {
             prueba = coursedao.reeturnParallel(CboxLevelCourse.getSelectionModel().getSelectedIndex(), CboxGradeCourse.getSelectionModel().getSelectedIndex());
             switch (prueba) {
-                case '-':
+                case '-' -> {
                     prueba = 'A';
                     TextPalallel.setText("A");
-                    break;
-                case 'Z':
+                }
+                case 'Z' ->
                     showAlert("Error", "Maximo de cursos permitido", Alert.AlertType.ERROR);
-                    break;
-                default:
+                default -> {
                     prueba++;
                     TextPalallel.setText(String.valueOf(prueba));
-                    break;
+                }
             }
         }
         return prueba;
@@ -361,6 +342,12 @@ public class SchoolSettingsController implements Initializable {
             Logger.getLogger(SchoolSettingsController.class.getName()).log(Level.SEVERE, null, ex);
         }
 
+        try {
+            this.scoursedao = new Subject_courseDao();
+        } catch (ClassNotFoundException ex) {
+            Logger.getLogger(SchoolSettingsController.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
         CboxLevelCourse.setOnAction(event -> updateText());
         CboxGradeCourse.setOnAction(event -> updateText());
 
@@ -372,6 +359,47 @@ public class SchoolSettingsController implements Initializable {
         alert.setHeaderText(null);
         alert.setContentText(message);
         alert.showAndWait();
+    }
+
+    private void enableCourseField() {
+        CboxLevelCourse.setDisable(false);
+        CboxGradeCourse.setDisable(false);
+        TextPalallel.setDisable(false);
+        TextPalallel.setEditable(false);
+        TableCourse.setDisable(false);
+        btnSave.setDisable(false);
+    }
+
+    private void disableCourseField() {
+        CboxLevelCourse.setDisable(true);
+        CboxGradeCourse.setDisable(true);
+        TextPalallel.setDisable(true);
+        TextQuota.setDisable(true);
+        TableCourse.setDisable(true);
+    }
+
+    private void enableDocumentationField() {
+        TextNameDocumentation.setDisable(false);
+        RdNoO.setDisable(false);
+        RdYesO.setDisable(false);
+        RdNoCC.setDisable(false);
+        RdYesCC.setDisable(false);
+        RdNoAN.setDisable(true);
+        RdYesAN.setSelected(false);
+        RdYesAN.setDisable(true);
+        TableDocumentation.setDisable(false);
+        btnSave.setDisable(false);
+    }
+
+    private void disableDocumentationField() {
+        TextNameDocumentation.setDisable(true);
+        RdYesO.setDisable(true);
+        RdNoO.setDisable(true);
+        RdNoCC.setDisable(true);
+        RdYesCC.setDisable(true);
+        RdNoAN.setDisable(true);
+        RdYesAN.setDisable(true);
+        RdYesAN.setSelected(true);
     }
 
 }
