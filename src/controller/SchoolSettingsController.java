@@ -10,6 +10,7 @@ import java.net.URL;
 import java.util.ResourceBundle;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -52,7 +53,7 @@ public class SchoolSettingsController implements Initializable {
 
     @FXML
     private RadioButton RdYesCC;
-    
+
     @FXML
     private RadioButton RdNoAN;
 
@@ -85,9 +86,14 @@ public class SchoolSettingsController implements Initializable {
 
     private CourseDao coursedao;
     private DocumentationDao documentationdao;
+    private char parallel;
+
+    public char getParallel() {
+        return parallel;
+    }
 
     @FXML
-    void btnSaveOnAction(ActionEvent event) {
+    void btnSaveOnAction(ActionEvent event) throws ClassNotFoundException {
 
         String selected = CboxSelect.getValue();
 
@@ -104,33 +110,50 @@ public class SchoolSettingsController implements Initializable {
                 course.setNivel(1);
             }
 
-            if (CboxGradeCourse.getValue().equals("Primero")) {
-                course.setGrado(0);
-            } else if (CboxGradeCourse.getValue().equals("Segundo")) {
-                course.setGrado(1);
-            } else if (CboxGradeCourse.getValue().equals("Tercero")) {
-                course.setGrado(2);
-            } else if (CboxGradeCourse.getValue().equals("Cuarto")) {
-                course.setGrado(3);
-            } else if (CboxGradeCourse.getValue().equals("Quinto")) {
-                course.setGrado(4);
-            } else if (CboxGradeCourse.getValue().equals("Sexto")) {
-                course.setGrado(5);
+            switch (CboxGradeCourse.getValue()) {
+                case "Primero":
+                    course.setGrado(0);
+                    break;
+                case "Segundo":
+                    course.setGrado(1);
+                    break;
+                case "Tercero":
+                    course.setGrado(2);
+                    break;
+                case "Cuarto":
+                    course.setGrado(3);
+                    break;
+                case "Quinto":
+                    course.setGrado(4);
+                    break;
+                case "Sexto":
+                    course.setGrado(5);
+                    break;
+                default:
+                    break;
             }
 
-            String parallel = TextPalallel.getText();
-
-            if (parallel.isEmpty()) {
-                showAlert("Error", "El campo no puede estar vacío", Alert.AlertType.ERROR);
-                TextPalallel.clear();
+            if (CboxLevelCourse.getSelectionModel().getSelectedIndex() == -1
+                    || CboxGradeCourse.getSelectionModel().getSelectedIndex() == -1) {
+                showAlert("Error", "Los campos no pueden estar vacios", Alert.AlertType.ERROR);
                 return;
-            } else if (parallel.matches("^[A-Z]$")) {
-                course.setParalelo(parallel.charAt(0));
-            } else {
-                showAlert("Error", "Paralelo invalido, solo letras", Alert.AlertType.ERROR);
-                TextPalallel.clear();
-                return;
+            } else if (CboxLevelCourse.getSelectionModel().getSelectedIndex() != -1 && CboxGradeCourse.getSelectionModel().getSelectedIndex() != -1) {
+                parallel = coursedao.reeturnParallel(CboxLevelCourse.getSelectionModel().getSelectedIndex(), CboxGradeCourse.getSelectionModel().getSelectedIndex());
+                switch (parallel) {
+                    case '-':
+                        parallel = 'A';
+                        course.setParalelo(parallel);
+                        break;
+                    case 'Z':
+                        showAlert("Error", "Maximo de cursos permitido", Alert.AlertType.ERROR);
+                        return;
+                    default:
+                        parallel++;
+                        course.setParalelo(parallel);
+                        break;
+                }
             }
+
             boolean resp = this.coursedao.register(course);
             if (resp) {
                 showAlert("Exito", "Se registro correctamente el curso", Alert.AlertType.INFORMATION);
@@ -163,13 +186,13 @@ public class SchoolSettingsController implements Initializable {
                 cleanFields();
                 diseble();
             } else {
-                showAlert("Error","Hubo un error", Alert.AlertType.ERROR);
+                showAlert("Error", "Hubo un error", Alert.AlertType.ERROR);
             }
         }
-        
+
     }
-    
-    private void cleanFields(){
+
+    private void cleanFields() {
         CboxSelect.getSelectionModel().select("Seleccione");
         CboxLevelCourse.getSelectionModel().select("Seleccione");
         CboxGradeCourse.getSelectionModel().select("Seleccione");
@@ -193,6 +216,7 @@ public class SchoolSettingsController implements Initializable {
             CboxLevelCourse.setDisable(false);
             CboxGradeCourse.setDisable(false);
             TextPalallel.setDisable(false);
+            TextPalallel.setEditable(false);
             TableCourse.setDisable(false);
             btnSave.setDisable(false);
             TextNameDocumentation.setDisable(true);
@@ -241,8 +265,33 @@ public class SchoolSettingsController implements Initializable {
             RdYesAN.setDisable(true);
         }
     }
-    
-    private void diseble(){
+
+    private char updateText() {
+        char prueba = 'A';
+        if (CboxLevelCourse.getSelectionModel().getSelectedIndex() == -1
+                || CboxGradeCourse.getSelectionModel().getSelectedIndex() == -1) {
+            // showAlert("Error", "Los campos no pueden estar vacios", Alert.AlertType.ERROR);
+
+        } else if (CboxLevelCourse.getSelectionModel().getSelectedIndex() != -1 && CboxGradeCourse.getSelectionModel().getSelectedIndex() != -1) {
+            prueba = coursedao.reeturnParallel(CboxLevelCourse.getSelectionModel().getSelectedIndex(), CboxGradeCourse.getSelectionModel().getSelectedIndex());
+            switch (prueba) {
+                case '-':
+                    prueba = 'A';
+                    TextPalallel.setText("A");
+                    break;
+                case 'Z':
+                    showAlert("Error", "Maximo de cursos permitido", Alert.AlertType.ERROR);
+                    break;
+                default:
+                    prueba++;
+                    TextPalallel.setText(String.valueOf(prueba));
+                    break;
+            }
+        }
+        return prueba;
+    }
+
+    private void diseble() {
         CboxLevelCourse.setDisable(true);
         CboxGradeCourse.setDisable(true);
         TextPalallel.setDisable(true);
@@ -292,7 +341,7 @@ public class SchoolSettingsController implements Initializable {
 
         RdYesO.setToggleGroup(group0);
         RdNoO.setToggleGroup(group0);
-        
+
         ToggleGroup group1 = new ToggleGroup();
         RdYesCC.setToggleGroup(group1);
         RdNoCC.setToggleGroup(group1);
@@ -311,6 +360,9 @@ public class SchoolSettingsController implements Initializable {
         } catch (ClassNotFoundException ex) {
             Logger.getLogger(SchoolSettingsController.class.getName()).log(Level.SEVERE, null, ex);
         }
+
+        CboxLevelCourse.setOnAction(event -> updateText());
+        CboxGradeCourse.setOnAction(event -> updateText());
 
     }
 
