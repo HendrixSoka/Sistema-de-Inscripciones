@@ -3,11 +3,11 @@
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
-            <file>file:/Users/mauricioteranlimari/Desktop/Sistema-de-Inscripciones/src/model/User.java</file>
-            <file>file:/Users/mauricioteranlimari/Desktop/Sistema-de-Inscripciones/src/controller/ManageUsersController.java</file>
-            <file>file:/Users/mauricioteranlimari/Desktop/Sistema-de-Inscripciones/src/view/ManageUsers.fxml</file>
-            <file>file:/Users/mauricioteranlimari/Desktop/Sistema-de-Inscripciones/src/model/Database.java</file>
-            <file>file:/Users/mauricioteranlimari/Desktop/Sistema-de-Inscripciones/src/Dao/UserDao.java</file>
+            <file>file:/C:/Users/intel/Documents/NetBeansProjects/GestionadorInscripciones/src/controller/ManageStudentsController.java</file>
+            <file>file:/C:/Users/intel/Documents/NetBeansProjects/GestionadorInscripciones/src/controller/GuardianController.java</file>
+            <file>file:/C:/Users/intel/Documents/NetBeansProjects/GestionadorInscripciones/src/controller/ExistingStudentController.java</file>
+            <file>file:/C:/Users/intel/Documents/NetBeansProjects/GestionadorInscripciones/src/Dao/Student_GuardianDao.java</file>
+            <file>file:/C:/Users/intel/Documents/NetBeansProjects/GestionadorInscripciones/src/model/Database.java</file>
         </group>
     </open-files>
 </project-private>
