@@ -127,5 +127,35 @@ public class DocumentationDao {
             return false;
         }
     }
+    
+    public boolean deleteDocumentation(int idtipo_documento){
+        
+        try {
+            
+            String SQL = "DELETE FROM tipo_documento WHERE idtipo_documento = ?";
+            
+            Connection connection = this.DocumentationConnection.getConnection();
+            
+            PreparedStatement sentence = connection.prepareStatement(SQL);
+            
+            sentence.setInt(1, idtipo_documento);
+            
+            sentence.executeUpdate();
+            
+            sentence.close();
+            
+            return true;
+            
+        } catch (Exception e) {
+            
+            System.err.println("Ocurrio un error al editar el documento");
+            System.err.println("Mensaje del error: " + e.getMessage());
+            System.err.println("Detalle del error: ");
+
+            e.printStackTrace();
+            
+            return false;
+        }
+    }
      
 }

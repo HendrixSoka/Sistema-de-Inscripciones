@@ -130,6 +130,36 @@ public class CourseDao {
         }
     }
 
+    public boolean deleteCourse(int idcourse) {
+
+        try {
+
+            String SQL = "DELETE FROM curso WHERE idcurso = ?";
+
+            Connection connection = this.CourseConnection.getConnection();
+
+            PreparedStatement sentence = connection.prepareStatement(SQL);
+
+            sentence.setInt(1, idcourse);
+            
+            sentence.executeUpdate();
+            
+            sentence.close();
+            
+            return true;
+
+        } catch (Exception e) {
+
+            System.err.println("Ocurrio un error al editar el curso");
+            System.err.println("Mensaje del error: " + e.getMessage());
+            System.err.println("Detalle del error: ");
+
+            e.printStackTrace();
+
+            return false;
+        }
+    }
+
     public char reeturnParallel(int level, int grade) {
         char parallel = 'A';
         try {

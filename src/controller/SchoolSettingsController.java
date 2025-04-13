@@ -10,6 +10,7 @@ import Dao.Subject_courseDao;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.ResourceBundle;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -21,6 +22,7 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.MenuItem;
@@ -31,6 +33,7 @@ import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.ToggleGroup;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.stage.StageStyle;
 import model.Course;
 import model.Documentation;
 import model.Subject_course;
@@ -97,21 +100,25 @@ public class SchoolSettingsController implements Initializable {
     private DocumentationDao documentationdao;
     private Subject_courseDao scoursedao;
     private char parallel;
+    private ContextMenu CourseOptions;
+    private ContextMenu DocumentationOptions;
+    private Course courseselect;
+    private Documentation documentationselect;
 
     public char getParallel() {
         return parallel;
     }
-    
+
     @FXML
     void BtnCancelarOnAction(ActionEvent event) {
-        
-        if(courseselect != null){
+
+        if (courseselect != null) {
             courseselect = null;
-            cleanFields();
+            cleanFieldsCourse();
             btnCancelar.setDisable(true);
-        }else if(documentationselect != null){
+        } else if (documentationselect != null) {
             documentationselect = null;
-            cleanFields();
+            cleanFieldsDocumentation();
             btnCancelar.setDisable(true);
         }
     }
@@ -189,13 +196,18 @@ public class SchoolSettingsController implements Initializable {
                     } else if (tr == 3 || tr == 4 || tr == 5) {
                         addMaterialsForGrade(12);
                     }
-                    cleanFields();
-                    diseble();
+
+                    disableDocumentationField();
+                    enableCourseField();
+
+                    cleanFieldsCourse();
+
                     UploadCourses();
                 } else {
                     showAlert("Error", "Hubo un error", Alert.AlertType.ERROR);
                 }
             } else {
+
                 courseselect.setNivel(CboxLevelCourse.getSelectionModel().getSelectedIndex());
                 courseselect.setGrado(CboxGradeCourse.getSelectionModel().getSelectedIndex());
                 courseselect.setParalelo(TextPalallel.getText().charAt(0));
@@ -203,7 +215,12 @@ public class SchoolSettingsController implements Initializable {
                 boolean rsp = this.coursedao.editCourse(courseselect);
                 if (rsp) {
                     showAlert("Exito", "Se guardo correctamente el curso", Alert.AlertType.INFORMATION);
-                    cleanFields();
+
+                    cleanFieldsCourse();
+
+                    disableDocumentationField();
+                    enableCourseField();
+
                     UploadCourses();
 
                     courseselect = null;
@@ -236,9 +253,14 @@ public class SchoolSettingsController implements Initializable {
                 boolean resp = this.documentationdao.register(documentation);
                 if (resp) {
                     showAlert("Exito", "Se registro correcto el documento", Alert.AlertType.INFORMATION);
-                    cleanFields();
-                    diseble();
+
+                    disableCourseField();
+                    enableDocumentationField();
+
+                    cleanFieldsDocumentation();
+
                     LoadDocumentation();
+
                 } else {
                     showAlert("Error", "Hubo un error", Alert.AlertType.ERROR);
                 }
@@ -262,7 +284,11 @@ public class SchoolSettingsController implements Initializable {
                 boolean resp = this.documentationdao.editDocumentation(documentationselect);
                 if (resp) {
                     showAlert("Exito", "Se guardo correctamente el documento", Alert.AlertType.INFORMATION);
-                    cleanFields();
+
+                    disableCourseField();
+                    enableDocumentationField();
+
+                    cleanFieldsDocumentation();
 
                     documentationselect = null;
 
@@ -297,32 +323,42 @@ public class SchoolSettingsController implements Initializable {
         }
     }
 
-    private void cleanFields() {
-        CboxSelect.getSelectionModel().select("Seleccione");
-        CboxLevelCourse.getSelectionModel().select("Seleccione");
-        CboxGradeCourse.getSelectionModel().select("Seleccione");
+    private void cleanFieldsCourse() {
+
         TextPalallel.clear();
         TextQuota.clear();
         RdYesAN.setSelected(false);
         RdNoAN.setSelected(false);
+        CboxSelect.getSelectionModel().select("Seleccione");
+        CboxLevelCourse.getSelectionModel().select("Seleccione");
+        CboxGradeCourse.getSelectionModel().select("Seleccione");
+    }
+
+    private void cleanFieldsDocumentation() {
+
         TextNameDocumentation.clear();
         RdYesO.setSelected(false);
         RdNoO.setSelected(false);
         RdYesCC.setSelected(false);
         RdNoCC.setSelected(false);
+        CboxSelect.getSelectionModel().clearSelection();
+        CboxSelect.setPromptText("Seleccione");
     }
 
     @FXML
     void setOnAction(ActionEvent event) {
 
         String seleccion = CboxSelect.getValue();
-
-        if (seleccion.equals("Gestionar Curso")) {
-            enableCourseField();
-            disableDocumentationField();
-        } else if (seleccion.equals("Gestionar Documentacion")) {
-            enableDocumentationField();
-            disableCourseField();
+        if (seleccion != null) {
+            if (seleccion.equals("Gestionar Curso")) {
+                enableCourseField();
+                disableDocumentationField();
+            } else if (seleccion.equals("Gestionar Documentacion")) {
+                enableDocumentationField();
+                disableCourseField();
+            } else {
+                diseble();
+            }
         } else {
             diseble();
         }
@@ -507,12 +543,9 @@ public class SchoolSettingsController implements Initializable {
 
         btnSave.setDisable(true);
         btnCancelar.setDisable(true);
-    }
 
-    private ContextMenu CourseOptions;
-    private ContextMenu DocumentationOptions;
-    private Course courseselect;
-    private Documentation documentationselect;
+        CboxSelect.getSelectionModel().select("Seleccione");
+    }
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
@@ -580,8 +613,63 @@ public class SchoolSettingsController implements Initializable {
         CourseOptions = new ContextMenu();
 
         MenuItem EditCourse = new MenuItem("Editar");
+        MenuItem DeleteCourse = new MenuItem("Eliminar");
 
-        CourseOptions.getItems().addAll(EditCourse);
+        CourseOptions.getItems().addAll(EditCourse, DeleteCourse);
+
+        DeleteCourse.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent t) {
+
+                int index = TableCourse.getSelectionModel().getSelectedIndex();
+
+                Course deleteCourse = TableCourse.getItems().get(index);
+
+                Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+
+                alert.setTitle("Confirmacion");
+                alert.setHeaderText(null);
+
+                String[] grados = {"Primero", "Segundo", "Tercero", "Cuarto", "Quinto", "Sexto"};
+
+                alert.setContentText("¿Desea eliminar el curso: "
+                        + grados[deleteCourse.getGrado()] + " " + deleteCourse.getParalelo() + "?");
+
+                alert.initStyle(StageStyle.UTILITY);
+                Optional<ButtonType> result = alert.showAndWait();
+
+                if (result.get() == ButtonType.OK) {
+
+                    boolean rsp = coursedao.deleteCourse(deleteCourse.getIdcurso());
+
+                    if (rsp) {
+
+                        Alert alert2 = new Alert(Alert.AlertType.INFORMATION);
+                        alert2.setTitle("Exito");
+                        alert2.setHeaderText(null);
+                        alert2.setContentText("Se elimino correctamente el curso");
+                        alert2.initStyle(StageStyle.UTILITY);
+                        alert2.showAndWait();
+
+                        UploadCourses();
+
+                        disableDocumentationField();
+                        enableCourseField();
+
+                    } else {
+
+                        Alert alert2 = new Alert(Alert.AlertType.ERROR);
+                        alert2.setTitle("Error");
+                        alert2.setHeaderText(null);
+                        alert2.setContentText("Hubo un error al eliminar");
+                        alert2.initStyle(StageStyle.UTILITY);
+                        alert2.showAndWait();
+                    }
+                }
+
+            }
+
+        });
 
         EditCourse.setOnAction(new EventHandler<ActionEvent>() {
             @Override
@@ -618,8 +706,60 @@ public class SchoolSettingsController implements Initializable {
         DocumentationOptions = new ContextMenu();
 
         MenuItem EditDocumentation = new MenuItem("Editar");
+        MenuItem DeleteDocumentation = new MenuItem("Eliminar");
 
-        DocumentationOptions.getItems().addAll(EditDocumentation);
+        DocumentationOptions.getItems().addAll(EditDocumentation, DeleteDocumentation);
+
+        DeleteDocumentation.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent t) {
+
+                int index = TableDocumentation.getSelectionModel().getSelectedIndex();
+
+                Documentation deleteDocumentation = TableDocumentation.getItems().get(index);
+
+                Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+
+                alert.setTitle("Confirmacion");
+                alert.setHeaderText(null);
+                alert.setContentText("¿Desea eliminar el usuario: "
+                        + deleteDocumentation.getNombre() + "?");
+
+                alert.initStyle(StageStyle.UTILITY);
+                Optional<ButtonType> result = alert.showAndWait();
+
+                if (result.get() == ButtonType.OK) {
+
+                    boolean rsp = documentationdao.deleteDocumentation(deleteDocumentation.getIdtipo_documento());
+
+                    if (rsp) {
+
+                        Alert alert2 = new Alert(Alert.AlertType.INFORMATION);
+                        alert2.setTitle("Exito");
+                        alert2.setHeaderText(null);
+                        alert2.setContentText("Se elimino correctamente el documento");
+                        alert2.initStyle(StageStyle.UTILITY);
+                        alert2.showAndWait();
+
+                        LoadDocumentation();
+
+                        disableCourseField();
+                        enableDocumentationField();
+
+                    } else {
+
+                        Alert alert2 = new Alert(Alert.AlertType.ERROR);
+                        alert2.setTitle("Error");
+                        alert2.setHeaderText(null);
+                        alert2.setContentText("Hubo un error al eliminar");
+                        alert2.initStyle(StageStyle.UTILITY);
+                        alert2.showAndWait();
+                    }
+                }
+
+            }
+
+        });
 
         EditDocumentation.setOnAction(new EventHandler<ActionEvent>() {
             @Override
@@ -660,44 +800,63 @@ public class SchoolSettingsController implements Initializable {
     }
 
     private void enableCourseField() {
+        //Combo box de Nivel y Curso 
         CboxLevelCourse.setDisable(false);
         CboxGradeCourse.setDisable(false);
+        //Texto Paralelo y Text CupoMax
         TextPalallel.setDisable(false);
         TextPalallel.setEditable(false);
+        TextQuota.setDisable(false);
+        TextQuota.setEditable(false);
+        //Radio buton Admite nuevos
+        RdNoAN.setDisable(true);
+        RdYesAN.setDisable(true);
+        RdYesAN.setSelected(true);
+        //Tabla curso
         TableCourse.setDisable(false);
         btnSave.setDisable(false);
     }
 
     private void disableCourseField() {
+        //Combo box de Nivel y Curso 
         CboxLevelCourse.setDisable(true);
         CboxGradeCourse.setDisable(true);
+        //Texto Paralelo y Text CupoMax
         TextPalallel.setDisable(true);
         TextQuota.setDisable(true);
+        //Tabla curso
         TableCourse.setDisable(true);
+        //Radio buton
+        RdNoAN.setDisable(true);
+        RdYesAN.setDisable(true);
     }
 
     private void enableDocumentationField() {
+
+        //Text nombre documento
+        TextNameDocumentation.setEditable(true);
         TextNameDocumentation.setDisable(false);
+        //Radio buton para ver si el documento es obligatorio
         RdNoO.setDisable(false);
         RdYesO.setDisable(false);
+        //Radio buton para ver si el documento tiene carta compromiso
         RdNoCC.setDisable(false);
         RdYesCC.setDisable(false);
-        RdNoAN.setDisable(true);
-        RdYesAN.setSelected(false);
-        RdYesAN.setDisable(true);
         TableDocumentation.setDisable(false);
         btnSave.setDisable(false);
     }
 
     private void disableDocumentationField() {
+        //Text nombre documento
         TextNameDocumentation.setDisable(true);
+        //Radio buton para ver si el documento es obligatorio
         RdYesO.setDisable(true);
         RdNoO.setDisable(true);
+        //Radio buton para ver si el documento tiene carta compromiso
         RdNoCC.setDisable(true);
         RdYesCC.setDisable(true);
-        RdNoAN.setDisable(true);
-        RdYesAN.setDisable(true);
-        RdYesAN.setSelected(true);
+        //Tabla documentacio
+        TableDocumentation.setDisable(true);
     }
 
 }
