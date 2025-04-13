@@ -92,5 +92,40 @@ public class DocumentationDao {
         }
         return listDocumentation;
     }
+    
+    public boolean editDocumentation(Documentation documentation) {
+
+        try {
+
+            String SQL = "UPDATE tipo_documento SET nombre = ?, obligatorio = ?, cartacompromiso = ? "
+                    + "WHERE idtipo_documento = ?";
+
+            Connection connection = this.DocumentationConnection.getConnection();
+
+            PreparedStatement sentence = connection.prepareStatement(SQL);
+            
+            sentence.setString(1, documentation.getNombre());
+            sentence.setBoolean(2, documentation.isObligatorio());
+            sentence.setBoolean(3, documentation.isCartacompromiso());
+            
+            sentence.setInt(4, documentation.getIdtipo_documento());
+            
+            sentence.executeUpdate();
+            
+            sentence.close();
+            
+            return true;
+
+        } catch (Exception e) {
+
+            System.err.println("Ocurrio un error al editar el documento");
+            System.err.println("Mensaje del error: " + e.getMessage());
+            System.err.println("Detalle del error: ");
+
+            e.printStackTrace();
+            
+            return false;
+        }
+    }
      
 }

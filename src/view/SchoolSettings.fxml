@@ -95,7 +95,7 @@
       <HBox layoutX="448.0" layoutY="444.0" prefHeight="100.0" prefWidth="200.0">
          <children>
             <Button fx:id="btnSave" mnemonicParsing="false" onAction="#btnSaveOnAction" text="GUARDAR" />
-            <Button fx:id="btnCancelar" mnemonicParsing="false" text="CANCELAR" />
+            <Button fx:id="btnCancelar" mnemonicParsing="false" onAction="#BtnCancelarOnAction" text="CANCELAR" />
          </children>
       </HBox>
    </children>

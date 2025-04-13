@@ -57,7 +57,7 @@ public class CourseDao {
     }
 
     public List<Course> toList() {
-        
+
         List<Course> listCourse = new ArrayList<>();
 
         try {
@@ -80,7 +80,7 @@ public class CourseDao {
                 course.setParalelo(data.getString(4).charAt(0));
                 course.setCupo_max(data.getInt(5));
                 course.setAdmite_nuevos(data.getBoolean(6));
-                
+
                 listCourse.add(course);
 
             }
@@ -93,6 +93,41 @@ public class CourseDao {
             e.printStackTrace();
         }
         return listCourse;
+    }
+
+    public boolean editCourse(Course course) {
+
+        try {
+
+            String SQL = "UPDATE curso SET nivel = ?, grado = ?, paralelo = ?"
+                    + "WHERE idcurso = ?";
+
+            Connection connection = this.CourseConnection.getConnection();
+
+            PreparedStatement sentence = connection.prepareStatement(SQL);
+
+            sentence.setInt(1, course.getNivel());
+            sentence.setInt(2, course.getGrado());
+            sentence.setString(3, String.valueOf(course.getParalelo()));
+
+            sentence.setInt(4, course.getIdcurso());
+
+            sentence.executeUpdate();
+
+            sentence.close();
+
+            return true;
+
+        } catch (Exception e) {
+
+            System.err.println("Ocurrio un error al editar el curso");
+            System.err.println("Mensaje del error: " + e.getMessage());
+            System.err.println("Detalle del error: ");
+
+            e.printStackTrace();
+
+            return false;
+        }
     }
 
     public char reeturnParallel(int level, int grade) {

@@ -16,11 +16,14 @@ import java.util.logging.Logger;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
+import javafx.scene.control.ContextMenu;
+import javafx.scene.control.MenuItem;
 import javafx.scene.control.RadioButton;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
@@ -98,6 +101,20 @@ public class SchoolSettingsController implements Initializable {
     public char getParallel() {
         return parallel;
     }
+    
+    @FXML
+    void BtnCancelarOnAction(ActionEvent event) {
+        
+        if(courseselect != null){
+            courseselect = null;
+            cleanFields();
+            btnCancelar.setDisable(true);
+        }else if(documentationselect != null){
+            documentationselect = null;
+            cleanFields();
+            btnCancelar.setDisable(true);
+        }
+    }
 
     @FXML
     void btnSaveOnAction(ActionEvent event) throws ClassNotFoundException {
@@ -109,99 +126,153 @@ public class SchoolSettingsController implements Initializable {
             return;
         } else if (selected.equals("Gestionar Curso")) {
 
-            Course course = new Course();
+            if (courseselect == null) {
 
-            if (CboxLevelCourse.getValue().equals("Primaria")) {
-                course.setNivel(0);
-            } else {
-                course.setNivel(1);
-            }
+                Course course = new Course();
 
-            switch (CboxGradeCourse.getValue()) {
-                case "Primero":
-                    course.setGrado(0);
-                    break;
-                case "Segundo":
-                    course.setGrado(1);
-                    break;
-                case "Tercero":
-                    course.setGrado(2);
-                    break;
-                case "Cuarto":
-                    course.setGrado(3);
-                    break;
-                case "Quinto":
-                    course.setGrado(4);
-                    break;
-                case "Sexto":
-                    course.setGrado(5);
-                    break;
-                default:
-                    break;
-            }
+                if (CboxLevelCourse.getValue().equals("Primaria")) {
+                    course.setNivel(0);
+                } else {
+                    course.setNivel(1);
+                }
 
-            if (CboxLevelCourse.getSelectionModel().getSelectedIndex() == -1
-                    || CboxGradeCourse.getSelectionModel().getSelectedIndex() == -1) {
-                showAlert("Error", "Los campos no pueden estar vacios", Alert.AlertType.ERROR);
-                return;
-            } else if (CboxLevelCourse.getSelectionModel().getSelectedIndex() != -1 && CboxGradeCourse.getSelectionModel().getSelectedIndex() != -1) {
-                parallel = coursedao.reeturnParallel(CboxLevelCourse.getSelectionModel().getSelectedIndex(), CboxGradeCourse.getSelectionModel().getSelectedIndex());
-                switch (parallel) {
-                    case '-':
-                        parallel = 'A';
-                        course.setParalelo(parallel);
+                switch (CboxGradeCourse.getValue()) {
+                    case "Primero":
+                        course.setGrado(0);
                         break;
-                    case 'Z':
-                        showAlert("Error", "Maximo de cursos permitido", Alert.AlertType.ERROR);
-                        return;
+                    case "Segundo":
+                        course.setGrado(1);
+                        break;
+                    case "Tercero":
+                        course.setGrado(2);
+                        break;
+                    case "Cuarto":
+                        course.setGrado(3);
+                        break;
+                    case "Quinto":
+                        course.setGrado(4);
+                        break;
+                    case "Sexto":
+                        course.setGrado(5);
+                        break;
                     default:
-                        parallel++;
-                        course.setParalelo(parallel);
                         break;
                 }
-            }
 
-            boolean resp = this.coursedao.register(course);
-            if (resp) {
-                showAlert("Exito", "Se registro correctamente el curso", Alert.AlertType.INFORMATION);
-                int tr = CboxGradeCourse.getSelectionModel().getSelectedIndex();
-                if (tr == 0 || tr == 1 || tr == 2) {
-                    addMaterialsForGrade(13);
-                } else if (tr == 3 || tr == 4 || tr == 5) {
-                    addMaterialsForGrade(12);
+                if (CboxLevelCourse.getSelectionModel().getSelectedIndex() == -1
+                        || CboxGradeCourse.getSelectionModel().getSelectedIndex() == -1) {
+                    showAlert("Error", "Los campos no pueden estar vacios", Alert.AlertType.ERROR);
+                    return;
+                } else if (CboxLevelCourse.getSelectionModel().getSelectedIndex() != -1 && CboxGradeCourse.getSelectionModel().getSelectedIndex() != -1) {
+                    parallel = coursedao.reeturnParallel(CboxLevelCourse.getSelectionModel().getSelectedIndex(), CboxGradeCourse.getSelectionModel().getSelectedIndex());
+                    switch (parallel) {
+                        case '-':
+                            parallel = 'A';
+                            course.setParalelo(parallel);
+                            break;
+                        case 'Z':
+                            showAlert("Error", "Maximo de cursos permitido", Alert.AlertType.ERROR);
+                            return;
+                        default:
+                            parallel++;
+                            course.setParalelo(parallel);
+                            break;
+                    }
                 }
-                cleanFields();
-                diseble();
-                UploadCourses();
+
+                boolean resp = this.coursedao.register(course);
+                if (resp) {
+                    showAlert("Exito", "Se registro correctamente el curso", Alert.AlertType.INFORMATION);
+                    int tr = CboxGradeCourse.getSelectionModel().getSelectedIndex();
+                    if (tr == 0 || tr == 1 || tr == 2) {
+                        addMaterialsForGrade(13);
+                    } else if (tr == 3 || tr == 4 || tr == 5) {
+                        addMaterialsForGrade(12);
+                    }
+                    cleanFields();
+                    diseble();
+                    UploadCourses();
+                } else {
+                    showAlert("Error", "Hubo un error", Alert.AlertType.ERROR);
+                }
             } else {
-                showAlert("Error", "Hubo un error", Alert.AlertType.ERROR);
+                courseselect.setNivel(CboxLevelCourse.getSelectionModel().getSelectedIndex());
+                courseselect.setGrado(CboxGradeCourse.getSelectionModel().getSelectedIndex());
+                courseselect.setParalelo(TextPalallel.getText().charAt(0));
+
+                boolean rsp = this.coursedao.editCourse(courseselect);
+                if (rsp) {
+                    showAlert("Exito", "Se guardo correctamente el curso", Alert.AlertType.INFORMATION);
+                    cleanFields();
+                    UploadCourses();
+
+                    courseselect = null;
+
+                    btnCancelar.setDisable(true);
+
+                } else {
+                    showAlert("Error", "Hubo un error", Alert.AlertType.ERROR);
+                }
             }
         } else if (selected.equals("Gestionar Documentacion")) {
-            Documentation documentation = new Documentation();
+            if (documentationselect == null) {
+                Documentation documentation = new Documentation();
 
-            documentation.setNombre(TextNameDocumentation.getText());
-            if (RdYesO.isSelected()) {
-                documentation.setObligatorio(true);
-            } else if (RdNoO.isSelected()) {
-                documentation.setObligatorio(false);
+                documentation.setNombre(TextNameDocumentation.getText());
+                if (RdYesO.isSelected()) {
+                    documentation.setObligatorio(true);
+                } else if (RdNoO.isSelected()) {
+                    documentation.setObligatorio(false);
+                } else {
+                    showAlert("Error", "No puede estar vacio", Alert.AlertType.ERROR);
+                }
+                if (RdYesCC.isSelected()) {
+                    documentation.setCartacompromiso(true);
+                } else if (RdNoCC.isSelected()) {
+                    documentation.setCartacompromiso(false);
+                } else {
+                    showAlert("Error", "No puede estar vacio", Alert.AlertType.ERROR);
+                }
+                boolean resp = this.documentationdao.register(documentation);
+                if (resp) {
+                    showAlert("Exito", "Se registro correcto el documento", Alert.AlertType.INFORMATION);
+                    cleanFields();
+                    diseble();
+                    LoadDocumentation();
+                } else {
+                    showAlert("Error", "Hubo un error", Alert.AlertType.ERROR);
+                }
             } else {
-                showAlert("Error", "No puede estar vacio", Alert.AlertType.ERROR);
-            }
-            if (RdYesCC.isSelected()) {
-                documentation.setCartacompromiso(true);
-            } else if (RdNoCC.isSelected()) {
-                documentation.setCartacompromiso(false);
-            } else {
-                showAlert("Error", "No puede estar vacio", Alert.AlertType.ERROR);
-            }
-            boolean resp = this.documentationdao.register(documentation);
-            if (resp) {
-                showAlert("Exito", "Se registro correcto el documento", Alert.AlertType.INFORMATION);
-                cleanFields();
-                diseble();
-                LoadDocumentation();
-            } else {
-                showAlert("Error", "Hubo un error", Alert.AlertType.ERROR);
+                documentationselect.setNombre(TextNameDocumentation.getText());
+                if (RdYesO.isSelected()) {
+                    documentationselect.setObligatorio(true);
+                } else if (RdNoO.isSelected()) {
+                    documentationselect.setObligatorio(false);
+                } else {
+                    showAlert("Error", "No puede estar vacio", Alert.AlertType.ERROR);
+                }
+                if (RdYesCC.isSelected()) {
+                    documentationselect.setCartacompromiso(true);
+                } else if (RdNoCC.isSelected()) {
+                    documentationselect.setCartacompromiso(false);
+                } else {
+                    showAlert("Error", "No puede estar vacio", Alert.AlertType.ERROR);
+                }
+
+                boolean resp = this.documentationdao.editDocumentation(documentationselect);
+                if (resp) {
+                    showAlert("Exito", "Se guardo correctamente el documento", Alert.AlertType.INFORMATION);
+                    cleanFields();
+
+                    documentationselect = null;
+
+                    btnCancelar.setDisable(true);
+
+                    LoadDocumentation();
+                } else {
+                    showAlert("Error", "Hubo un error", Alert.AlertType.ERROR);
+                }
+
             }
         }
 
@@ -313,7 +384,7 @@ public class SchoolSettingsController implements Initializable {
         });
 
         TableDocumentation.setItems(data);
-        TableDocumentation.getColumns().addAll(iddocumenttypeCol, nameCol, compulsoryCol,commitmentletterCol);
+        TableDocumentation.getColumns().addAll(iddocumenttypeCol, nameCol, compulsoryCol, commitmentletterCol);
     }
 
     public void UploadCourses() {
@@ -423,7 +494,7 @@ public class SchoolSettingsController implements Initializable {
         CboxGradeCourse.setDisable(true);
         TextPalallel.setDisable(true);
         TextQuota.setDisable(true);
-        TableCourse.setEditable(false);
+        TableCourse.setDisable(true);
 
         TextNameDocumentation.setDisable(true);
         RdNoO.setDisable(true);
@@ -432,11 +503,16 @@ public class SchoolSettingsController implements Initializable {
         RdYesCC.setDisable(true);
         RdNoAN.setDisable(true);
         RdYesAN.setDisable(true);
-        TableDocumentation.setEditable(false);
+        TableDocumentation.setDisable(true);
 
         btnSave.setDisable(true);
         btnCancelar.setDisable(true);
     }
+
+    private ContextMenu CourseOptions;
+    private ContextMenu DocumentationOptions;
+    private Course courseselect;
+    private Documentation documentationselect;
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
@@ -499,6 +575,79 @@ public class SchoolSettingsController implements Initializable {
 
         UploadCourses();
         LoadDocumentation();
+
+        //CURSO
+        CourseOptions = new ContextMenu();
+
+        MenuItem EditCourse = new MenuItem("Editar");
+
+        CourseOptions.getItems().addAll(EditCourse);
+
+        EditCourse.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent t) {
+
+                int index = TableCourse.getSelectionModel().getSelectedIndex();
+
+                courseselect = TableCourse.getItems().get(index);
+
+                CboxLevelCourse.getSelectionModel().select(courseselect.getNivel());
+
+                CboxGradeCourse.getSelectionModel().select(courseselect.getGrado());
+
+                TextPalallel.setText(String.valueOf(courseselect.getParalelo()));
+
+                TextQuota.setText(String.valueOf(courseselect.getCupo_max()));
+
+                if (courseselect.getAdmite_nuevos()) {
+                    RdYesAN.setSelected(true);
+                } else {
+                    RdNoAN.setSelected(true);
+                }
+
+                TextPalallel.setDisable(false);
+                TextPalallel.setEditable(true);
+                btnCancelar.setDisable(false);
+
+            }
+        });
+
+        TableCourse.setContextMenu(CourseOptions);
+
+        //DOCUMENTOS
+        DocumentationOptions = new ContextMenu();
+
+        MenuItem EditDocumentation = new MenuItem("Editar");
+
+        DocumentationOptions.getItems().addAll(EditDocumentation);
+
+        EditDocumentation.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent t) {
+
+                int index = TableDocumentation.getSelectionModel().getSelectedIndex();
+
+                documentationselect = TableDocumentation.getItems().get(index);
+
+                TextNameDocumentation.setText(documentationselect.getNombre());
+
+                if (documentationselect.isObligatorio()) {
+                    RdYesO.setSelected(true);
+                } else {
+                    RdNoO.setSelected(true);
+                }
+
+                if (documentationselect.isCartacompromiso()) {
+                    RdYesCC.setSelected(true);
+                } else {
+                    RdNoCC.setSelected(true);
+                }
+
+                btnCancelar.setDisable(false);
+            }
+        });
+
+        TableDocumentation.setContextMenu(DocumentationOptions);
 
     }
 
