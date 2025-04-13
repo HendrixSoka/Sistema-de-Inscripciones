@@ -9,6 +9,8 @@ import model.Database;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  *
@@ -52,6 +54,45 @@ public class CourseDao {
 
             return false;
         }
+    }
+
+    public List<Course> toList() {
+        
+        List<Course> listCourse = new ArrayList<>();
+
+        try {
+
+            String SQL = "SELECT * FROM curso";
+
+            Connection connection = this.CourseConnection.getConnection();
+
+            PreparedStatement sentence = connection.prepareStatement(SQL);
+
+            ResultSet data = sentence.executeQuery();
+
+            while (data.next()) {
+
+                Course course = new Course();
+
+                course.setIdcurso(data.getInt(1));
+                course.setNivel(data.getInt(2));
+                course.setGrado(data.getInt(3));
+                course.setParalelo(data.getString(4).charAt(0));
+                course.setCupo_max(data.getInt(5));
+                course.setAdmite_nuevos(data.getBoolean(6));
+                
+                listCourse.add(course);
+
+            }
+
+        } catch (Exception e) {
+            System.err.println("Ocurrio un error al listar cursos");
+            System.err.println("Mensaje del error: " + e.getMessage());
+            System.err.println("Detalle del error: ");
+
+            e.printStackTrace();
+        }
+        return listCourse;
     }
 
     public char reeturnParallel(int level, int grade) {
@@ -103,11 +144,11 @@ public class CourseDao {
             ResultSet result = sentence.executeQuery();
 
             if (result.next()) {
-                
+
                 idcurso = result.getInt("maxid");
 
             }
-            
+
             result.close();
             sentence.close();
 

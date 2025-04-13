@@ -8,6 +8,9 @@ import model.Database;
 import model.Documentation;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.util.ArrayList;
+import java.sql.ResultSet;
+import java.util.List;
 
 /**
  *
@@ -51,6 +54,43 @@ public class DocumentationDao {
 
             return false;
         }
+    }
+    
+    public List<Documentation> toList() {
+        
+        List<Documentation> listDocumentation = new ArrayList<>();
+
+        try {
+
+            String SQL = "SELECT * FROM tipo_documento";
+
+            Connection connection = this.DocumentationConnection.getConnection();
+
+            PreparedStatement sentence = connection.prepareStatement(SQL);
+
+            ResultSet data = sentence.executeQuery();
+
+            while (data.next()) {
+
+                Documentation documentation = new Documentation();
+
+                documentation.setIdtipo_documento(data.getInt(1));
+                documentation.setNombre(data.getString(2));
+                documentation.setObligatorio(data.getBoolean(3));
+                documentation.setCartacompromiso(data.getBoolean(4));
+                
+                listDocumentation.add(documentation);
+
+            }
+
+        } catch (Exception e) {
+            System.err.println("Ocurrio un error al listar documentacion");
+            System.err.println("Mensaje del error: " + e.getMessage());
+            System.err.println("Detalle del error: ");
+
+            e.printStackTrace();
+        }
+        return listDocumentation;
     }
      
 }

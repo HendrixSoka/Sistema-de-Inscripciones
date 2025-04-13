@@ -22,9 +22,12 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.RadioButton;
+import javafx.scene.control.TableCell;
+import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.ToggleGroup;
+import javafx.scene.control.cell.PropertyValueFactory;
 import model.Course;
 import model.Documentation;
 import model.Subject_course;
@@ -67,10 +70,10 @@ public class SchoolSettingsController implements Initializable {
     private ComboBox<String> CboxSelect;
 
     @FXML
-    private TableView<?> TableCourse;
+    private TableView<Course> TableCourse;
 
     @FXML
-    private TableView<?> TableDocumentation;
+    private TableView<Documentation> TableDocumentation;
 
     @FXML
     private TextField TextNameDocumentation;
@@ -169,6 +172,7 @@ public class SchoolSettingsController implements Initializable {
                 }
                 cleanFields();
                 diseble();
+                UploadCourses();
             } else {
                 showAlert("Error", "Hubo un error", Alert.AlertType.ERROR);
             }
@@ -195,6 +199,7 @@ public class SchoolSettingsController implements Initializable {
                 showAlert("Exito", "Se registro correcto el documento", Alert.AlertType.INFORMATION);
                 cleanFields();
                 diseble();
+                LoadDocumentation();
             } else {
                 showAlert("Error", "Hubo un error", Alert.AlertType.ERROR);
             }
@@ -252,6 +257,147 @@ public class SchoolSettingsController implements Initializable {
         }
     }
 
+    public void LoadDocumentation() {
+
+        TableDocumentation.getItems().clear();
+        TableDocumentation.getColumns().clear();
+
+        List<Documentation> documentations = this.documentationdao.toList();
+
+        ObservableList<Documentation> data = FXCollections.observableArrayList(documentations);
+
+        TableColumn iddocumenttypeCol = new TableColumn("ID");
+
+        iddocumenttypeCol.setCellValueFactory(new PropertyValueFactory("idtipo_documento"));
+
+        TableColumn nameCol = new TableColumn("NOMBRE");
+
+        nameCol.setCellValueFactory(new PropertyValueFactory("nombre"));
+
+        TableColumn compulsoryCol = new TableColumn("OBLIGATORIO");
+
+        compulsoryCol.setCellValueFactory(new PropertyValueFactory("obligatorio"));
+
+        compulsoryCol.setCellFactory(col -> new TableCell<Course, Boolean>() {
+            @Override
+            protected void updateItem(Boolean item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty || item == null) {
+                    setText(null);
+                } else {
+
+                    String[] level = {"NO", "SI"};
+                    setText(level[item ? 1 : 0]);
+
+                }
+            }
+        });
+
+        TableColumn commitmentletterCol = new TableColumn("CARTA COMPROMISO");
+
+        commitmentletterCol.setCellValueFactory(new PropertyValueFactory("cartacompromiso"));
+
+        commitmentletterCol.setCellFactory(col -> new TableCell<Course, Boolean>() {
+            @Override
+            protected void updateItem(Boolean item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty || item == null) {
+                    setText(null);
+                } else {
+
+                    String[] level = {"NO", "SI"};
+                    setText(level[item ? 1 : 0]);
+
+                }
+            }
+        });
+
+        TableDocumentation.setItems(data);
+        TableDocumentation.getColumns().addAll(iddocumenttypeCol, nameCol, compulsoryCol,commitmentletterCol);
+    }
+
+    public void UploadCourses() {
+
+        TableCourse.getItems().clear();
+        TableCourse.getColumns().clear();
+
+        List<Course> courses = this.coursedao.toList();
+
+        ObservableList<Course> data = FXCollections.observableArrayList(courses);
+
+        TableColumn idcourseCol = new TableColumn("ID");
+
+        idcourseCol.setCellValueFactory(new PropertyValueFactory("idcurso"));
+
+        TableColumn levelCol = new TableColumn("NIVEL");
+
+        levelCol.setCellValueFactory(new PropertyValueFactory("nivel"));
+        levelCol.setCellFactory(col -> new TableCell<Course, Integer>() {
+            @Override
+            protected void updateItem(Integer item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty || item == null) {
+                    setText(null);
+                } else {
+
+                    String[] level = {"Primaria", "Secundaria"};
+                    setText(level[item]);
+
+                }
+            }
+        });
+
+        TableColumn gradeCol = new TableColumn("GRADO");
+
+        gradeCol.setCellValueFactory(new PropertyValueFactory("grado"));
+
+        gradeCol.setCellFactory(col -> new TableCell<Course, Integer>() {
+            @Override
+            protected void updateItem(Integer item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty || item == null) {
+                    setText(null);
+                } else {
+
+                    String[] level = {"Primero", "Segundo", "Tercero", "Cuarto", "Quinto", "Sexto"};
+                    setText(level[item]);
+
+                }
+            }
+        });
+
+        TableColumn parallelCol = new TableColumn("PARALELO");
+
+        parallelCol.setCellValueFactory(new PropertyValueFactory("paralelo"));
+
+        TableColumn quotaCol = new TableColumn("CUPO");
+
+        quotaCol.setCellValueFactory(new PropertyValueFactory("cupo_max"));
+
+        TableColumn admitsnewCol = new TableColumn("ADMITE NUEVOS");
+
+        admitsnewCol.setCellValueFactory(new PropertyValueFactory("admite_nuevos"));
+
+        admitsnewCol.setCellFactory(col -> new TableCell<Course, Boolean>() {
+            @Override
+            protected void updateItem(Boolean item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty || item == null) {
+                    setText(null);
+                } else {
+
+                    String[] level = {"NO", "SI"};
+                    setText(level[item ? 1 : 0]);
+
+                }
+            }
+        });
+
+        TableCourse.setItems(data);
+        TableCourse.getColumns().addAll(idcourseCol, levelCol, gradeCol, parallelCol, quotaCol, admitsnewCol);
+
+    }
+
     private char updateText() {
         char prueba = 'A';
         if (CboxLevelCourse.getSelectionModel().getSelectedIndex() != -1 && CboxGradeCourse.getSelectionModel().getSelectedIndex() != -1) {
@@ -277,7 +423,7 @@ public class SchoolSettingsController implements Initializable {
         CboxGradeCourse.setDisable(true);
         TextPalallel.setDisable(true);
         TextQuota.setDisable(true);
-        TableCourse.setDisable(true);
+        TableCourse.setEditable(false);
 
         TextNameDocumentation.setDisable(true);
         RdNoO.setDisable(true);
@@ -286,7 +432,7 @@ public class SchoolSettingsController implements Initializable {
         RdYesCC.setDisable(true);
         RdNoAN.setDisable(true);
         RdYesAN.setDisable(true);
-        TableDocumentation.setDisable(true);
+        TableDocumentation.setEditable(false);
 
         btnSave.setDisable(true);
         btnCancelar.setDisable(true);
@@ -350,6 +496,9 @@ public class SchoolSettingsController implements Initializable {
 
         CboxLevelCourse.setOnAction(event -> updateText());
         CboxGradeCourse.setOnAction(event -> updateText());
+
+        UploadCourses();
+        LoadDocumentation();
 
     }
 

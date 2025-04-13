@@ -27,7 +27,7 @@ public class Database {
             Class.forName(driver);
             connection = DriverManager.getConnection(url, user, password);
             if (connection != null) {
-                System.out.println("¡Conexión exitosa!");
+                //System.out.println("¡Conexión exitosa!");
             } else {
                 System.out.println("Error: No se pudo establecer la conexión.");
             }

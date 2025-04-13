@@ -15,7 +15,7 @@ public class Course {
     private int grado;
     private char paralelo;
     private int cupo_max;
-    private int admite_nuevos;
+    private boolean admite_nuevos;
     
      public Course() {
     }
@@ -60,11 +60,11 @@ public class Course {
         this.cupo_max = cupo_max;
     }
 
-    public int getAdmite_nuevos() {
+    public boolean getAdmite_nuevos() {
         return admite_nuevos;
     }
 
-    public void setAdmite_nuevos(int admite_nuevos) {
+    public void setAdmite_nuevos(boolean admite_nuevos) {
         this.admite_nuevos = admite_nuevos;
     }
  

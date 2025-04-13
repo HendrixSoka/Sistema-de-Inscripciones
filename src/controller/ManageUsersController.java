@@ -235,6 +235,7 @@ public class ManageUsersController implements Initializable {
         TextPasswordUser.clear();
         CboCharge.getSelectionModel().select("Seleccione");
     }
+    
 
     public void LoadUsers() {
 
