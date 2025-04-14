@@ -4,6 +4,7 @@
  */
 package controller;
 
+import interfaces.DataReceiver;
 import interfaces.MainControllerAware;
 import javafx.fxml.Initializable;
 import java.io.IOException;
@@ -127,4 +128,53 @@ public class MainMenuController implements Initializable {
             System.out.println("Error: La página '" + pageName + "' no está registrada.");
         }
     }
+    public void loadSceneWithData(String pageName, Object data) {
+        try {
+            System.out.println("Intentando cargar: " + pageName);
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/" + pageName + ".fxml"));
+            Parent root = loader.load();
+            System.out.println("FXML cargado correctamente");
+
+            Object controller = loader.getController();
+            System.out.println("Controlador cargado: " + controller);
+
+            if (controller instanceof DataReceiver) {
+                System.out.println("Enviando datos al controlador");
+                ((DataReceiver) controller).onDataReceived(data);
+            } else {
+                System.out.println("El controlador no implementa DataReceiver");
+            }
+
+            contentPane.getChildren().clear();
+            contentPane.getChildren().add(root);
+
+            AnchorPane.setTopAnchor(root, 0.0);
+            AnchorPane.setBottomAnchor(root, 0.0);
+            AnchorPane.setLeftAnchor(root, 0.0);
+            AnchorPane.setRightAnchor(root, 0.0);
+
+            System.out.println("Vista cargada: " + pageName);
+        } catch (IOException e) {
+            System.out.println("Error al cargar la vista: " + pageName);
+            e.printStackTrace();
+        }
+    }
+
+    public void pop() {
+        if (pageMap.size() <= 1) {
+            System.out.println("No hay páginas anteriores para retroceder.");
+            return;
+        }
+
+        // Obtener las claves en orden
+        List<String> keys = new ArrayList<>(pageMap.keySet());
+
+        // Eliminar la última página
+        String lastKey = keys.get(keys.size() - 1);
+        pageMap.remove(lastKey);
+        updateBreadcrumb();
+      
+    }
+
 }
+

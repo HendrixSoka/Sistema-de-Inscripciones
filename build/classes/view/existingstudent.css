@@ -32,8 +32,6 @@ Label {
     -fx-font-size: 14px;
     -fx-padding: 6px;
 }
-
-/* Estilo del TextField */
 TextField {
     -fx-pref-width: 150px;
     -fx-padding: 6px;
@@ -43,6 +41,28 @@ TextField {
     -fx-background-color: rgba(255, 255, 255, 0.2);
     -fx-text-fill: white;
 }
+TextArea {
+    -fx-padding: 6px;
+    -fx-border-radius: 5px;
+    -fx-background-radius: 5px;
+    -fx-border-color: #c8e6c9;
+    -fx-background-color: rgba(255, 255, 255, 0.2);
+    -fx-text-fill: white;
+}
+.text-area .content {
+    -fx-background-color: transparent;
+}
+
+.text-area .scroll-pane {
+    -fx-background-color: transparent;
+    -fx-background-insets: 0;
+}
+
+.text-area .viewport {
+    -fx-background-color: transparent;
+}
+
+
 
 TextField:focused {
     -fx-border-color: #66bb6a;

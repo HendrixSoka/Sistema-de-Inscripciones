@@ -109,6 +109,7 @@ public class LoginController implements Initializable {
                 Scene scene = new Scene(root);
                 stage.setTitle("Sistema de Registro de Estudiantes");
                 stage.setScene(scene);
+                stage.setMaximized(true);
 
             } else {
                 showAlert("Error", "Usuario o Contraseña Incorrectos", Alert.AlertType.ERROR);
