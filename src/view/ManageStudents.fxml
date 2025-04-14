@@ -14,8 +14,7 @@
    <children>
       <Button fx:id="btnEstudianteNuevo" layoutX="38.0" layoutY="42.0" mnemonicParsing="false" text="Estudiante Nuevo" />
       <Label layoutX="311.0" layoutY="51.0" text="Buscar C.I.:" />
-      <TextField layoutX="405.0" layoutY="45.0" />
-      <Button layoutX="596.0" layoutY="42.0" mnemonicParsing="false" text="Buscar" />
+      <TextField fx:id="TextSearch" layoutX="405.0" layoutY="45.0" />
       <TableView fx:id="TblStudent" layoutX="7.0" layoutY="105.0" prefHeight="379.0" prefWidth="746.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="1.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="118.0" />
    </children>
 </AnchorPane>

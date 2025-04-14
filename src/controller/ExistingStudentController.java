@@ -68,6 +68,8 @@ public class ExistingStudentController implements Initializable, MainControllerA
     @FXML
     private ComboBox<String> CboGender;
     @FXML
+    private ComboBox<String> CboCurso;
+    @FXML
     private TextField TextName;
     @FXML
     private TextField TextLast_name;
