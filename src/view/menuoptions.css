@@ -1,0 +1,43 @@
+/*
+ * Empty Stylesheet file.
+ */
+
+/* Estilo general del fondo con tema verde */
+.mainFxmlClass {
+    -fx-background-color: linear-gradient(to bottom, #1b5e20, #66bb6a);
+}
+
+/* Fuente global para todo el proyecto */
+* {
+    -fx-font-family: "Open Sans";
+}
+
+/* Estilo de los botones */
+Button {
+    -fx-background-color: #2e7d32;
+    -fx-text-fill: white;
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-padding: 10px;
+    -fx-border-radius: 8px;
+    -fx-background-radius: 8px;
+    -fx-cursor: hand;
+    -fx-effect: dropshadow(three-pass-box, rgba(0, 0, 0, 0.2), 5, 0, 0, 2);
+    -fx-text-wrap: true;
+}
+
+Button:hover {
+    -fx-background-color: #1b5e20;
+}
+
+Button:pressed {
+    -fx-background-color: #0d3d14;
+}
+
+/* Estilo del GridPane */
+GridPane {
+    -fx-padding: 20px;
+    -fx-hgap: 10px;
+    -fx-vgap: 10px;
+    -fx-alignment: center;
+}
