@@ -28,6 +28,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import javafx.collections.transformation.FilteredList;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.ComboBox;
@@ -35,6 +36,7 @@ import javafx.scene.control.ContextMenu;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.layout.VBox;
 import javafx.stage.StageStyle;
 import javax.crypto.Cipher;
 import javax.crypto.spec.SecretKeySpec;
@@ -51,9 +53,9 @@ public class ManageUsersController implements Initializable {
      * Initializes the controller class.
      */
     @FXML
-    private Button BtnAdd;
+    private VBox VboxBtnUsers;
     @FXML
-    private Button BtnBuscar;
+    private Button BtnAdd;
     @FXML
     private Button BtnCancelar;
     @FXML
@@ -76,6 +78,18 @@ public class ManageUsersController implements Initializable {
     private ComboBox<String> CboCharge;
     @FXML
     private TextField TextUserUser;
+    
+    private UserDao userdao;
+
+    private ContextMenu OptionsUsers;
+
+    private User selectUser;
+    
+    private FilteredList<User> filteredData;
+    
+    private ObservableList<User> data;
+    
+    private static final String EMAIL_REGEX = "^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$";
 
     @FXML
     void BtnAddOnAction(ActionEvent event) throws NoSuchAlgorithmException, Exception {
@@ -235,7 +249,6 @@ public class ManageUsersController implements Initializable {
         TextPasswordUser.clear();
         CboCharge.getSelectionModel().select("Seleccione");
     }
-    
 
     public void LoadUsers() {
 
@@ -245,6 +258,9 @@ public class ManageUsersController implements Initializable {
         List<User> users = this.userdao.tolist();
 
         ObservableList<User> data = FXCollections.observableArrayList(users);
+        
+        filteredData = new FilteredList<>(data, p -> true);
+        tblUser.setItems(filteredData);
 
         TableColumn Idcol = new TableColumn("ID");
         Idcol.setCellValueFactory(new PropertyValueFactory("id"));
@@ -299,7 +315,7 @@ public class ManageUsersController implements Initializable {
         });
         Passwordcol.setCellValueFactory(new PropertyValueFactory("contrasena"));
 
-        tblUser.setItems(data);
+        //tblUser.setItems(data);
         tblUser.getColumns().addAll(Idcol, Namecol, Surnamecol, CIcol, Phonecol, Emailcol, Chargecol, Usercol, Passwordcol);
 
     }
@@ -311,8 +327,6 @@ public class ManageUsersController implements Initializable {
         }
         return true;
     }
-
-    private static final String EMAIL_REGEX = "^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$";
 
     public static boolean VerifyNumberUser(String number) {
         return number != null && number.matches("\\d{8}");
@@ -384,12 +398,6 @@ public class ManageUsersController implements Initializable {
         }
     }
 
-    private UserDao userdao;
-
-    private ContextMenu OptionsUsers;
-
-    private User selectUser;
-
     @Override
     public void initialize(URL url, ResourceBundle rb) {
 
@@ -423,9 +431,9 @@ public class ManageUsersController implements Initializable {
 
         edit.setOnAction((ActionEvent t) -> {
             int index = tblUser.getSelectionModel().getSelectedIndex();
-            
+
             selectUser = tblUser.getItems().get(index);
-            
+
             TextFnameUser.setText(selectUser.getNombre());
             TextLnameUser.setText(selectUser.getApellido());
             TextCiUser.setText(selectUser.getCedula_identidad());
@@ -436,43 +444,43 @@ public class ManageUsersController implements Initializable {
             TextUserUser.setText(selectUser.getUsuario());
             TextUserUser.setEditable(true);
             TextPasswordUser.setText(Decrypt(selectUser.getContrasena()));
-            
+
             BtnCancelar.setDisable(false);
         });
 
         delete.setOnAction((ActionEvent t) -> {
             int index = tblUser.getSelectionModel().getFocusedIndex();
-            
+
             User deleteUser = tblUser.getItems().get(index);
-            
+
             Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-            
+
             alert.setTitle("Confirmacion");
             alert.setHeaderText(null);
             alert.setContentText("¿Desea eliminar el usuario: "
-                    + deleteUser.getNombre() +" "+ deleteUser.getApellido()
+                    + deleteUser.getNombre() + " " + deleteUser.getApellido()
                     + "?");
             alert.initStyle(StageStyle.UTILITY);
-            
+
             Optional<ButtonType> result = alert.showAndWait();
-            
+
             if (result.get() == ButtonType.OK) {
-                
+
                 boolean rsp = userdao.Detele(deleteUser.getId());
-                
+
                 if (rsp) {
-                    
+
                     Alert alert2 = new Alert(Alert.AlertType.INFORMATION);
                     alert2.setTitle("Exito");
                     alert2.setHeaderText(null);
                     alert2.setContentText("Se elimino correctamente el usuario");
                     alert2.initStyle(StageStyle.UTILITY);
                     alert2.showAndWait();
-                    
+
                     LoadUsers();
-                    
+
                 } else {
-                    
+
                     Alert alert2 = new Alert(Alert.AlertType.ERROR);
                     alert2.setTitle("Error");
                     alert2.setHeaderText(null);
@@ -482,9 +490,19 @@ public class ManageUsersController implements Initializable {
                 }
             }
         });
-
+        
         tblUser.setContextMenu(OptionsUsers);
+        
+        TextBuscarfCi.textProperty().addListener((observable, oldValue, newValue) -> {
+            // Realiza el filtro dinámico mientras el usuario escribe
+            filteredData.setPredicate(user -> {
+                if (newValue == null || newValue.isEmpty()) {
+                    return true;
+                }
 
+                return user.getCedula_identidad().toLowerCase().contains(newValue.toLowerCase());
+            });
+        });
     }
 
 }

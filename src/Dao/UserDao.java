@@ -226,7 +226,7 @@ public class UserDao {
     private boolean isValueExists(String field, String value) {
         try {
 
-            String SQL = "SELECT COUNT(*) FROM usuario WHERE" + field + " = ?";
+            String SQL = "SELECT COUNT(*) FROM usuario WHERE " + field + " = ?";
             Connection connection = this.UserConnection.getConnection();
             PreparedStatement sentence = connection.prepareStatement(SQL);
             sentence.setString(1, value);

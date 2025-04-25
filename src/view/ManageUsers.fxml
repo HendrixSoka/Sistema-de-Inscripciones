@@ -57,11 +57,10 @@
                 </GridPane>
             </children>
         </VBox>
-        <TableView fx:id="tblUser" layoutX="407.0" layoutY="124.0" prefHeight="422.0" prefWidth="715.0" />
-        <Label layoutX="731.0" layoutY="87.0" text="Buscar C.I.:" />
-        <TextField fx:id="TextBuscarfCi" layoutX="846.0" layoutY="81.0" />
-        <Button fx:id="BtnBuscar" layoutX="1036.0" layoutY="82.0" mnemonicParsing="false" text="Buscar" />
-      <VBox layoutX="145.0" layoutY="449.0" prefHeight="101.0" prefWidth="100.0">
+        <TableView fx:id="tblUser" layoutX="407.0" layoutY="124.0" prefHeight="540.0" prefWidth="777.0" />
+        <Label layoutX="914.0" layoutY="82.0" text="Buscar C.I.:" />
+        <TextField fx:id="TextBuscarfCi" layoutX="1029.0" layoutY="76.0" />
+      <VBox fx:id="VboxBtnUsers" layoutX="145.0" layoutY="449.0" prefHeight="101.0" prefWidth="100.0">
          <children>
               <Button fx:id="BtnAdd" mnemonicParsing="false" onAction="#BtnAddOnAction" prefHeight="34.0" prefWidth="107.0" text="AGREGAR" />
             <Button fx:id="BtnCancelar" disable="true" mnemonicParsing="false" onAction="#BtnCancelarOnAction" prefWidth="100.0" text="CANCELAR" />

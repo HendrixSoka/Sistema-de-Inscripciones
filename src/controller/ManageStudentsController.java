@@ -22,7 +22,6 @@ import model.Student;
 import Dao.StudentDao;
 import Dao.GuardianDao;
 import Dao.Student_GuardianDao;
-import java.security.NoSuchAlgorithmException;
 import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -33,7 +32,7 @@ import javafx.scene.control.ContextMenu;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.TextField;
 import javafx.stage.StageStyle;
-import model.User;
+
 public class ManageStudentsController implements Initializable, MainControllerAware {
 
     @FXML
