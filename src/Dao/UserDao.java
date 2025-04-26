@@ -248,4 +248,31 @@ public class UserDao {
         alert.setContentText(message);
         alert.showAndWait();
     }
+    
+    public String username(String user, String password) {
+    ManageUsersController en = new ManageUsersController();
+    String name = null;
+    try {
+        String SQL = "SELECT CONCAT(nombre, ' ', apellido) FROM usuario WHERE usuario = ? AND contrasena = ?";
+        
+        Connection connection = this.UserConnection.getConnection();
+        PreparedStatement sentence = connection.prepareStatement(SQL);
+      
+        sentence.setString(1, user);
+        sentence.setString(2, en.Encrypt(password));
+
+        ResultSet resultSet = sentence.executeQuery();
+
+        if (resultSet.next()) {
+            name = resultSet.getString(1);  
+        }
+        
+        sentence.close();
+
+    } catch (SQLException e) {
+        System.err.println("Error al verificar la existencia del valor: " + e.getMessage());
+        e.printStackTrace();
+    }
+    return name;
+}
 }

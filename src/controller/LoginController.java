@@ -37,9 +37,9 @@ public class LoginController implements Initializable {
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-        Image icon = new Image(getClass().getResourceAsStream("/resources/icons/user.png"));
+        Image icon = new Image(getClass().getResourceAsStream("/resources/icons/inscripciones.gif"));
         IconLogin.setImage(icon);
-       
+
         Platform.runLater(() -> {
             double centerXLogin = (mainPane.getWidth() - BtnLogin.getWidth()) / 2;
             double centerXClose = (mainPane.getWidth() - BtnClose.getWidth()) / 2;
@@ -103,13 +103,20 @@ public class LoginController implements Initializable {
             boolean Sucesslogin = userdao.Login(TextUser.getText(), TextPassword.getText());
 
             if (Sucesslogin) {
-                //showAlert("Confirmacion", "Inicio de sesion exitoso", Alert.AlertType.CONFIRMATION);
-                Parent root = FXMLLoader.load(getClass().getResource("/view/MainMenu.fxml"));
+                
+                FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/MainMenu.fxml"));
+                Parent root = loader.load(); 
+
+                MainMenuController controller = loader.getController();
+                
+                controller.textuser.setText("Usuario: " + userdao.username(TextUser.getText(), TextPassword.getText()) ); 
+
                 Stage stage = (Stage) BtnLogin.getScene().getWindow();
                 Scene scene = new Scene(root);
                 stage.setTitle("Sistema de Registro de Estudiantes");
                 stage.setScene(scene);
                 stage.setMaximized(true);
+                stage.show();
 
             } else {
                 showAlert("Error", "Usuario o Contraseña Incorrectos", Alert.AlertType.ERROR);
