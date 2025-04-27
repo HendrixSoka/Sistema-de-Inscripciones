@@ -193,40 +193,49 @@ public class UserDao {
     }
     
 
-    public boolean Login(String user, String password) {
+    public User Login(String username, String password) {
+        User user = null;
 
         try {
-
             String SQL = "SELECT * FROM usuario WHERE usuario = ? AND contrasena = ?";
-
             Connection connection = this.UserConnection.getConnection();
-            PreparedStatement sentence = connection.prepareStatement(SQL);
-            
-            ManageUsersController verify = new ManageUsersController();
+            PreparedStatement statement = connection.prepareStatement(SQL);
 
-            sentence.setString(1, user);
-            sentence.setString(2, verify.Encrypt(password));
+            ManageUsersController verify = new ManageUsersController(); 
+            statement.setString(1, username);
+            statement.setString(2, verify.Encrypt(password));
 
-            try (ResultSet result = sentence.executeQuery()) {
-                return result.next();
-
-            } 
+            try (ResultSet result = statement.executeQuery()) {
+                if (result.next()) {
+                    user = new User();
+                    user.setId(result.getInt(1));
+                    user.setNombre(result.getString(2));
+                    user.setApellido(result.getString(3));
+                    user.setCedula_identidad(result.getString(4));
+                    user.setCelular(result.getString(5));
+                    user.setCorreo(result.getString(6));
+                    user.setCargo(result.getInt(7));
+                    user.setUsuario(result.getString(8));
+                    user.setContrasena(result.getString(9));
+                }
+            }
 
         } catch (SQLException e) {
             System.err.println("Ocurrio un error al iniciar sesion");
             System.err.println("Mensaje del error: " + e.getMessage());
             System.err.println("Detalle del error: ");
-
             e.printStackTrace();
-
-            return false;
+            
         }
+
+        return user;
     }
+
 
     private boolean isValueExists(String field, String value) {
         try {
 
-            String SQL = "SELECT COUNT(*) FROM usuario WHERE" + field + " = ?";
+            String SQL = "SELECT COUNT(*) FROM usuario WHERE " + field + " = ?";
             Connection connection = this.UserConnection.getConnection();
             PreparedStatement sentence = connection.prepareStatement(SQL);
             sentence.setString(1, value);
@@ -248,4 +257,31 @@ public class UserDao {
         alert.setContentText(message);
         alert.showAndWait();
     }
+    
+    public String username(String user, String password) {
+    ManageUsersController en = new ManageUsersController();
+    String name = null;
+    try {
+        String SQL = "SELECT CONCAT(nombre, ' ', apellido) FROM usuario WHERE usuario = ? AND contrasena = ?";
+        
+        Connection connection = this.UserConnection.getConnection();
+        PreparedStatement sentence = connection.prepareStatement(SQL);
+      
+        sentence.setString(1, user);
+        sentence.setString(2, en.Encrypt(password));
+
+        ResultSet resultSet = sentence.executeQuery();
+
+        if (resultSet.next()) {
+            name = resultSet.getString(1);  
+        }
+        
+        sentence.close();
+
+    } catch (SQLException e) {
+        System.err.println("Error al verificar la existencia del valor: " + e.getMessage());
+        e.printStackTrace();
+    }
+    return name;
+}
 }

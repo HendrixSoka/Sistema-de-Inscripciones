@@ -4,7 +4,7 @@
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.control.Label?>
-<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.RadioButton?>
 <?import javafx.scene.control.TableView?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.AnchorPane?>
@@ -12,109 +12,102 @@
 <?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.shape.Rectangle?>
 
-<AnchorPane id="AnchorPane" prefHeight="400.0" prefWidth="600.0" styleClass="mainFxmlClass" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/23.0.1" fx:controller="controller.SchoolSettingsController">
+<AnchorPane id="AnchorPane" prefHeight="622.0" prefWidth="1170.0" styleClass="mainFxmlClass" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controller.SchoolSettingsController">
     <stylesheets>
         <URL value="@schoolsettings.css" />
     </stylesheets>
-   <children>
-      <HBox layoutX="3.0" prefHeight="131.0" prefWidth="600.0">
-         <children>
-            <GridPane prefHeight="131.0" prefWidth="162.0">
-              <columnConstraints>
-                <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
-                <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
-              </columnConstraints>
-              <rowConstraints>
-                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                  <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                  <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-              </rowConstraints>
-               <children>
-                  <Label prefHeight="17.0" prefWidth="92.0" text="Gestionar Curso" />
-                  <Label text="Nivel" GridPane.rowIndex="1" />
-                  <Label text="Grado" GridPane.rowIndex="2" />
-                  <Label text="Paralelo" GridPane.rowIndex="3" />
-                  <Label text="Cupo" GridPane.rowIndex="4" />
-                  <TextField GridPane.columnIndex="1" GridPane.rowIndex="3" />
-                  <TextField text="30" GridPane.columnIndex="1" GridPane.rowIndex="4" />
-                  <ComboBox prefWidth="150.0" GridPane.columnIndex="1" GridPane.rowIndex="1" />
-                  <ComboBox prefWidth="150.0" GridPane.columnIndex="1" GridPane.rowIndex="2" />
-               </children>
-            </GridPane>
-            <Button mnemonicParsing="false" text="Guardar" />
-            <TableView prefHeight="131.0" prefWidth="400.0">
-              <columns>
-                <TableColumn prefWidth="50.0" text="ID" />
-                <TableColumn prefWidth="65.0" text="Nivel" />
-                  <TableColumn prefWidth="48.0" text="Grado" />
-                  <TableColumn prefWidth="54.0" text="Paralelo" />
-                  <TableColumn prefWidth="81.0" text="Cupo" />
-                  <TableColumn prefWidth="101.0" text="Opciones" />
-              </columns>
-            </TableView>
-         </children>
-      </HBox>
-      <HBox layoutX="3.0" layoutY="131.0" prefHeight="149.0" prefWidth="600.0">
-         <children>
-            <GridPane>
-              <columnConstraints>
-                <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
-                <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
-              </columnConstraints>
-              <rowConstraints>
-                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                  <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-              </rowConstraints>
-               <children>
-                  <Label text="Gestionar Documentos" />
-                  <Label text="Nombre" GridPane.rowIndex="1" />
-                  <Label text="Obligatorio" GridPane.rowIndex="2" />
-                  <TextField GridPane.columnIndex="1" GridPane.rowIndex="1" />
-                  <Button mnemonicParsing="false" text="Guardar" GridPane.rowIndex="3" />
-               </children>
-            </GridPane>
-            <TableView prefHeight="149.0" prefWidth="399.0">
-              <columns>
-                <TableColumn prefWidth="62.0" text="ID" />
-                <TableColumn prefWidth="112.0" text="Nombre" />
-                  <TableColumn prefWidth="104.0" text="Obligatorio" />
-                  <TableColumn prefWidth="120.0" text="Opciones" />
-              </columns>
-            </TableView>
-         </children>
-      </HBox>
-      <HBox layoutX="3.0" layoutY="280.0" prefHeight="120.0" prefWidth="600.0">
-         <children>
-            <GridPane>
-              <columnConstraints>
-                <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
-                <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
-              </columnConstraints>
-              <rowConstraints>
-                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-              </rowConstraints>
-               <children>
-                  <Label text="Gestionar Materia" />
-                  <Button mnemonicParsing="false" text="Guardar" GridPane.rowIndex="2" />
-                  <Label text="Nombre" GridPane.rowIndex="1" />
-                  <TextField GridPane.columnIndex="1" GridPane.rowIndex="1" />
-               </children>
-            </GridPane>
-            <TableView prefHeight="120.0" prefWidth="400.0">
-              <columns>
-                <TableColumn prefWidth="75.0" text="ID" />
-                <TableColumn prefWidth="155.0" text="Nombre" />
-                  <TableColumn prefWidth="168.0" text="Opciones" />
-              </columns>
-            </TableView>
-         </children>
-      </HBox>
-   </children>
+    <children>
+        <Rectangle arcHeight="25.0" arcWidth="25.0" fill="#529e62" height="250.0" layoutX="15.0" layoutY="298.0" stroke="BLACK" strokeType="INSIDE" width="1128.0" AnchorPane.leftAnchor="15.0" />
+        <Rectangle arcHeight="25.0" arcWidth="25.0" fill="#529e62" height="250.0" layoutX="15.0" layoutY="38.0" stroke="BLACK" strokeType="INSIDE" width="1128.0" AnchorPane.leftAnchor="15.0" />
+        <HBox fx:id="ManageC" layoutX="30.0" layoutY="53.0" prefHeight="220.0" prefWidth="1111.0">
+            <children>
+                <VBox prefHeight="217.0" prefWidth="379.0">
+                    <children>
+                        <Label fx:id="txttittle2" alignment="TOP_CENTER" prefHeight="26.0" prefWidth="394.0" text="GESTIONAR CURSOS" />
+                        <GridPane fx:id="GPc" prefHeight="185.0" prefWidth="379.0">
+                            <columnConstraints>
+                                <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                                <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                            </columnConstraints>
+                            <rowConstraints>
+                                <RowConstraints />
+                                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                            </rowConstraints>
+                            <children>
+                                <Label text="Nivel" GridPane.rowIndex="1" />
+                                <Label text="Grado" GridPane.rowIndex="2" />
+                                <Label text="Paralelo" GridPane.rowIndex="3" />
+                                <Label text="Cupo" GridPane.rowIndex="4" />
+                                <TextField fx:id="TextPalallel" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+                                <TextField fx:id="TextQuota" text="30" GridPane.columnIndex="1" GridPane.rowIndex="4" />
+                                <ComboBox fx:id="CboxLevelCourse" prefHeight="26.0" prefWidth="222.0" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                                <ComboBox fx:id="CboxGradeCourse" prefHeight="26.0" prefWidth="190.0" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                                <Label text="Admite Nuevos" GridPane.rowIndex="5" />
+                                <HBox fx:id="YNAN" alignment="CENTER" prefHeight="26.0" prefWidth="169.0" GridPane.columnIndex="1" GridPane.rowIndex="5">
+                                    <children>
+                                        <RadioButton fx:id="RdYesAN" mnemonicParsing="false" styleClass="custom-radio" text="Si" />
+                                        <RadioButton fx:id="RdNoAN" mnemonicParsing="false" styleClass="custom-radio" text="No" />
+                                    </children>
+                                </HBox>
+                            </children>
+                        </GridPane>
+                    </children>
+                </VBox>
+                <TableView fx:id="TableCourse" prefHeight="220.0" prefWidth="676.0" />
+            </children>
+        </HBox>
+        <HBox fx:id="ManageD" layoutX="30.0" layoutY="316.0" prefHeight="215.0" prefWidth="1111.0" AnchorPane.leftAnchor="30.0" AnchorPane.topAnchor="316.0">
+            <children>
+                <VBox fx:id="VManageD" prefHeight="215.0" prefWidth="537.0">
+                    <children>
+                        <Label fx:id="txttittle1" alignment="TOP_CENTER" prefHeight="26.0" prefWidth="465.0" text="GESTIONAR DOCUMENTOS" textAlignment="CENTER" />
+                        <GridPane fx:id="GPd" prefHeight="149.0" prefWidth="414.0">
+                            <columnConstraints>
+                                <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                                <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                            </columnConstraints>
+                            <rowConstraints>
+                                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                            </rowConstraints>
+                            <children>
+                                <Label text="Nombre" />
+                                <Label text="Obligatorio" GridPane.rowIndex="1" />
+                                <TextField fx:id="TextNameDocumentation" alignment="TOP_LEFT" GridPane.columnIndex="1" />
+                                <HBox fx:id="YNO" alignment="CENTER" prefHeight="26.0" prefWidth="169.0" GridPane.columnIndex="1" GridPane.rowIndex="1">
+                                    <children>
+                                        <RadioButton fx:id="RdYesO" mnemonicParsing="false" styleClass="custom-radio" text="Si" />
+                                        <RadioButton fx:id="RdNoO" mnemonicParsing="false" styleClass="custom-radio" text="No" />
+                                    </children>
+                                </HBox>
+                                <Label text="Carta Compromiso" GridPane.rowIndex="2" />
+                                <HBox fx:id="YNCC" alignment="CENTER" prefHeight="26.0" prefWidth="169.0" GridPane.columnIndex="1" GridPane.rowIndex="2">
+                                    <children>
+                                        <RadioButton fx:id="RdYesCC" mnemonicParsing="false" styleClass="custom-radio" text="Si" />
+                                        <RadioButton fx:id="RdNoCC" mnemonicParsing="false" styleClass="custom-radio" text="No" />
+                                    </children>
+                                </HBox>
+                            </children>
+                        </GridPane>
+                    </children>
+                </VBox>
+                <TableView fx:id="TableDocumentation" prefHeight="215.0" prefWidth="512.0" />
+            </children>
+        </HBox>
+        <ComboBox fx:id="CboxSelect" layoutX="18.0" layoutY="16.0" onAction="#setOnAction" prefWidth="150.0" AnchorPane.leftAnchor="5.0" AnchorPane.topAnchor="5.0" />
+        <HBox fx:id="HboxBtnC" layoutX="411.0" layoutY="557.0" prefHeight="45.0" prefWidth="350.0" AnchorPane.bottomAnchor="20.0">
+            <children>
+                <Button fx:id="btnSave" mnemonicParsing="false" onAction="#btnSaveOnAction" prefWidth="250.0" text="GUARDAR" />
+                <Button fx:id="btnCancelar" mnemonicParsing="false" onAction="#BtnCancelarOnAction" prefHeight="39.0" prefWidth="250.0" text="CANCELAR" />
+            </children>
+        </HBox>
+    </children>
 </AnchorPane>

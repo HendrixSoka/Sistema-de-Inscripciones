@@ -67,6 +67,4 @@ public class Course {
     public void setAdmite_nuevos(boolean admite_nuevos) {
         this.admite_nuevos = admite_nuevos;
     }
- 
-
 }

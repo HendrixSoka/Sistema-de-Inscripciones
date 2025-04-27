@@ -24,7 +24,7 @@ public class EnrollmentDao {
 
     public boolean register(Enrollment inscripcion) {
         try {
-            String sql = "INSERT INTO inscripcion (id_estudiante, id_curso, id_usuario, fecha_inscripcion, year, estado, rude, observacion) "
+            String sql = "INSERT INTO inscripcion (id_estudiante, id_curso, id_usuario, fecha_inscripcion, gestion, estado, rude, observacion) "
                        + "VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
 
             Connection connection = dbConnection.getConnection();

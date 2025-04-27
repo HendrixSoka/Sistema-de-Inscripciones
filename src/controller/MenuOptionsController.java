@@ -10,17 +10,14 @@ import java.util.ResourceBundle;
 import javafx.fxml.Initializable;
 
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Parent;
 import javafx.scene.control.Button;
-import javafx.scene.layout.AnchorPane;
-
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+
 public class MenuOptionsController implements Initializable, MainControllerAware {
 
-        
     @FXML
     private Button btnGestionarEstudiantes;
 
@@ -38,6 +35,24 @@ public class MenuOptionsController implements Initializable, MainControllerAware
 
     @FXML
     private Button btnGestionarUsuarios;
+    
+      @FXML
+    private ImageView ihelp;
+
+    @FXML
+    private ImageView inotes;
+
+    @FXML
+    private ImageView ireports;
+
+    @FXML
+    private ImageView isettings;
+
+    @FXML
+    private ImageView istudents;
+
+    @FXML
+    private ImageView iusers;
 
     private Map<String, String> pageMap = new HashMap<>();
 
@@ -47,8 +62,29 @@ public class MenuOptionsController implements Initializable, MainControllerAware
     public void setMainController(MainMenuController mainController) {
         this.mainController = mainController;
     }
+
     @Override
     public void initialize(URL url, ResourceBundle rb) {
+        
+        Image student = new Image(getClass().getResourceAsStream("/resources/icons/student.gif"));
+        istudents.setImage(student);
+        
+        Image note = new Image(getClass().getResourceAsStream("/resources/icons/note.gif"));
+        inotes.setImage(note);
+        
+        Image user = new Image(getClass().getResourceAsStream("/resources/icons/user.gif"));
+        iusers.setImage(user);
+        
+        Image setting = new Image(getClass().getResourceAsStream("/resources/icons/setting.gif"));
+        isettings.setImage(setting);
+        
+        Image report = new Image(getClass().getResourceAsStream("/resources/icons/report.gif"));
+        ireports.setImage(report);
+        
+        Image help = new Image(getClass().getResourceAsStream("/resources/icons/help.gif"));
+        ihelp.setImage(help);
+        
+
         pageMap.put("Gestionar Estudiantes", "ManageStudents");
         pageMap.put("Configuracion", "SchoolSettings");
         pageMap.put("Reportes", "Report");
@@ -62,9 +98,7 @@ public class MenuOptionsController implements Initializable, MainControllerAware
         btnGestionarNotas.setOnAction(e -> navigateTo("Gestionar Notas"));
         btnAyuda.setOnAction(e -> navigateTo("Ayuda"));
         btnGestionarUsuarios.setOnAction(e -> navigateTo("Gestionar Usuarios"));
-    }    
-    
-
+    }
 
     public void navigateTo(String pageName) {
         System.out.println("Presionado " + pageName);
@@ -75,4 +109,5 @@ public class MenuOptionsController implements Initializable, MainControllerAware
             System.out.println("Error: MainMenuController no está disponible.");
         }
     }
+
 }

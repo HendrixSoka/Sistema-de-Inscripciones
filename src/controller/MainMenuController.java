@@ -6,8 +6,6 @@ package controller;
 
 import interfaces.DataReceiver;
 import interfaces.MainControllerAware;
-import java.net.URL;
-import java.util.ResourceBundle;
 import javafx.fxml.Initializable;
 import java.io.IOException;
 import java.net.URL;
@@ -17,7 +15,6 @@ import java.util.ResourceBundle;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.layout.AnchorPane;
-import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.layout.HBox;
 import javafx.scene.control.Label;
@@ -26,45 +23,75 @@ import javafx.scene.control.Hyperlink;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-
+import java.util.Optional;
+import javafx.application.Platform;
+import javafx.event.ActionEvent;
+import javafx.scene.control.Alert;
+import javafx.scene.control.ButtonType;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 
 public class MainMenuController implements Initializable {
+
     @FXML
     private AnchorPane contentPane;
     @FXML
     private HBox breadcrumbContainer;
-    
+
     private Map<String, String> pageMap;
+
+    @FXML
+    private ImageView ilogo;
+
+    @FXML
+    public Label textuser;
+    public int idUSer;
+    
+    @FXML
+    void btnexitAction(ActionEvent event) {
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+        alert.setTitle("Confirmar salida");
+        alert.setHeaderText(null);
+        alert.setContentText("¿Seguro que deseas salir?");
+
+        Optional<ButtonType> result = alert.showAndWait();
+        if (result.isPresent() && result.get() == ButtonType.OK) {
+            Platform.exit();
+        }
+    }
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         // Cargar la vista inicial al arrancar la aplicación
-        
-        pageMap = new LinkedHashMap<>(); 
+        Image logo = new Image(getClass().getResourceAsStream("/resources/icons/logo.png"));
+        ilogo.setImage(logo);
+
+        pageMap = new LinkedHashMap<>();
         pageMap.put("Menu Principal", "MenuOptions");
         loadView("MenuOptions");
         updateBreadcrumb();
     }
+
     public void setSubController(Object subController) {
         if (subController instanceof MainControllerAware) {
             ((MainControllerAware) subController).setMainController(this);
         }
     }
+
     public void loadView(String pageName) {
         try {
-           
+
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/" + pageName + ".fxml"));
             Parent root = loader.load();
-            
+
             Object subController = loader.getController();
 
-            
             if (subController instanceof MainControllerAware) {
                 ((MainControllerAware) subController).setMainController(this);
             }
-           
+
             contentPane.getChildren().clear();
-            
+
             // Añadir la nueva vista cargada
             contentPane.getChildren().add(root);
 
@@ -79,13 +106,14 @@ public class MainMenuController implements Initializable {
             e.printStackTrace();
         }
     }
+
     public void addPage(String pageName, String fxmlFile) {
         pageMap.put(pageName, fxmlFile);
         updateBreadcrumb();
     }
 
     private void updateBreadcrumb() {
-        
+
         breadcrumbContainer.getChildren().clear();
 
         List<String> pageNames = new ArrayList<>(pageMap.keySet());
@@ -93,17 +121,15 @@ public class MainMenuController implements Initializable {
             String page = pageNames.get(i);
             Hyperlink link = new Hyperlink(page);
             link.setOnAction(e -> {
-            
+
                 navigateToPage(page);
             });
             breadcrumbContainer.getChildren().add(link);
 
-            
             Label separator = new Label(">");
             breadcrumbContainer.getChildren().add(separator);
         }
 
-        
         if (!pageNames.isEmpty()) {
             Label label = new Label(pageNames.get(pageNames.size() - 1));
             breadcrumbContainer.getChildren().add(label);
@@ -112,7 +138,7 @@ public class MainMenuController implements Initializable {
 
     private void navigateToPage(String pageName) {
         if (pageMap.containsKey(pageName)) {
-        
+
             loadView(pageMap.get(pageName));
             Iterator<Map.Entry<String, String>> iterator = pageMap.entrySet().iterator();
             boolean foundCurrentPage = false;
@@ -131,6 +157,7 @@ public class MainMenuController implements Initializable {
             System.out.println("Error: La página '" + pageName + "' no está registrada.");
         }
     }
+
     public void loadSceneWithData(String pageName, Object data) {
         try {
             System.out.println("Intentando cargar: " + pageName);
@@ -176,8 +203,7 @@ public class MainMenuController implements Initializable {
         String lastKey = keys.get(keys.size() - 1);
         pageMap.remove(lastKey);
         updateBreadcrumb();
-      
+
     }
 
 }
-

@@ -78,7 +78,7 @@ public class StudentDao {
         Student student = null;
 
         try {
-            String SQL = "SELECT * FROM estudiante WHERE id = ?";
+            String SQL = "SELECT * FROM estudiante WHERE idestudiante = ?";
             Connection connection = this.StudentConnection.getConnection();
             PreparedStatement sentence = connection.prepareStatement(SQL);
             sentence.setInt(1, idBuscado);

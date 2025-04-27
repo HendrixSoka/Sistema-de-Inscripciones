@@ -10,6 +10,7 @@ import Dao.Student_GuardianDao;
 import interfaces.DataReceiver;
 import model.Student;
 import model.Guardian;
+import model.Enrollment;
 import interfaces.MainControllerAware;
 
 import java.net.URL;
@@ -42,12 +43,14 @@ import javafx.util.StringConverter;
 import model.Student_Guardian;
 import model.Course;
 import Dao.CourseDao;
+import Dao.EnrollmentDao;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.time.LocalDate;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.DatePicker;
 
@@ -56,6 +59,7 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.event.EventHandler;
 import javafx.scene.control.TextArea;
+import model.Enrollment;
 
 
 public class ExistingStudentController implements Initializable, MainControllerAware, DataReceiver {
@@ -105,6 +109,7 @@ public class ExistingStudentController implements Initializable, MainControllerA
     private GuardianDao guardianDao;
     private Student_GuardianDao student_GuardianDao;
     private CourseDao courseDao;
+    private EnrollmentDao enrollmentDao;
     private Student selectStudent;
     private ObservableList<Guardian> listaTutores = FXCollections.observableArrayList();
     private FilteredList<Guardian> filteredTutores;
@@ -114,7 +119,7 @@ public class ExistingStudentController implements Initializable, MainControllerA
     private int idtutor1;
     private int idtutor2;
     private int ultimoIdRegistrado = 0;
-    private boolean fueInscrito = false;
+    private boolean fueInscrito = true;
     @Override
     public void setMainController(MainMenuController mainController) {
         this.mainController = mainController;
@@ -184,44 +189,12 @@ public class ExistingStudentController implements Initializable, MainControllerA
             this.student_GuardianDao = new Student_GuardianDao();
             this.studentdao = new StudentDao();
             this.courseDao = new CourseDao();
+            this.enrollmentDao = new EnrollmentDao();
+            
         } catch (ClassNotFoundException ex) {
             Logger.getLogger(ManageUsersController.class.getName()).log(Level.SEVERE, null, ex);
         }
-        cargarEstado();
-        if(!fueInscrito){
-            selectStudent = studentdao.SearchbyId(ultimoIdRegistrado);
-            TextName.setText(selectStudent.getNombre());
-            TextLast_name.setText(selectStudent.getApellido());
-            TextAddress.setText(selectStudent.getDireccion());
-            TextEmail.setText(selectStudent.getCorreo());
-            TextCi.setText(selectStudent.getCedula_identidad());
-            TimeDateBirth.setValue(selectStudent.getFecha_nacimiento().toLocalDate());
-
-            CboGender.setValue(
-                selectStudent.getGenero() == 0 ? "Masculino" : "Femenino"
-            );
-            
-            btnTutorNuevo.setVisible(false);
-            BtnAdd.setVisible(false);
-            
-
-            btnDocumentacion.setVisible(true);
-            btnModificar.setVisible(true);
-            List<Student_Guardian> relaciones = student_GuardianDao.toListByIdStudent(selectStudent.getId());
-
-            if (relaciones.size() > 0) {
-                System.out.println(relaciones.get(0).getId_tutor() + " | " + relaciones.get(0).getRelacion());
-                selectTutor1ById(relaciones.get(0).getId_tutor());
-                TextRelacion.setText(relaciones.get(0).getRelacion());
-            }
-
-            if (relaciones.size() > 1) {
-                System.out.println(relaciones.get(0).getId_tutor() + " | " + relaciones.get(0).getRelacion());
-                selectTutor1ById2(relaciones.get(0).getId_tutor());
-                TextRelacion1.setText(relaciones.get(1).getRelacion());
-            }
-            
-        }
+        
         ObservableList<String> ol = FXCollections.observableArrayList("Masculino", "Femenino");
         CboGender.setItems(ol);
         CboGender.setValue("Seleccione");
@@ -487,6 +460,42 @@ public class ExistingStudentController implements Initializable, MainControllerA
             });
         });
 
+        cargarEstado();
+        System.out.println(fueInscrito +" " +ultimoIdRegistrado);
+        if(!fueInscrito){
+            selectStudent = studentdao.SearchbyId(ultimoIdRegistrado);
+            TextName.setText(selectStudent.getNombre());
+            TextLast_name.setText(selectStudent.getApellido());
+            TextAddress.setText(selectStudent.getDireccion());
+            TextEmail.setText(selectStudent.getCorreo());
+            TextCi.setText(selectStudent.getCedula_identidad());
+            TimeDateBirth.setValue(selectStudent.getFecha_nacimiento().toLocalDate());
+
+            CboGender.setValue(
+                selectStudent.getGenero() == 0 ? "Masculino" : "Femenino"
+            );
+            
+            btnTutorNuevo.setVisible(false);
+            BtnAdd.setVisible(false);
+            
+
+            btnDocumentacion.setVisible(true);
+            btnModificar.setVisible(true);
+            List<Student_Guardian> relaciones = student_GuardianDao.toListByIdStudent(selectStudent.getId());
+
+            if (relaciones.size() > 0) {
+                System.out.println(relaciones.get(0).getId_tutor() + " | " + relaciones.get(0).getRelacion());
+                selectTutor1ById(relaciones.get(0).getId_tutor());
+                TextRelacion.setText(relaciones.get(0).getRelacion());
+            }
+
+            if (relaciones.size() > 1) {
+                System.out.println(relaciones.get(0).getId_tutor() + " | " + relaciones.get(0).getRelacion());
+                selectTutor1ById2(relaciones.get(0).getId_tutor());
+                TextRelacion1.setText(relaciones.get(1).getRelacion());
+            }
+            
+        }
     }
     
     public void navigateTo(String pageName, String fxmlName){
@@ -672,6 +681,40 @@ public class ExistingStudentController implements Initializable, MainControllerA
             alert.initStyle(StageStyle.UTILITY);
             alert.showAndWait();
             return;
+        }else{
+          
+            Enrollment inscripcion = new Enrollment();
+
+            inscripcion.setId_estudiante(ultimoIdRegistrado); 
+            inscripcion.setId_curso(CboCurso.getValue().getIdcurso()); 
+            inscripcion.setId_usuario(mainController.idUSer); 
+            inscripcion.setFecha_inscripcion(java.sql.Date.valueOf(LocalDate.now()));
+            inscripcion.setYear(LocalDate.now().getYear());
+            inscripcion.setEstado(1); 
+            inscripcion.setRude(Integer.parseInt(TextRude.getText()));
+            inscripcion.setObservacion(TextObs.getText());
+
+            boolean success = enrollmentDao.register(inscripcion);
+
+            if (success) {
+                Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                alert.setTitle("Éxito");
+                alert.setHeaderText(null);
+                alert.setContentText("¡Inscripción realizada correctamente!");
+                alert.initStyle(StageStyle.UTILITY);
+                alert.showAndWait();
+                clearFields();
+                fueInscrito = true;
+                guardarEstado();
+            } else {
+                Alert alert = new Alert(Alert.AlertType.ERROR);
+                alert.setTitle("Error");
+                alert.setHeaderText(null);
+                alert.setContentText("Error al registrar la inscripción.");
+                alert.initStyle(StageStyle.UTILITY);
+                alert.showAndWait();
+            }
+            
         }
         
     }
@@ -715,7 +758,7 @@ public class ExistingStudentController implements Initializable, MainControllerA
                 e.printStackTrace();
                 // si hay error, valores por defecto
                 ultimoIdRegistrado = 0;
-                fueInscrito = false;
+                fueInscrito = true;
             }
         }
     }
