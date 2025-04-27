@@ -74,6 +74,41 @@ public class StudentDao {
             return -1;
         }
     }
+    public Student SearchbyId(int idBuscado) {
+        Student student = null;
+
+        try {
+            String SQL = "SELECT * FROM estudiante WHERE id = ?";
+            Connection connection = this.StudentConnection.getConnection();
+            PreparedStatement sentence = connection.prepareStatement(SQL);
+            sentence.setInt(1, idBuscado);
+
+            ResultSet data = sentence.executeQuery();
+
+            if (data.next()) {
+                student = new Student();
+                student.setId(data.getInt(1));
+                student.setNombre(data.getString(2));
+                student.setApellido(data.getString(3));
+                student.setFecha_nacimiento(data.getDate(4));
+                student.setCedula_identidad(data.getString(5));
+                student.setGenero(data.getInt(6));
+                student.setDireccion(data.getString(7));
+                student.setCorreo(data.getString(8));
+            }
+
+            data.close();
+            sentence.close();
+
+        } catch (SQLException e) {
+            System.err.println("Ocurrió un error al buscar el estudiante por ID");
+            System.err.println("Mensaje del error: " + e.getMessage());
+            e.printStackTrace();
+        }
+
+        return student;
+    }
+
 
     public List<Student> tolist() {
 

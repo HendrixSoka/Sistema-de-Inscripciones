@@ -40,7 +40,14 @@ import javafx.scene.input.KeyCode;
 import javafx.stage.StageStyle;
 import javafx.util.StringConverter;
 import model.Student_Guardian;
-
+import model.Course;
+import Dao.CourseDao;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.DatePicker;
 
@@ -48,6 +55,7 @@ import javafx.scene.control.TextField;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.event.EventHandler;
+import javafx.scene.control.TextArea;
 
 
 public class ExistingStudentController implements Initializable, MainControllerAware, DataReceiver {
@@ -68,8 +76,6 @@ public class ExistingStudentController implements Initializable, MainControllerA
     @FXML
     private ComboBox<String> CboGender;
     @FXML
-    private ComboBox<String> CboCurso;
-    @FXML
     private TextField TextName;
     @FXML
     private TextField TextLast_name;
@@ -81,6 +87,14 @@ public class ExistingStudentController implements Initializable, MainControllerA
     private TextField TextEmail;
     @FXML
     private TextField TextCi;
+    //Inscripcion 
+    @FXML
+    private ComboBox<Course> CboCurso;
+    
+    @FXML
+    private TextField TextRude;
+    @FXML
+    private TextArea TextObs;
     
     @FXML
     private TextField TextRelacion;
@@ -90,12 +104,17 @@ public class ExistingStudentController implements Initializable, MainControllerA
     private StudentDao studentdao;
     private GuardianDao guardianDao;
     private Student_GuardianDao student_GuardianDao;
+    private CourseDao courseDao;
     private Student selectStudent;
     private ObservableList<Guardian> listaTutores = FXCollections.observableArrayList();
     private FilteredList<Guardian> filteredTutores;
+    private ObservableList<Course> listaCursos = FXCollections.observableArrayList();
+    private FilteredList<Course> filteredCursos;
     private MainMenuController mainController;
     private int idtutor1;
     private int idtutor2;
+    private int ultimoIdRegistrado = 0;
+    private boolean fueInscrito = false;
     @Override
     public void setMainController(MainMenuController mainController) {
         this.mainController = mainController;
@@ -124,6 +143,7 @@ public class ExistingStudentController implements Initializable, MainControllerA
             
             btnTutorNuevo.setVisible(false);
             BtnAdd.setVisible(false);
+            
 
             btnDocumentacion.setVisible(true);
             btnModificar.setVisible(true);
@@ -163,8 +183,44 @@ public class ExistingStudentController implements Initializable, MainControllerA
             this.guardianDao = new GuardianDao();
             this.student_GuardianDao = new Student_GuardianDao();
             this.studentdao = new StudentDao();
+            this.courseDao = new CourseDao();
         } catch (ClassNotFoundException ex) {
             Logger.getLogger(ManageUsersController.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        cargarEstado();
+        if(!fueInscrito){
+            selectStudent = studentdao.SearchbyId(ultimoIdRegistrado);
+            TextName.setText(selectStudent.getNombre());
+            TextLast_name.setText(selectStudent.getApellido());
+            TextAddress.setText(selectStudent.getDireccion());
+            TextEmail.setText(selectStudent.getCorreo());
+            TextCi.setText(selectStudent.getCedula_identidad());
+            TimeDateBirth.setValue(selectStudent.getFecha_nacimiento().toLocalDate());
+
+            CboGender.setValue(
+                selectStudent.getGenero() == 0 ? "Masculino" : "Femenino"
+            );
+            
+            btnTutorNuevo.setVisible(false);
+            BtnAdd.setVisible(false);
+            
+
+            btnDocumentacion.setVisible(true);
+            btnModificar.setVisible(true);
+            List<Student_Guardian> relaciones = student_GuardianDao.toListByIdStudent(selectStudent.getId());
+
+            if (relaciones.size() > 0) {
+                System.out.println(relaciones.get(0).getId_tutor() + " | " + relaciones.get(0).getRelacion());
+                selectTutor1ById(relaciones.get(0).getId_tutor());
+                TextRelacion.setText(relaciones.get(0).getRelacion());
+            }
+
+            if (relaciones.size() > 1) {
+                System.out.println(relaciones.get(0).getId_tutor() + " | " + relaciones.get(0).getRelacion());
+                selectTutor1ById2(relaciones.get(0).getId_tutor());
+                TextRelacion1.setText(relaciones.get(1).getRelacion());
+            }
+            
         }
         ObservableList<String> ol = FXCollections.observableArrayList("Masculino", "Femenino");
         CboGender.setItems(ol);
@@ -198,7 +254,6 @@ public class ExistingStudentController implements Initializable, MainControllerA
     filteredTutores = new FilteredList<>(listaTutores, p -> true);
     CboTutor.setItems(filteredTutores);
 
-    // Listener de texto
     CboTutor.getEditor().textProperty().addListener((obs, oldVal, newVal) -> {
         final TextField editor = CboTutor.getEditor();
         final Guardian selected = CboTutor.getSelectionModel().getSelectedItem();
@@ -211,12 +266,10 @@ public class ExistingStudentController implements Initializable, MainControllerA
         return fullName.contains(lowerCaseFilter);
     });
 
-        // Mostrar combo si hay texto escrito
+
         if (!CboTutor.isShowing() && !newVal.isEmpty()) {
             Platform.runLater(CboTutor::show);
         }
-
-        // Forzar actualización de selección solo si el texto no coincide con lo seleccionado
         if (selected == null || !editor.getText().equals(selected.getNombre()+" "+selected.getApellido())) {
             CboTutor.getSelectionModel().clearSelection();
         }
@@ -228,11 +281,9 @@ public class ExistingStudentController implements Initializable, MainControllerA
             CboTutor.setValue(selectedTutor);
             CboTutor.getEditor().setText(CboTutor.getConverter().toString(selectedTutor));
             CboTutor.getEditor().positionCaret(CboTutor.getEditor().getText().length());
-            CboTutor.hide(); // cerrar lista si fue con Enter
+            CboTutor.hide();
         }
     });
-
-// Corregir comportamiento extraño al perder foco
         CboTutor.focusedProperty().addListener((obs, oldValue, newValue) -> {
             if (!newValue) {
                 String inputText = CboTutor.getEditor().getText();
@@ -281,7 +332,6 @@ public class ExistingStudentController implements Initializable, MainControllerA
 
         CboTutor1.setItems(filteredTutores);
 
-// Listener de texto
         CboTutor1.getEditor().textProperty().addListener((obs1, oldVal1, newVal1) -> {
             final TextField editor1 = CboTutor1.getEditor();
             final Guardian selected1 = CboTutor1.getSelectionModel().getSelectedItem();
@@ -294,32 +344,28 @@ public class ExistingStudentController implements Initializable, MainControllerA
             return fullName.contains(lowerCaseFilter);
         });
 
-            // Mostrar combo si hay texto escrito
+         
             if (!CboTutor1.isShowing() && !newVal1.isEmpty()) {
                 Platform.runLater(CboTutor1::show);
             }
 
-            // Forzar actualización de selección solo si el texto no coincide con lo seleccionado
             if (selected1 == null || !editor1.getText().equals(selected1.getNombre()+" "+selected1.getApellido())) {
                 CboTutor1.getSelectionModel().clearSelection();
             }
 
-            // DEBUG opcional
             imprimirItemsComboBox(CboTutor);
         });
 
-// Manejar selección con Enter y Click
     CboTutor1.setOnAction(event -> {
         Guardian selectedTutor = CboTutor1.getSelectionModel().getSelectedItem();
         if (selectedTutor != null) {
             CboTutor1.setValue(selectedTutor);
             CboTutor1.getEditor().setText(CboTutor1.getConverter().toString(selectedTutor));
             CboTutor1.getEditor().positionCaret(CboTutor1.getEditor().getText().length());
-            CboTutor1.hide(); // cerrar lista si fue con Enter
+            CboTutor1.hide(); 
         }
     });
 
-// Corregir comportamiento extraño al perder foco
         CboTutor1.focusedProperty().addListener((obs1, oldValue1, newValue1) -> {
             if (!newValue1) {
                 String inputText = CboTutor1.getEditor().getText();
@@ -336,6 +382,105 @@ public class ExistingStudentController implements Initializable, MainControllerA
         Platform.runLater(() -> {
             TextField editor1 = CboTutor1.getEditor();
             editor1.addEventFilter(KeyEvent.KEY_PRESSED, (KeyEvent event) -> {
+                if (event.getCode() == KeyCode.SPACE) {
+                    event.consume();
+                }
+            });
+        });
+
+        
+        
+        CboCurso.setEditable(true);
+
+        listaCursos.addAll(courseDao.toList());
+        filteredCursos = new FilteredList<>(listaCursos, p -> true);
+        CboCurso.setItems(filteredCursos);
+    
+        CboCurso.setCellFactory(param -> new ListCell<>() {
+            @Override
+            protected void updateItem(Course curso, boolean empty) {
+                super.updateItem(curso, empty);
+                if (empty || curso == null) {
+                    setText(null);
+                } else {
+                    setText(getNombreGrado(curso.getGrado()) + " " + curso.getParalelo()
+                            + " (" + getNombreNivel(curso.getNivel()) + ")");
+                }
+            }
+        });
+
+        CboCurso.setConverter(new StringConverter<Course>() {
+            @Override
+            public String toString(Course curso) {
+                return (curso != null)
+                        ? getNombreNivel(curso.getNivel()) + " " + getNombreGrado(curso.getGrado()) + " " + curso.getParalelo()
+                          + " (" + getNombreNivel(curso.getNivel()) + ")"
+                        : "";
+            }
+
+            @Override
+            public Course fromString(String string) {
+                return listaCursos.stream()
+                        .filter(c -> (getNombreNivel(c.getNivel()) + " " + getNombreGrado(c.getGrado()) + " " + c.getParalelo()
+                                + " (" + getNombreNivel(c.getNivel()) + ")").equalsIgnoreCase(string))
+                        .findFirst().orElse(null);
+            }
+        });
+
+        
+        CboCurso.getEditor().textProperty().addListener((obs, oldVal, newVal) -> {
+            final TextField editor = CboCurso.getEditor();
+            final Course selected = CboCurso.getSelectionModel().getSelectedItem();
+
+            filteredCursos.setPredicate(curso -> {
+                if (newVal == null || newVal.isEmpty()) return true;
+
+                String filter = newVal.toLowerCase().trim();
+                String display = (getNombreNivel(curso.getNivel()) + " " + getNombreGrado(curso.getGrado()) + " " + curso.getParalelo()
+                + " (" + getNombreNivel(curso.getNivel()) + ")").toLowerCase();
+                return display.contains(filter);
+            });
+
+            if (!CboCurso.isShowing() && !newVal.isEmpty()) {
+                Platform.runLater(CboCurso::show);
+            }
+
+            if (selected == null || !editor.getText().equals(CboCurso.getConverter().toString(selected))) {
+                CboCurso.getSelectionModel().clearSelection();
+            }
+        });
+
+        CboCurso.setOnAction(event -> {
+            Course selectedCourse = CboCurso.getSelectionModel().getSelectedItem();
+            if (selectedCourse != null) {
+                CboCurso.setValue(selectedCourse);
+                CboCurso.getEditor().setText(CboCurso.getConverter().toString(selectedCourse));
+                CboCurso.getEditor().positionCaret(CboCurso.getEditor().getText().length());
+                CboCurso.hide();
+            }
+        });
+
+        CboCurso.focusedProperty().addListener((obs, oldValue, newValue) -> {
+            if (!newValue) {
+                String input = CboCurso.getEditor().getText();
+                Course match = filteredCursos.stream()
+                        .filter(c -> CboCurso.getConverter().toString(c).equalsIgnoreCase(input))
+                        .findFirst()
+                        .orElse(null);
+
+                if (match != null) {
+                    CboCurso.setValue(match);
+                } else {
+                    CboCurso.getSelectionModel().clearSelection();
+                    CboCurso.getEditor().clear();
+                }
+            }
+        });
+
+
+        Platform.runLater(() -> {
+            TextField editor = CboCurso.getEditor();
+            editor.addEventFilter(KeyEvent.KEY_PRESSED, event -> {
                 if (event.getCode() == KeyCode.SPACE) {
                     event.consume();
                 }
@@ -394,6 +539,7 @@ public class ExistingStudentController implements Initializable, MainControllerA
             //Para verificar si se puede guardar en la base de datos
             int  idStudent = this.studentdao.register(estudiante);
             System.out.println("Id estudiante " + idStudent+ " id tutor "+ idtutor1+ "Realcion " + TextRelacion.getText());
+            
             boolean rsp = this.student_GuardianDao.register(idtutor1,idStudent,TextRelacion.getText());
             boolean rsp1=false;
             if(idtutor2 > 0){
@@ -401,6 +547,9 @@ public class ExistingStudentController implements Initializable, MainControllerA
             }
             
             if (idStudent > 0 && rsp) {
+                ultimoIdRegistrado=idStudent;
+                fueInscrito = false;
+                guardarEstado();
                 if (rsp1) {
                     Alert alert = new Alert(Alert.AlertType.INFORMATION);
                     alert.setTitle("Exito");
@@ -512,5 +661,64 @@ public class ExistingStudentController implements Initializable, MainControllerA
         }
         System.out.println("============================");
     }
+
+    @FXML
+    void onEnrollment(ActionEvent event) throws NoSuchAlgorithmException, Exception {
+        if (TextRude.getText().isEmpty() || CboCurso.getValue()== null || TextObs.getText().isEmpty()) {
+            Alert alert = new Alert(Alert.AlertType.WARNING);
+            alert.setTitle("Error");
+            alert.setHeaderText(null);
+            alert.setContentText("Todos los campos deben ser llenados.");
+            alert.initStyle(StageStyle.UTILITY);
+            alert.showAndWait();
+            return;
+        }
+        
+    }
+    
+    private String getNombreNivel(int nivel) {
+        return switch (nivel) {
+            case 0 -> "Primaria";
+            case 1 -> "Secundaria";
+            default -> "Desconocido";
+        };
+    }
+
+    private String getNombreGrado(int grado) {
+        return switch (grado) {
+            case 0 -> "Primero";
+            case 1 -> "Segundo";
+            case 2 -> "Tercero";
+            case 3 -> "Cuarto";
+            case 4 -> "Quinto";
+            case 5 -> "Sexto";
+            default -> "Desconocido";
+        };
+    }
+
+    public void guardarEstado() {
+        String contenido = ultimoIdRegistrado + "\n" + fueInscrito;
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter("estado_estudiante.txt"))) {
+            writer.write(contenido);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+    
+    public void cargarEstado() {
+        File archivo = new File("estado_estudiante.txt");
+        if (archivo.exists()) {
+            try (BufferedReader reader = new BufferedReader(new FileReader(archivo))) {
+                ultimoIdRegistrado = Integer.parseInt(reader.readLine());
+                fueInscrito = Boolean.parseBoolean(reader.readLine());
+            } catch (IOException | NumberFormatException e) {
+                e.printStackTrace();
+                // si hay error, valores por defecto
+                ultimoIdRegistrado = 0;
+                fueInscrito = false;
+            }
+        }
+    }
+
 
 }

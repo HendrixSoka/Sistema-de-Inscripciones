@@ -82,10 +82,11 @@
             <ComboBox fx:id="CboCurso" prefHeight="25.0" prefWidth="197.0" promptText="Curso 1 A" GridPane.columnIndex="1" GridPane.rowIndex="1" />
             <Label prefHeight="32.0" prefWidth="184.0" text="Completar Inscripcion" GridPane.columnSpan="2" />
             <Label text="RUDE" GridPane.rowIndex="2" />
-            <TextField GridPane.columnIndex="1" GridPane.rowIndex="2" />
+            <TextField fx:id="TextRude" GridPane.columnIndex="1" GridPane.rowIndex="2" />
             <Label text="Observacion" GridPane.rowIndex="3" />
-            <TextArea prefHeight="144.0" prefWidth="318.0" style="-fx-background-color: rgba(255, 255, 255, 0.2);" GridPane.columnSpan="2" GridPane.rowIndex="4" GridPane.rowSpan="2" />
+            <TextArea fx:id="TextObs" prefHeight="144.0" prefWidth="318.0" style="-fx-background-color: rgba(255, 255, 255, 0.2);" GridPane.columnSpan="2" GridPane.rowIndex="4" GridPane.rowSpan="2" />
          </children>
       </GridPane>
+      <Button layoutX="838.0" layoutY="379.0" mnemonicParsing="false" onAction="#onEnrollment" text="Realizar Inscripcion" />
    </children>
 </AnchorPane>
