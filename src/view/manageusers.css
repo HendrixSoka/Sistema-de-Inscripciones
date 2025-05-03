@@ -6,7 +6,10 @@
 * {
     -fx-font-family: "Open Sans";
 }
-
+#hci{
+    -fx-spacing: 2px;          
+    -fx-alignment: center-left;
+}
 Button {
     -fx-background-color: #2e7d32;
     -fx-text-fill: white;
