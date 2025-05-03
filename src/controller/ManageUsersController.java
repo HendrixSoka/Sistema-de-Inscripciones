@@ -78,18 +78,33 @@ public class ManageUsersController implements Initializable {
     private ComboBox<String> CboCharge;
     @FXML
     private TextField TextUserUser;
-    
+
+    @FXML
+    private TextField textcom;
+
+    @FXML
+    private ComboBox<String> cbxexp;
+
     private UserDao userdao;
 
     private ContextMenu OptionsUsers;
 
     private User selectUser;
-    
+
     private FilteredList<User> filteredData;
-    
+
     private ObservableList<User> data;
-    
+
     private static final String EMAIL_REGEX = "^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$";
+
+    private String[] departments = {"LP", "SCZ", "CBBA", "OR", "PT", "CH", "TJA", "BE", "PD"};
+
+    public boolean civalid(String number, String cm, int dp) {
+        boolean numberValid = number != null && number.matches("\\d{5,8}");
+        boolean cmValid = cm == null || cm.matches("[A-Z]{1,2}");
+        boolean dpValid = dp != -1;
+        return numberValid && cmValid && dpValid;
+    }
 
     @FXML
     void BtnAddOnAction(ActionEvent event) throws NoSuchAlgorithmException, Exception {
@@ -115,7 +130,27 @@ public class ManageUsersController implements Initializable {
             //Apellido
             usuario.setApellido(TextLnameUser.getText());
             //Cedula_Identidad
-            usuario.setCedula_identidad(TextCiUser.getText());
+            String cicomplete;
+
+            if (civalid(TextCiUser.getText(), textcom.getText(), cbxexp.getSelectionModel().getSelectedIndex())) {
+                if (textcom.getText() == null) {
+                    cicomplete = TextCiUser.getText() + "-" + Integer.toString(cbxexp.getSelectionModel().getSelectedIndex());
+                } else {
+                    cicomplete = TextCiUser.getText() + "-" + textcom.getText() + "-" + Integer.toString(cbxexp.getSelectionModel().getSelectedIndex());
+                }
+                usuario.setCedula_identidad(cicomplete);
+            } else {
+                Alert alert = new Alert(Alert.AlertType.WARNING);
+                alert.setTitle("Error");
+                alert.setHeaderText(null);
+                alert.setContentText("C.I. Invalido revise los paramtros");
+                alert.initStyle(StageStyle.UTILITY);
+                alert.showAndWait();
+                TextCiUser.clear();
+                textcom.clear();
+                cbxexp.getSelectionModel().select("Seleccione");
+                return;
+            }
             //Celular, verifica si es valido
             if (VerifyNumberUser(TextPhoneUser.getText())) {
                 usuario.setCelular(TextPhoneUser.getText());
@@ -247,18 +282,19 @@ public class ManageUsersController implements Initializable {
         TextEmailUser.clear();
         TextUserUser.clear();
         TextPasswordUser.clear();
+        textcom.clear();
+        cbxexp.getSelectionModel().select("Seleccione");
         CboCharge.getSelectionModel().select("Seleccione");
     }
 
     public void LoadUsers() {
 
-        tblUser.getItems().clear();
-        tblUser.getColumns().clear();
-
+        //tblUser.getItems().clear();
+        //tblUser.getColumns().clear();
         List<User> users = this.userdao.tolist();
 
         ObservableList<User> data = FXCollections.observableArrayList(users);
-        
+
         filteredData = new FilteredList<>(data, p -> true);
         tblUser.setItems(filteredData);
 
@@ -273,7 +309,25 @@ public class ManageUsersController implements Initializable {
 
         TableColumn CIcol = new TableColumn("CI");
         CIcol.setCellValueFactory(new PropertyValueFactory("cedula_identidad"));
+        CIcol.setCellFactory(col -> new TableCell<User, String>() {
+            @Override
+            protected void updateItem(String item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty || item == null) {
+                    setText(null);
+                } else {
+                    String[] parts = item.split("-");
 
+                    String lastPart = parts[parts.length - 1];
+
+                    int lastNumber = Integer.parseInt(lastPart);
+
+                    String updatedItem = item.substring(0, item.lastIndexOf("-")) + "-" + departments[lastNumber];
+
+                    setText(updatedItem);
+                }
+            }
+        });
         TableColumn Phonecol = new TableColumn("CELULAR");
         Phonecol.setCellValueFactory(new PropertyValueFactory("celular"));
 
@@ -313,6 +367,7 @@ public class ManageUsersController implements Initializable {
                 }
             }
         });
+
         Passwordcol.setCellValueFactory(new PropertyValueFactory("contrasena"));
 
         //tblUser.setItems(data);
@@ -407,6 +462,10 @@ public class ManageUsersController implements Initializable {
         CboCharge.setValue("Seleccione");
         TextUserUser.setEditable(false);
 
+        ObservableList<String> departments = FXCollections.observableArrayList(this.departments);
+        cbxexp.setItems(departments);
+        cbxexp.setValue("Selecciones");
+
         try {
             this.userdao = new UserDao();
         } catch (ClassNotFoundException ex) {
@@ -490,9 +549,9 @@ public class ManageUsersController implements Initializable {
                 }
             }
         });
-        
+
         tblUser.setContextMenu(OptionsUsers);
-        
+
         TextBuscarfCi.textProperty().addListener((observable, oldValue, newValue) -> {
             // Realiza el filtro dinámico mientras el usuario escribe
             filteredData.setPredicate(user -> {
