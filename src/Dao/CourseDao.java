@@ -20,6 +20,8 @@ public class CourseDao {
 
     private Database CourseConnection;
 
+    private String[] optionsGrade = {"Primero", "Segundo", "Tercero", "Cuarto", "Quinto", "Sexto"};
+
     public CourseDao() throws ClassNotFoundException {
 
         this.CourseConnection = new Database();
@@ -141,11 +143,11 @@ public class CourseDao {
             PreparedStatement sentence = connection.prepareStatement(SQL);
 
             sentence.setInt(1, idcourse);
-            
+
             sentence.executeUpdate();
-            
+
             sentence.close();
-            
+
             return true;
 
         } catch (Exception e) {
@@ -225,6 +227,65 @@ public class CourseDao {
             e.printStackTrace();
 
             return -1;
+        }
+        return idcurso;
+    }
+
+    public List<String> CoursesAdvisors() {
+        List<String> ListCAdvisors = new ArrayList<>();
+        try {
+
+            String SQL = "SELECT grado,paralelo FROM curso";
+
+            Connection connection = this.CourseConnection.getConnection();
+            PreparedStatement sentence = connection.prepareStatement(SQL);
+
+            ResultSet data = sentence.executeQuery();
+
+            while (data.next() == true) {
+
+                ListCAdvisors.add(optionsGrade[data.getInt("grado")] + " " + data.getString("paralelo"));
+
+            }
+            data.close();
+            sentence.close();
+
+        } catch (Exception e) {
+            System.err.println("Ocurrio un error al listar cursos");
+            System.err.println("Mensaje del error: " + e.getMessage());
+            System.err.println("Detalle del error: ");
+
+            e.printStackTrace();
+
+        }
+        return ListCAdvisors;
+    }
+
+    public int idcourse(String fullname) {
+        int idcurso = 0;
+        try {
+            
+            String SQL = "SELECT idcurso FROM curso WHERE CONCAT(grado,' ',paralelo) = ?";
+
+            Connection connection = this.CourseConnection.getConnection();
+
+            PreparedStatement sentence = connection.prepareStatement(SQL);
+
+            sentence.setString(1, fullname);
+
+            ResultSet data = sentence.executeQuery();
+
+            if (data.next()) {
+
+                idcurso = data.getInt("idcurso");
+
+            }
+
+            data.close();
+            sentence.close();
+        } catch (Exception e) {
+            System.err.println("Error al verificar la existencia del curso");
+            e.printStackTrace();
         }
         return idcurso;
     }

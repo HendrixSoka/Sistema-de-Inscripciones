@@ -3,6 +3,7 @@
 <?import java.net.URL?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.DatePicker?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.RadioButton?>
 <?import javafx.scene.control.TableView?>
@@ -24,7 +25,7 @@
         <Rectangle arcHeight="25.0" arcWidth="25.0" fill="#529e62" height="250.0" layoutX="15.0" layoutY="60.0" stroke="BLACK" strokeType="INSIDE" width="1400.0" />
         <HBox fx:id="ManageC" layoutX="36.0" layoutY="76.0" prefHeight="220.0" prefWidth="1353.0">
             <children>
-                <VBox prefHeight="217.0" prefWidth="379.0">
+                <VBox prefHeight="214.0" prefWidth="379.0">
                     <children>
                         <Label fx:id="txttittle2" alignment="TOP_CENTER" prefHeight="26.0" prefWidth="394.0" text="GESTIONAR CURSOS" />
                         <GridPane fx:id="GPc" prefHeight="185.0" prefWidth="379.0">
@@ -41,15 +42,15 @@
                                 <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
                             </rowConstraints>
                             <children>
-                                <Label text="Nivel" GridPane.rowIndex="1" />
-                                <Label text="Grado" GridPane.rowIndex="2" />
-                                <Label text="Paralelo" GridPane.rowIndex="3" />
-                                <Label text="Cupo" GridPane.rowIndex="4" />
+                                <Label text="Nivel:" GridPane.rowIndex="1" />
+                                <Label text="Grado:" GridPane.rowIndex="2" />
+                                <Label text="Paralelo:" GridPane.rowIndex="3" />
+                                <Label text="Cupo:" GridPane.rowIndex="4" />
                                 <TextField fx:id="TextPalallel" GridPane.columnIndex="1" GridPane.rowIndex="3" />
                                 <TextField fx:id="TextQuota" text="30" GridPane.columnIndex="1" GridPane.rowIndex="4" />
                                 <ComboBox fx:id="CboxLevelCourse" prefHeight="26.0" prefWidth="222.0" GridPane.columnIndex="1" GridPane.rowIndex="1" />
                                 <ComboBox fx:id="CboxGradeCourse" prefHeight="26.0" prefWidth="190.0" GridPane.columnIndex="1" GridPane.rowIndex="2" />
-                                <Label text="Admite Nuevos" GridPane.rowIndex="5" />
+                                <Label text="Admite Nuevos:" GridPane.rowIndex="5" />
                                 <HBox fx:id="YNAN" alignment="CENTER" prefHeight="26.0" prefWidth="169.0" GridPane.columnIndex="1" GridPane.rowIndex="5">
                                     <children>
                                         <RadioButton fx:id="RdYesAN" mnemonicParsing="false" styleClass="custom-radio" text="Si" />
@@ -60,7 +61,31 @@
                         </GridPane>
                     </children>
                 </VBox>
-                <TableView fx:id="TableCourse" prefHeight="220.0" prefWidth="600.0" />
+            <VBox fx:id="vboxAsesor" prefHeight="256.0" prefWidth="250.0">
+               <children>
+                  <Label fx:id="txttittle21" alignment="TOP_CENTER" prefHeight="26.0" prefWidth="394.0" text="ASIGNAR ASESOR" />
+                  <ComboBox fx:id="cbxA" prefHeight="26.0" prefWidth="279.0" />
+                  <ComboBox fx:id="cbxC" prefHeight="26.0" prefWidth="293.0" />
+                  <GridPane fx:id="gridpdates">
+                    <columnConstraints>
+                      <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                      <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                    </columnConstraints>
+                    <rowConstraints>
+                      <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                      <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                    </rowConstraints>
+                     <children>
+                        <Label text="Fecha Inicio:" />
+                        <Label text="Fecha Fin:" GridPane.rowIndex="1" />
+                        <DatePicker fx:id="dpI" prefHeight="10.0" prefWidth="125.0" GridPane.columnIndex="1" />
+                        <DatePicker fx:id="dpF" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                     </children>
+                  </GridPane>
+                  <Button fx:id="btnAsesor" mnemonicParsing="false" onAction="#btnAddAsesor" prefHeight="39.0" prefWidth="264.0" text="AGREGAR ASESOR" />
+               </children>
+            </VBox>
+                <TableView fx:id="TableCourse" prefHeight="220.0" prefWidth="624.0" />
             </children>
         </HBox>
         <HBox fx:id="ManageD" layoutX="37.0" layoutY="347.0" prefHeight="215.0" prefWidth="1363.0">
@@ -79,8 +104,8 @@
                                 <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
                             </rowConstraints>
                             <children>
-                                <Label text="Nombre" />
-                                <Label text="Obligatorio" GridPane.rowIndex="1" />
+                                <Label text="Nombre:" />
+                                <Label text="Obligatorio:" GridPane.rowIndex="1" />
                                 <TextField fx:id="TextNameDocumentation" alignment="TOP_LEFT" GridPane.columnIndex="1" />
                                 <HBox fx:id="YNO" alignment="CENTER" prefHeight="26.0" prefWidth="169.0" GridPane.columnIndex="1" GridPane.rowIndex="1">
                                     <children>
@@ -88,7 +113,7 @@
                                         <RadioButton fx:id="RdNoO" mnemonicParsing="false" styleClass="custom-radio" text="No" />
                                     </children>
                                 </HBox>
-                                <Label text="Carta Compromiso" GridPane.rowIndex="2" />
+                                <Label text="Carta Compromiso:" GridPane.rowIndex="2" />
                                 <HBox fx:id="YNCC" alignment="CENTER" prefHeight="26.0" prefWidth="169.0" GridPane.columnIndex="1" GridPane.rowIndex="2">
                                     <children>
                                         <RadioButton fx:id="RdYesCC" mnemonicParsing="false" styleClass="custom-radio" text="Si" />

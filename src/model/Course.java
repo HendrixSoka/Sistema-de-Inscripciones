@@ -16,6 +16,7 @@ public class Course {
     private char paralelo;
     private int cupo_max;
     private boolean admite_nuevos;
+    private String asesor;
     
      public Course() {
     }

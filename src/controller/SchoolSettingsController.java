@@ -4,10 +4,13 @@
  */
 package controller;
 
+import Dao.AdvisorDao;
 import Dao.CourseDao;
 import Dao.DocumentationDao;
 import Dao.Subject_courseDao;
+import Dao.UserDao;
 import java.net.URL;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -25,6 +28,8 @@ import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.ContextMenu;
+import javafx.scene.control.DateCell;
+import javafx.scene.control.DatePicker;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.RadioButton;
 import javafx.scene.control.TableCell;
@@ -34,9 +39,11 @@ import javafx.scene.control.TextField;
 import javafx.scene.control.ToggleGroup;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.stage.StageStyle;
+import model.Advisor;
 import model.Course;
 import model.Documentation;
 import model.Subject_course;
+import model.User;
 
 /**
  * FXML Controller class
@@ -96,14 +103,37 @@ public class SchoolSettingsController implements Initializable {
     @FXML
     private Button btnSave;
 
+    @FXML
+    private ComboBox<String> cbxA;
+
+    @FXML
+    private ComboBox<String> cbxC;
+
+    @FXML
+    private DatePicker dpF;
+
+    @FXML
+    private DatePicker dpI;
+
+    @FXML
+    private Button btnAsesor;
+
     private CourseDao coursedao;
+    private UserDao userdao;
     private DocumentationDao documentationdao;
     private Subject_courseDao scoursedao;
+    private AdvisorDao advisordao;
     private char parallel;
     private ContextMenu CourseOptions;
     private ContextMenu DocumentationOptions;
     private Course courseselect;
     private Documentation documentationselect;
+
+    public String[] options = {"Gestionar Curso", "Gestionar Documentacion"};
+
+    public String[] optionsLevel = {"Primaria", "Secundaria"};
+
+    public String[] optionsGrade = {"Primero", "Segundo", "Tercero", "Cuarto", "Quinto", "Sexto"};
 
     public char getParallel() {
         return parallel;
@@ -120,7 +150,11 @@ public class SchoolSettingsController implements Initializable {
             documentationselect = null;
             cleanFieldsDocumentation();
             btnCancelar.setDisable(true);
+        }else if(cbxA.getSelectionModel().getSelectedIndex() != -1){
+            cleanFieldsDocumentation();
+            cleanFieldsCourse();
         }
+        
     }
 
     @FXML
@@ -304,6 +338,61 @@ public class SchoolSettingsController implements Initializable {
 
     }
 
+    @FXML
+    void btnAddAsesor(ActionEvent event) {
+
+        if (cbxA.getSelectionModel().getSelectedIndex() != -1 && cbxC.getSelectionModel().getSelectedIndex() != -1) {
+
+            Advisor advisor = new Advisor();
+
+            //id del asesor
+            advisor.setIdusuario(userdao.idasesor(cbxA.getSelectionModel().getSelectedItem()));
+
+            //id del curso
+            advisor.setIdcurso(coursedao.idcourse(verifycourse(cbxC.getSelectionModel().getSelectedItem())));
+
+            //fecha inicio
+            if (dpI.getValue().isBefore(LocalDate.now())) {
+                showAlert("Error", "Fecha invalida, no debe ser anterior a la fecha actual", Alert.AlertType.ERROR);
+                return;
+            } else {
+                advisor.setFechainicio(dpI.getValue());
+            }
+
+            //fecha fin
+            if (dpF.getValue().isBefore(LocalDate.now())) {
+                showAlert("Error", "Fecha invalida, no debe ser anterior a la fecha actual", Alert.AlertType.ERROR);
+                return;
+            } else {
+                advisor.setFechafin(dpF.getValue());
+            }
+            
+            boolean rsp = this.advisordao.register(advisor);
+            if (rsp) {
+                
+                showAlert("Exito", "Se registro correctamente el asesor", Alert.AlertType.INFORMATION);
+
+                cleanFieldsCourse();
+                UploadCourses();
+           
+            } else {
+                showAlert("Error", "Hugo un error al guardar", Alert.AlertType.ERROR);
+               
+            }
+
+        }
+
+    }
+
+    private String verifycourse(String full) {
+        for (int i = 0; i < optionsGrade.length; i++) {
+            if (full.contains(optionsGrade[i])) {
+                return full.replace(optionsGrade[i], String.valueOf(i));
+            }
+        }
+        return null;
+    }
+
     private void addMaterialsForGrade(int numberOfSubjects) {
         int idcurso = coursedao.returnIdcurso();
         List<Subject_course> list = new ArrayList<>();
@@ -332,6 +421,11 @@ public class SchoolSettingsController implements Initializable {
         CboxSelect.getSelectionModel().select("Seleccione");
         CboxLevelCourse.getSelectionModel().select("Seleccione");
         CboxGradeCourse.getSelectionModel().select("Seleccione");
+        cbxA.getSelectionModel().select("Seleccione");
+        cbxC.getSelectionModel().select("Seleccione");
+        dpI.setValue(null);
+        dpF.setValue(null);
+        btnAsesor.setDisable(true);
     }
 
     private void cleanFieldsDocumentation() {
@@ -477,6 +571,10 @@ public class SchoolSettingsController implements Initializable {
 
         parallelCol.setCellValueFactory(new PropertyValueFactory("paralelo"));
 
+        TableColumn advisors = new TableColumn("Asesor");
+
+        advisors.setCellFactory(new PropertyValueFactory("asesor"));
+
         TableColumn quotaCol = new TableColumn("CUPO");
 
         quotaCol.setCellValueFactory(new PropertyValueFactory("cupo_max"));
@@ -532,6 +630,12 @@ public class SchoolSettingsController implements Initializable {
         TextQuota.setDisable(true);
         TableCourse.setDisable(true);
 
+        cbxA.setDisable(true);
+        cbxC.setDisable(true);
+        dpI.setDisable(true);
+        dpF.setDisable(true);
+        btnAsesor.setDisable(true);
+
         TextNameDocumentation.setDisable(true);
         RdNoO.setDisable(true);
         RdYesO.setDisable(true);
@@ -552,23 +656,17 @@ public class SchoolSettingsController implements Initializable {
 
         diseble();
 
-        String[] options = {"Gestionar Curso", "Gestionar Documentacion"};
-
-        ObservableList<String> items = FXCollections.observableArrayList(options);
+        ObservableList<String> items = FXCollections.observableArrayList(this.options);
 
         CboxSelect.setItems(items);
         CboxSelect.setValue("Seleccione");
 
-        String[] optionsLevel = {"Primaria", "Secundaria"};
-
-        ObservableList<String> itemsLevel = FXCollections.observableArrayList(optionsLevel);
+        ObservableList<String> itemsLevel = FXCollections.observableArrayList(this.optionsLevel);
 
         CboxLevelCourse.setItems(itemsLevel);
         CboxLevelCourse.setValue("Seleccione");
 
-        String[] optionsGrade = {"Primero", "Segundo", "Tercero", "Cuarto", "Quinto", "Sexto"};
-
-        ObservableList<String> itemsGrade = FXCollections.observableArrayList(optionsGrade);
+        ObservableList<String> itemsGrade = FXCollections.observableArrayList(this.optionsGrade);
 
         CboxGradeCourse.setItems(itemsGrade);
         CboxGradeCourse.setValue("Seleccione");
@@ -586,6 +684,12 @@ public class SchoolSettingsController implements Initializable {
         RdYesAN.setToggleGroup(group2);
         RdNoAN.setToggleGroup(group2);
 
+        dpI.valueProperty().addListener((obs, oldDate, newDate) -> {
+            if (newDate != null) {
+                dpF.setValue(newDate.plusYears(1));
+            }
+        });
+
         try {
             this.coursedao = new CourseDao();
         } catch (ClassNotFoundException ex) {
@@ -602,6 +706,48 @@ public class SchoolSettingsController implements Initializable {
         } catch (ClassNotFoundException ex) {
             Logger.getLogger(SchoolSettingsController.class.getName()).log(Level.SEVERE, null, ex);
         }
+
+        try {
+            this.userdao = new UserDao();
+        } catch (ClassNotFoundException ex) {
+            Logger.getLogger(SchoolSettingsController.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
+        try {
+            this.advisordao = new AdvisorDao();
+        } catch (ClassNotFoundException ex) {
+            Logger.getLogger(SchoolSettingsController.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
+        //lista de asesores
+        ObservableList<String> observableListA = FXCollections.observableArrayList(userdao.Advisors());
+        cbxA.setItems(observableListA);
+        cbxA.setValue("Seleccione");
+
+        //lista de los cursos
+        ObservableList<String> observableListC = FXCollections.observableArrayList(coursedao.CoursesAdvisors());
+        cbxC.setItems(observableListC);
+        cbxC.setValue("Seleccione");
+
+        cbxA.setOnAction(event -> {
+            btnAsesor.setDisable(false);
+            CboxLevelCourse.setDisable(true);
+            CboxGradeCourse.setDisable(true);
+            TextPalallel.setDisable(true);
+            TextQuota.setDisable(true);
+            RdNoAN.setDisable(true);
+            RdYesAN.setDisable(true);
+            btnSave.setDisable(true);
+            btnCancelar.setDisable(false);
+            
+        });
+        CboxLevelCourse.setOnAction(event ->{
+            cbxA.setDisable(true);
+            cbxC.setDisable(true);
+            dpI.setDisable(true);
+            dpF.setDisable(true);
+            btnAsesor.setDisable(true);
+        });
 
         CboxLevelCourse.setOnAction(event -> updateText());
         CboxGradeCourse.setOnAction(event -> updateText());
@@ -815,6 +961,15 @@ public class SchoolSettingsController implements Initializable {
         //Tabla curso
         TableCourse.setDisable(false);
         btnSave.setDisable(false);
+        //Asesor
+        cbxA.setDisable(false);
+        cbxC.setDisable(false);
+        dpI.setDisable(false);
+        dpI.setEditable(false);
+        dpI.setValue(LocalDate.now());
+        dpF.setDisable(false);
+        dpF.setValue(LocalDate.now().plusYears(1));
+        btnAsesor.setDisable(true);
     }
 
     private void disableCourseField() {
@@ -829,6 +984,13 @@ public class SchoolSettingsController implements Initializable {
         //Radio buton
         RdNoAN.setDisable(true);
         RdYesAN.setDisable(true);
+        //Asesor
+        cbxA.setDisable(true);
+        cbxC.setDisable(true);
+        dpI.setDisable(true);
+        dpF.setDisable(true);
+        btnAsesor.setDisable(true);
+
     }
 
     private void enableDocumentationField() {
