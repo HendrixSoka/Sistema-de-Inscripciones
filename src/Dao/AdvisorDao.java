@@ -6,6 +6,7 @@ package Dao;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.time.LocalDate;
 import model.Advisor;
 import model.Database;
 
@@ -51,10 +52,10 @@ public class AdvisorDao {
         }
     }
     
-    public boolean delete(String fullname){
+    public boolean delete(String fullname,int idcurso){
         try {
 
-            String SQL = "DELETE FROM asesor WHERE idusuario = ?";
+            String SQL = "DELETE FROM asesor WHERE idusuario = ? AND idcurso = ?";
 
             Connection connection = this.AdvisorConnection.getConnection();
 
@@ -65,6 +66,8 @@ public class AdvisorDao {
             int id = userdao.idasesor(fullname);
             
             sentence.setInt(1, id);
+            
+            sentence.setInt(2, idcurso);
 
             sentence.executeUpdate();
 
@@ -75,6 +78,39 @@ public class AdvisorDao {
         } catch (Exception e) {
 
             System.err.println("Ocurrio un error al editar el curso");
+            System.err.println("Mensaje del error: " + e.getMessage());
+            System.err.println("Detalle del error: ");
+
+            e.printStackTrace();
+
+            return false;
+        }
+    }
+    
+    public boolean Edit(int idasesorn,LocalDate fechafin,int idcurso) {
+
+        try {
+
+            String SQL = "UPDATE asesor SET idusuario = ?, fecha_fin = ?"
+                    + " WHERE idcurso = ?";
+
+            Connection connection = this.AdvisorConnection.getConnection();
+
+            PreparedStatement sentence = connection.prepareStatement(SQL);
+
+            sentence.setInt(1, idasesorn);
+            sentence.setDate(2, java.sql.Date.valueOf(fechafin));
+
+            sentence.setInt(3, idcurso);
+
+            sentence.executeUpdate();
+
+            sentence.close();
+
+            return true;
+
+        } catch (Exception e) {
+            System.err.println("Ocurrio un error al editar usuario");
             System.err.println("Mensaje del error: " + e.getMessage());
             System.err.println("Detalle del error: ");
 

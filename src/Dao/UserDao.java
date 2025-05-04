@@ -280,7 +280,11 @@ public class UserDao {
         List<String> ListAdvisors = new ArrayList<>();
         try {
 
-            String SQL = "SELECT CONCAT(nombre, ' ', apellido) FROM usuario WHERE cargo = 2";
+            String SQL = "SELECT CONCAT(nombre, ' ', apellido) FROM usuario u "
+                    + "LEFT JOIN asesor a ON u.idusuario = a.idusuario "
+                    + "WHERE u.cargo = 2 "
+                    + "GROUP BY u.idusuario, u.nombre, u.apellido "
+                    + "HAVING COUNT(a.idusuario) < 2";
 
             Connection connection = this.UserConnection.getConnection();
             PreparedStatement sentence = connection.prepareStatement(SQL);

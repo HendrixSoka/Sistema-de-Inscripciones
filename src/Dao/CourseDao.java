@@ -261,10 +261,49 @@ public class CourseDao {
         List<String> ListCAdvisors = new ArrayList<>();
         try {
 
-            String SQL = "SELECT grado,paralelo FROM curso";
+            String SQL = "SELECT c.grado,c.paralelo FROM curso c "
+                    + "LEFT JOIN asesor a ON c.idcurso = a.idcurso "
+                    + "GROUP BY c.idcurso, c.grado, c.paralelo "
+                    + "HAVING COUNT(a.idusuario) < 2";
 
             Connection connection = this.CourseConnection.getConnection();
             PreparedStatement sentence = connection.prepareStatement(SQL);
+
+            ResultSet data = sentence.executeQuery();
+
+            while (data.next() == true) {
+
+                ListCAdvisors.add(optionsGrade[data.getInt("grado")] + " " + data.getString("paralelo"));
+
+            }
+            data.close();
+            sentence.close();
+
+        } catch (Exception e) {
+            System.err.println("Ocurrio un error al listar cursos");
+            System.err.println("Mensaje del error: " + e.getMessage());
+            System.err.println("Detalle del error: ");
+
+            e.printStackTrace();
+
+        }
+        return ListCAdvisors;
+    }
+    
+    public List<String> CoursesAdvisorsC(int idusuario) {
+        List<String> ListCAdvisors = new ArrayList<>();
+        try {
+
+            String SQL = "SELECT c.grado,c.paralelo FROM curso c "
+                    + "LEFT JOIN asesor a ON c.idcurso = a.idcurso "
+                    + "GROUP BY c.idcurso, c.grado, c.paralelo "
+                    + "HAVING COUNT(CASE WHEN a.idusuario IS NOT NULL THEN 1 END) < 2 "
+                    + "AND SUM(CASE WHEN a.idusuario = ? THEN 1 ELSE 0 END) = 0";
+
+            Connection connection = this.CourseConnection.getConnection();
+            PreparedStatement sentence = connection.prepareStatement(SQL);
+            
+            sentence.setInt(1, idusuario);
 
             ResultSet data = sentence.executeQuery();
 

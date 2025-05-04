@@ -19,8 +19,8 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.collections.transformation.FilteredList;
 import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Alert;
@@ -28,7 +28,6 @@ import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.ContextMenu;
-import javafx.scene.control.DateCell;
 import javafx.scene.control.DatePicker;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.RadioButton;
@@ -36,6 +35,7 @@ import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
+import javafx.scene.control.TextFormatter;
 import javafx.scene.control.ToggleGroup;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.stage.StageStyle;
@@ -43,7 +43,6 @@ import model.Advisor;
 import model.Course;
 import model.Documentation;
 import model.Subject_course;
-import model.User;
 
 /**
  * FXML Controller class
@@ -118,6 +117,15 @@ public class SchoolSettingsController implements Initializable {
     @FXML
     private Button btnAsesor;
 
+    @FXML
+    private ComboBox<String> cbxBgrades;
+
+    @FXML
+    private TextField textBdocument;
+
+    @FXML
+    private TextField textBparallel;
+
     private CourseDao coursedao;
     private UserDao userdao;
     private DocumentationDao documentationdao;
@@ -128,7 +136,17 @@ public class SchoolSettingsController implements Initializable {
     private ContextMenu DocumentationOptions;
     private Course courseselect;
     private Documentation documentationselect;
-    private Advisor advisorselected;
+    private String advisorN;
+    private FilteredList<Course> filteredDataC;
+
+    private String gradeFilter = "";
+    private String parallelFilter = "";
+
+    private FilteredList<Documentation> filteredDataD;
+
+    private ObservableList<String> observableListA;
+
+    private ObservableList<String> observableListC;
 
     public String[] options = {"Gestionar Curso", "Gestionar Documentacion"};
 
@@ -136,8 +154,32 @@ public class SchoolSettingsController implements Initializable {
 
     public String[] optionsGrade = {"Primero", "Segundo", "Tercero", "Cuarto", "Quinto", "Sexto"};
 
-    public char getParallel() {
-        return parallel;
+    @FXML
+    void setOnAction(ActionEvent event) {
+
+        String seleccion = CboxSelect.getValue();
+        if (seleccion != null) {
+            switch (seleccion) {
+                case "Gestionar Curso" -> {
+                    enableCourseField();
+                    disableDocumentationField();
+                    cbxBgrades.setValue("Seleccione");
+                    textBparallel.clear();
+                    textBdocument.clear();
+                }
+                case "Gestionar Documentacion" -> {
+                    enableDocumentationField();
+                    disableCourseField();
+                    cbxBgrades.setValue("Seleccione");
+                    textBparallel.clear();
+                    textBdocument.clear();
+                }
+                default ->
+                    diseble();
+            }
+        } else {
+            diseble();
+        }
     }
 
     @FXML
@@ -151,21 +193,23 @@ public class SchoolSettingsController implements Initializable {
             documentationselect = null;
             cleanFieldsDocumentation();
             btnCancelar.setDisable(true);
-        }else if(cbxA.getSelectionModel().getSelectedIndex() != -1){
+        } else if (cbxA.getSelectionModel().getSelectedIndex() != -1) {
             cleanFieldsDocumentation();
             cleanFieldsCourse();
         }
-        
+
     }
 
     @FXML
     void btnSaveOnAction(ActionEvent event) throws ClassNotFoundException {
 
+        //Controloa que se realizara es decir curso o documentacion
         String selected = CboxSelect.getValue();
 
         if (selected == null) {
+
             showAlert("Error", "Debe Seleccionar una opcion", Alert.AlertType.ERROR);
-            return;
+
         } else if (selected.equals("Gestionar Curso")) {
 
             if (courseselect == null) {
@@ -179,46 +223,42 @@ public class SchoolSettingsController implements Initializable {
                 }
 
                 switch (CboxGradeCourse.getValue()) {
-                    case "Primero":
+                    case "Primero" ->
                         course.setGrado(0);
-                        break;
-                    case "Segundo":
+                    case "Segundo" ->
                         course.setGrado(1);
-                        break;
-                    case "Tercero":
+                    case "Tercero" ->
                         course.setGrado(2);
-                        break;
-                    case "Cuarto":
+                    case "Cuarto" ->
                         course.setGrado(3);
-                        break;
-                    case "Quinto":
+                    case "Quinto" ->
                         course.setGrado(4);
-                        break;
-                    case "Sexto":
+                    case "Sexto" ->
                         course.setGrado(5);
-                        break;
-                    default:
-                        break;
+                    default -> {
+                    }
                 }
 
-                if (CboxLevelCourse.getSelectionModel().getSelectedIndex() == -1
-                        || CboxGradeCourse.getSelectionModel().getSelectedIndex() == -1) {
+                if (CboxLevelCourse.getSelectionModel().getSelectedIndex() == -1 || CboxGradeCourse.getSelectionModel().getSelectedIndex() == -1) {
+
                     showAlert("Error", "Los campos no pueden estar vacios", Alert.AlertType.ERROR);
                     return;
+
                 } else if (CboxLevelCourse.getSelectionModel().getSelectedIndex() != -1 && CboxGradeCourse.getSelectionModel().getSelectedIndex() != -1) {
                     parallel = coursedao.reeturnParallel(CboxLevelCourse.getSelectionModel().getSelectedIndex(), CboxGradeCourse.getSelectionModel().getSelectedIndex());
                     switch (parallel) {
-                        case '-':
+                        case '-' -> {
                             parallel = 'A';
                             course.setParalelo(parallel);
-                            break;
-                        case 'Z':
+                        }
+                        case 'Z' -> {
                             showAlert("Error", "Maximo de cursos permitido", Alert.AlertType.ERROR);
                             return;
-                        default:
+                        }
+                        default -> {
                             parallel++;
                             course.setParalelo(parallel);
-                            break;
+                        }
                     }
                 }
 
@@ -238,39 +278,60 @@ public class SchoolSettingsController implements Initializable {
                     cleanFieldsCourse();
 
                     UploadCourses();
+
                 } else {
+
                     showAlert("Error", "Hubo un error", Alert.AlertType.ERROR);
+
                 }
             } else {
 
-                courseselect.setNivel(CboxLevelCourse.getSelectionModel().getSelectedIndex());
-                courseselect.setGrado(CboxGradeCourse.getSelectionModel().getSelectedIndex());
-                courseselect.setParalelo(TextPalallel.getText().charAt(0));
+                if (courseselect.getNivel() == CboxLevelCourse.getSelectionModel().getSelectedIndex() && courseselect.getGrado() == CboxGradeCourse.getSelectionModel().getSelectedIndex() && String.valueOf(courseselect.getParalelo()).equals(TextPalallel.getText())) {
 
-                boolean rsp = this.coursedao.editCourse(courseselect);
-                if (rsp) {
-                    showAlert("Exito", "Se guardo correctamente el curso", Alert.AlertType.INFORMATION);
-
-                    cleanFieldsCourse();
-
-                    disableDocumentationField();
-                    enableCourseField();
-
-                    UploadCourses();
-
-                    courseselect = null;
-
-                    btnCancelar.setDisable(true);
+                    showAlert("Error", "No se pueden guardar los mismos datos", Alert.AlertType.ERROR);
 
                 } else {
-                    showAlert("Error", "Hubo un error", Alert.AlertType.ERROR);
+
+                    courseselect.setNivel(CboxLevelCourse.getSelectionModel().getSelectedIndex());
+                    courseselect.setGrado(CboxGradeCourse.getSelectionModel().getSelectedIndex());
+                    courseselect.setParalelo(TextPalallel.getText().charAt(0));
+
+                    boolean rsp = this.coursedao.editCourse(courseselect);
+
+                    if (rsp) {
+                        showAlert("Exito", "Se guardo correctamente el curso", Alert.AlertType.INFORMATION);
+
+                        cleanFieldsCourse();
+
+                        disableDocumentationField();
+                        enableCourseField();
+
+                        UploadCourses();
+
+                        courseselect = null;
+
+                        btnCancelar.setDisable(true);
+
+                    } else {
+                        showAlert("Error", "Hubo un error", Alert.AlertType.ERROR);
+                    }
                 }
             }
         } else if (selected.equals("Gestionar Documentacion")) {
+
             if (documentationselect == null) {
+
+                if (TextNameDocumentation.getText().isEmpty() || (!RdYesO.isSelected() && !RdNoO.isSelected()) || (!RdYesCC.isSelected() && !RdNoCC.isSelected())) {
+
+                    showAlert("Error", "Los campos no pueden estar vacios", Alert.AlertType.ERROR);
+                    return;
+
+                }
+
                 Documentation documentation = new Documentation();
 
                 documentation.setNombre(TextNameDocumentation.getText());
+
                 if (RdYesO.isSelected()) {
                     documentation.setObligatorio(true);
                 } else if (RdNoO.isSelected()) {
@@ -285,11 +346,15 @@ public class SchoolSettingsController implements Initializable {
                 } else {
                     showAlert("Error", "No puede estar vacio", Alert.AlertType.ERROR);
                 }
+
                 boolean resp = this.documentationdao.register(documentation);
+
                 if (resp) {
+
                     showAlert("Exito", "Se registro correcto el documento", Alert.AlertType.INFORMATION);
 
                     disableCourseField();
+
                     enableDocumentationField();
 
                     cleanFieldsDocumentation();
@@ -300,40 +365,62 @@ public class SchoolSettingsController implements Initializable {
                     showAlert("Error", "Hubo un error", Alert.AlertType.ERROR);
                 }
             } else {
-                documentationselect.setNombre(TextNameDocumentation.getText());
+
+                boolean rspRd1;
+                boolean rspRd2;
+
                 if (RdYesO.isSelected()) {
-                    documentationselect.setObligatorio(true);
-                } else if (RdNoO.isSelected()) {
-                    documentationselect.setObligatorio(false);
+                    rspRd1 = true;
                 } else {
-                    showAlert("Error", "No puede estar vacio", Alert.AlertType.ERROR);
+                    rspRd1 = false;
                 }
+
                 if (RdYesCC.isSelected()) {
-                    documentationselect.setCartacompromiso(true);
-                } else if (RdNoCC.isSelected()) {
-                    documentationselect.setCartacompromiso(false);
+                    rspRd2 = true;
                 } else {
-                    showAlert("Error", "No puede estar vacio", Alert.AlertType.ERROR);
+                    rspRd2 = false;
                 }
 
-                boolean resp = this.documentationdao.editDocumentation(documentationselect);
-                if (resp) {
-                    showAlert("Exito", "Se guardo correctamente el documento", Alert.AlertType.INFORMATION);
+                if (documentationselect.getNombre().equals(TextNameDocumentation.getText()) && documentationselect.isObligatorio() == rspRd1
+                        && documentationselect.isCartacompromiso() == rspRd2) {
 
-                    disableCourseField();
-                    enableDocumentationField();
+                    showAlert("Error", "No se pueden guardar los mismos datos", Alert.AlertType.ERROR);
 
-                    cleanFieldsDocumentation();
-
-                    documentationselect = null;
-
-                    btnCancelar.setDisable(true);
-
-                    LoadDocumentation();
                 } else {
-                    showAlert("Error", "Hubo un error", Alert.AlertType.ERROR);
-                }
+                    documentationselect.setNombre(TextNameDocumentation.getText());
+                    if (RdYesO.isSelected()) {
+                        documentationselect.setObligatorio(true);
+                    } else if (RdNoO.isSelected()) {
+                        documentationselect.setObligatorio(false);
+                    } else {
+                        showAlert("Error", "No puede estar vacio", Alert.AlertType.ERROR);
+                    }
+                    if (RdYesCC.isSelected()) {
+                        documentationselect.setCartacompromiso(true);
+                    } else if (RdNoCC.isSelected()) {
+                        documentationselect.setCartacompromiso(false);
+                    } else {
+                        showAlert("Error", "No puede estar vacio", Alert.AlertType.ERROR);
+                    }
 
+                    boolean resp = this.documentationdao.editDocumentation(documentationselect);
+                    if (resp) {
+                        showAlert("Exito", "Se guardo correctamente el documento", Alert.AlertType.INFORMATION);
+
+                        disableCourseField();
+                        enableDocumentationField();
+
+                        cleanFieldsDocumentation();
+
+                        documentationselect = null;
+
+                        btnCancelar.setDisable(true);
+
+                        LoadDocumentation();
+                    } else {
+                        showAlert("Error", "Hubo un error", Alert.AlertType.ERROR);
+                    }
+                }
             }
         }
 
@@ -342,47 +429,82 @@ public class SchoolSettingsController implements Initializable {
     @FXML
     void btnAddAsesor(ActionEvent event) {
 
-        if (cbxA.getSelectionModel().getSelectedIndex() != -1 && cbxC.getSelectionModel().getSelectedIndex() != -1) {
+        if (courseselect == null) {
 
-            Advisor advisor = new Advisor();
+            if (cbxA.getSelectionModel().getSelectedIndex() != -1 && cbxC.getSelectionModel().getSelectedIndex() != -1) {
 
-            //id del asesor
-            advisor.setIdusuario(userdao.idasesor(cbxA.getSelectionModel().getSelectedItem()));
+                Advisor advisor = new Advisor();
 
-            //id del curso
-            advisor.setIdcurso(coursedao.idcourse(verifycourse(cbxC.getSelectionModel().getSelectedItem())));
+                //id del asesor
+                advisor.setIdusuario(userdao.idasesor(cbxA.getSelectionModel().getSelectedItem()));
 
-            //fecha inicio
-            if (dpI.getValue().isBefore(LocalDate.now())) {
-                showAlert("Error", "Fecha invalida, no debe ser anterior a la fecha actual", Alert.AlertType.ERROR);
-                return;
+                //id del curso
+                advisor.setIdcurso(coursedao.idcourse(verifycourse(cbxC.getSelectionModel().getSelectedItem())));
+
+                //fecha inicio
+                if (dpI.getValue().isBefore(LocalDate.now())) {
+                    showAlert("Error", "Fecha invalida, no debe ser anterior a la fecha actual", Alert.AlertType.ERROR);
+                    return;
+                } else {
+                    advisor.setFechainicio(dpI.getValue());
+                }
+
+                //fecha fin
+                if (dpF.getValue().isBefore(LocalDate.now())) {
+                    showAlert("Error", "Fecha invalida, no debe ser anterior a la fecha actual", Alert.AlertType.ERROR);
+                    return;
+                } else {
+                    advisor.setFechafin(dpF.getValue());
+                }
+
+                boolean rsp = this.advisordao.register(advisor);
+                if (rsp) {
+
+                    showAlert("Exito", "Se registro correctamente el asesor", Alert.AlertType.INFORMATION);
+
+                    cleanFieldsCourse();
+                    UploadCourses();
+                    UpdateAdversors();
+
+                } else {
+                    showAlert("Error", "Hugo un error al guardar", Alert.AlertType.ERROR);
+
+                }
+
             } else {
-                advisor.setFechainicio(dpI.getValue());
+                showAlert("Error", "Deben estar los campos seleccionados", Alert.AlertType.ERROR);
             }
+        } else {
 
-            //fecha fin
             if (dpF.getValue().isBefore(LocalDate.now())) {
-                showAlert("Error", "Fecha invalida, no debe ser anterior a la fecha actual", Alert.AlertType.ERROR);
-                return;
+                showAlert("Error", "No puede ser una fecha menor a la actual", Alert.AlertType.ERROR);
             } else {
-                advisor.setFechafin(dpF.getValue());
-            }
-            
-            boolean rsp = this.advisordao.register(advisor);
-            if (rsp) {
-                
-                showAlert("Exito", "Se registro correctamente el asesor", Alert.AlertType.INFORMATION);
 
-                cleanFieldsCourse();
-                UploadCourses();
-           
-            } else {
-                showAlert("Error", "Hugo un error al guardar", Alert.AlertType.ERROR);
-               
-            }
+                advisorN = cbxA.getSelectionModel().getSelectedItem();
 
+                if (advisorN.equals(courseselect.getAsesor()) && dpF.getValue().equals(courseselect.getFechaf())) {
+                    showAlert("Error", "No se puede guardar la misma informacion", Alert.AlertType.ERROR);
+                } else {
+
+                    boolean rsp = advisordao.Edit(userdao.idasesor(advisorN), dpF.getValue(), coursedao.idcourse(verifycourse(cbxC.getSelectionModel().getSelectedItem())));
+
+                    if (rsp) {
+                        showAlert("Exito", "Se guardo correctamente el asesor", Alert.AlertType.INFORMATION);
+
+                        cleanFieldsCourse();
+                        UploadCourses();
+                        UpdateAdversors();
+
+                        courseselect = null;
+
+                    } else {
+
+                        showAlert("Error", "Hubo un error al modificar", Alert.AlertType.ERROR);
+
+                    }
+                }
+            }
         }
-
     }
 
     private String verifycourse(String full) {
@@ -427,6 +549,8 @@ public class SchoolSettingsController implements Initializable {
         dpI.setValue(null);
         dpF.setValue(null);
         btnAsesor.setDisable(true);
+        btnCancelar.setDisable(true);
+        cbxBgrades.getSelectionModel().select("Seleccione");
     }
 
     private void cleanFieldsDocumentation() {
@@ -438,35 +562,20 @@ public class SchoolSettingsController implements Initializable {
         RdNoCC.setSelected(false);
         CboxSelect.getSelectionModel().clearSelection();
         CboxSelect.setPromptText("Seleccione");
-    }
-
-    @FXML
-    void setOnAction(ActionEvent event) {
-
-        String seleccion = CboxSelect.getValue();
-        if (seleccion != null) {
-            if (seleccion.equals("Gestionar Curso")) {
-                enableCourseField();
-                disableDocumentationField();
-            } else if (seleccion.equals("Gestionar Documentacion")) {
-                enableDocumentationField();
-                disableCourseField();
-            } else {
-                diseble();
-            }
-        } else {
-            diseble();
-        }
+        btnCancelar.setDisable(true);
     }
 
     public void LoadDocumentation() {
 
-        TableDocumentation.getItems().clear();
-        TableDocumentation.getColumns().clear();
-
+        //TableDocumentation.getItems().clear();
+        //TableDocumentation.getColumns().clear();
+        
         List<Documentation> documentations = this.documentationdao.toList();
 
         ObservableList<Documentation> data = FXCollections.observableArrayList(documentations);
+
+        filteredDataD = new FilteredList<>(data, p -> true);
+        TableDocumentation.setItems(filteredDataD);
 
         TableColumn iddocumenttypeCol = new TableColumn("ID");
 
@@ -514,18 +623,20 @@ public class SchoolSettingsController implements Initializable {
             }
         });
 
-        TableDocumentation.setItems(data);
+        //TableDocumentation.setItems(dataD);
         TableDocumentation.getColumns().addAll(iddocumenttypeCol, nameCol, compulsoryCol, commitmentletterCol);
     }
 
     public void UploadCourses() {
 
-        TableCourse.getItems().clear();
-        TableCourse.getColumns().clear();
-
+        //TableCourse.getItems().clear();
+        //TableCourse.getColumns().clear();
         List<Course> courses = this.coursedao.toList();
 
         ObservableList<Course> data = FXCollections.observableArrayList(courses);
+
+        filteredDataC = new FilteredList<>(data, p -> true);
+        TableCourse.setItems(filteredDataC);
 
         TableColumn idcourseCol = new TableColumn("ID");
 
@@ -575,13 +686,13 @@ public class SchoolSettingsController implements Initializable {
         TableColumn advisorsCol = new TableColumn("ASESOR");
 
         advisorsCol.setCellValueFactory(new PropertyValueFactory("asesor"));
-        
+
         TableColumn startdateCol = new TableColumn("FECHA INICIO");
-        
+
         startdateCol.setCellValueFactory(new PropertyValueFactory("fechai"));
-        
+
         TableColumn enddateCol = new TableColumn("FECHA FIN");
-        
+
         enddateCol.setCellValueFactory(new PropertyValueFactory("fechaf"));
 
         TableColumn quotaCol = new TableColumn("CUPO");
@@ -607,8 +718,8 @@ public class SchoolSettingsController implements Initializable {
             }
         });
 
-        TableCourse.setItems(data);
-        TableCourse.getColumns().addAll(idcourseCol, levelCol, gradeCol, parallelCol,advisorsCol,startdateCol,enddateCol, quotaCol, admitsnewCol);
+        //TableCourse.setItems(data);
+        TableCourse.getColumns().addAll(idcourseCol, levelCol, gradeCol, parallelCol, advisorsCol, startdateCol, enddateCol, quotaCol, admitsnewCol);
 
     }
 
@@ -658,6 +769,156 @@ public class SchoolSettingsController implements Initializable {
         btnCancelar.setDisable(true);
 
         CboxSelect.getSelectionModel().select("Seleccione");
+
+        textBdocument.setDisable(true);
+        textBparallel.setDisable(true);
+        cbxBgrades.setDisable(true);
+    }
+
+    private void UpdateAdversors() {
+
+        this.observableListA = FXCollections.observableArrayList(userdao.Advisors());
+
+        if (observableListA.isEmpty()) {
+            cbxA.setItems(FXCollections.observableArrayList("Sin datos"));
+            cbxA.setValue("Sin datos");
+            cbxA.setDisable(true);
+        } else {
+            cbxA.setItems(observableListA);
+            cbxA.setValue("Seleccione");
+        }
+    }
+
+    private void UpdateCourses() {
+
+        if (cbxA.getSelectionModel().isEmpty()) {
+            this.observableListC = FXCollections.observableArrayList(coursedao.CoursesAdvisors());
+        } else {
+            this.observableListC = FXCollections.observableArrayList(coursedao.CoursesAdvisorsC(userdao.idasesor(cbxA.getSelectionModel().getSelectedItem())));
+        }
+
+        if (observableListC.isEmpty()) {
+            cbxC.setItems(FXCollections.observableArrayList("Sin datos"));
+            cbxC.setValue("Sin datos");
+            cbxC.setDisable(true);
+        } else {
+            cbxC.setItems(observableListC);
+            cbxC.setValue("Seleccione");
+        }
+    }
+
+    private void showAlert(String title, String message, Alert.AlertType alertType) {
+        Alert alert = new Alert(alertType);
+        alert.setTitle(title);
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+        alert.showAndWait();
+    }
+
+    private void enableCourseField() {
+        //Combo box de Nivel y Curso 
+        CboxLevelCourse.setDisable(false);
+        CboxGradeCourse.setDisable(false);
+        //Texto Paralelo y Text CupoMax
+        TextPalallel.setDisable(false);
+        TextPalallel.setEditable(false);
+        TextQuota.setDisable(false);
+        TextQuota.setEditable(false);
+        //Radio buton Admite nuevos
+        RdNoAN.setDisable(true);
+        RdYesAN.setDisable(true);
+        RdYesAN.setSelected(true);
+        //Tabla curso
+        TableCourse.setDisable(false);
+        btnSave.setDisable(false);
+        //Asesor
+        cbxA.setDisable(false);
+        cbxC.setDisable(false);
+        dpI.setDisable(false);
+        dpI.setEditable(false);
+        dpI.setValue(LocalDate.now());
+        dpF.setDisable(false);
+        dpF.setValue(LocalDate.now().plusYears(1));
+        btnAsesor.setDisable(true);
+        //Busqueda
+        cbxBgrades.setDisable(false);
+        textBparallel.setDisable(false);
+    }
+
+    private void disableCourseField() {
+        //Combo box de Nivel y Curso 
+        CboxLevelCourse.setDisable(true);
+        CboxGradeCourse.setDisable(true);
+        //Texto Paralelo y Text CupoMax
+        TextPalallel.setDisable(true);
+        TextQuota.setDisable(true);
+        //Tabla curso
+        TableCourse.setDisable(true);
+        //Radio buton
+        RdNoAN.setDisable(true);
+        RdYesAN.setDisable(true);
+        //Asesor
+        cbxA.setDisable(true);
+        cbxC.setDisable(true);
+        dpI.setDisable(true);
+        dpF.setDisable(true);
+        btnAsesor.setDisable(true);
+        //Busqueda
+        cbxBgrades.setDisable(true);
+        textBparallel.setDisable(true);
+    }
+
+    private void enableDocumentationField() {
+
+        //Text nombre documento
+        TextNameDocumentation.setEditable(true);
+        TextNameDocumentation.setDisable(false);
+        //Radio buton para ver si el documento es obligatorio
+        RdNoO.setDisable(false);
+        RdYesO.setDisable(false);
+        //Radio buton para ver si el documento tiene carta compromiso
+        RdNoCC.setDisable(false);
+        RdYesCC.setDisable(false);
+        TableDocumentation.setDisable(false);
+        btnSave.setDisable(false);
+        //Busqueda
+        textBdocument.setDisable(false);
+    }
+
+    private void disableDocumentationField() {
+        //Text nombre documento
+        TextNameDocumentation.setDisable(true);
+        //Radio buton para ver si el documento es obligatorio
+        RdYesO.setDisable(true);
+        RdNoO.setDisable(true);
+        //Radio buton para ver si el documento tiene carta compromiso
+        RdNoCC.setDisable(true);
+        RdYesCC.setDisable(true);
+        //Tabla documentacio
+        TableDocumentation.setDisable(true);
+        //Busqueda
+        textBdocument.setDisable(true);
+    }
+
+    private void aplicarFiltro() {
+        filteredDataC.setPredicate(course -> {
+            boolean matchesGrade = true;
+            boolean matchesParallel = true;
+
+            if (gradeFilter != null && !gradeFilter.isEmpty()) {
+                matchesGrade = String.valueOf(course.getGrado())
+                        .toLowerCase()
+                        .contains(gradeFilter.toLowerCase());
+            }
+
+            if (parallelFilter != null && !parallelFilter.isEmpty()) {
+                matchesParallel = String.valueOf(course.getParalelo())
+                        .toLowerCase()
+                        .contains(parallelFilter.toLowerCase());
+            }
+
+            return matchesGrade && matchesParallel;
+        });
     }
 
     @Override
@@ -679,6 +940,9 @@ public class SchoolSettingsController implements Initializable {
 
         CboxGradeCourse.setItems(itemsGrade);
         CboxGradeCourse.setValue("Seleccione");
+
+        cbxBgrades.setItems(itemsGrade);
+        cbxBgrades.setValue("Seleccione");
 
         ToggleGroup group0 = new ToggleGroup();
 
@@ -729,14 +993,22 @@ public class SchoolSettingsController implements Initializable {
         }
 
         //lista de asesores
-        ObservableList<String> observableListA = FXCollections.observableArrayList(userdao.Advisors());
-        cbxA.setItems(observableListA);
-        cbxA.setValue("Seleccione");
+        UpdateAdversors();
 
         //lista de los cursos
-        ObservableList<String> observableListC = FXCollections.observableArrayList(coursedao.CoursesAdvisors());
-        cbxC.setItems(observableListC);
-        cbxC.setValue("Seleccione");
+        UpdateCourses();
+
+        textBparallel.setTextFormatter(new TextFormatter<String>(change -> {
+            String newText = change.getControlNewText();
+
+            if (newText.matches("[A-Z]?")) {
+                return change;
+            } else {
+                showAlert("Error", "Solo paralelos validos", Alert.AlertType.ERROR);
+                textBparallel.clear();
+            }
+            return null;
+        }));
 
         cbxA.setOnAction(event -> {
             btnAsesor.setDisable(false);
@@ -748,9 +1020,11 @@ public class SchoolSettingsController implements Initializable {
             RdYesAN.setDisable(true);
             btnSave.setDisable(true);
             btnCancelar.setDisable(false);
-            
+            cbxC.setDisable(false);
+            UpdateCourses();
+
         });
-        CboxLevelCourse.setOnAction(event ->{
+        CboxLevelCourse.setOnAction(event -> {
             cbxA.setDisable(true);
             cbxC.setDisable(true);
             dpI.setDisable(true);
@@ -769,169 +1043,140 @@ public class SchoolSettingsController implements Initializable {
 
         MenuItem EditCourse = new MenuItem("Editar Curso");
         MenuItem DeleteCourse = new MenuItem("Eliminar Curso");
-        MenuItem EditAdviser = new MenuItem("Editar Asesor");
+        MenuItem EditAdviser = new MenuItem("Cambiar Asesor");
         MenuItem DeleteAdviser = new MenuItem("Eliminar Asesor");
 
-        CourseOptions.getItems().addAll(EditCourse, DeleteCourse,EditAdviser, DeleteAdviser);
+        CourseOptions.getItems().addAll(EditCourse, DeleteCourse, EditAdviser, DeleteAdviser);
 
-        DeleteCourse.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent t) {
+        DeleteCourse.setOnAction((ActionEvent t) -> {
+            int index = TableCourse.getSelectionModel().getSelectedIndex();
 
-                int index = TableCourse.getSelectionModel().getSelectedIndex();
+            Course deleteCourse = TableCourse.getItems().get(index);
 
-                Course deleteCourse = TableCourse.getItems().get(index);
+            Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
 
-                Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+            alert.setTitle("Confirmacion");
+            alert.setHeaderText(null);
 
-                alert.setTitle("Confirmacion");
-                alert.setHeaderText(null);
+            alert.setContentText("¿Desea eliminar el curso: "
+                    + optionsGrade[deleteCourse.getGrado()] + " " + deleteCourse.getParalelo() + "?");
 
-                alert.setContentText("¿Desea eliminar el curso: "
-                        + optionsGrade[deleteCourse.getGrado()] + " " + deleteCourse.getParalelo() + "?");
+            alert.initStyle(StageStyle.UTILITY);
+            Optional<ButtonType> result = alert.showAndWait();
 
-                alert.initStyle(StageStyle.UTILITY);
-                Optional<ButtonType> result = alert.showAndWait();
+            if (result.get() == ButtonType.OK) {
 
-                if (result.get() == ButtonType.OK) {
+                boolean rsp = coursedao.deleteCourse(deleteCourse.getIdcurso());
 
-                    boolean rsp = coursedao.deleteCourse(deleteCourse.getIdcurso());
+                if (rsp) {
 
-                    if (rsp) {
+                    showAlert("Exito", "Se elimino correctamente el Curso", Alert.AlertType.INFORMATION);
 
-                        Alert alert2 = new Alert(Alert.AlertType.INFORMATION);
-                        alert2.setTitle("Exito");
-                        alert2.setHeaderText(null);
-                        alert2.setContentText("Se elimino correctamente el curso");
-                        alert2.initStyle(StageStyle.UTILITY);
-                        alert2.showAndWait();
+                    LoadDocumentation();
+                    UpdateCourses();
+                    cleanFieldsDocumentation();
+                    disableCourseField();
 
-                        UploadCourses();
-
-                        disableDocumentationField();
-                        enableCourseField();
-
-                    } else {
-
-                        Alert alert2 = new Alert(Alert.AlertType.ERROR);
-                        alert2.setTitle("Error");
-                        alert2.setHeaderText(null);
-                        alert2.setContentText("Hubo un error al eliminar");
-                        alert2.initStyle(StageStyle.UTILITY);
-                        alert2.showAndWait();
-                    }
-                }
-
-            }
-
-        });
-
-        EditCourse.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent t) {
-
-                int index = TableCourse.getSelectionModel().getSelectedIndex();
-
-                courseselect = TableCourse.getItems().get(index);
-
-                CboxLevelCourse.getSelectionModel().select(courseselect.getNivel());
-
-                CboxGradeCourse.getSelectionModel().select(courseselect.getGrado());
-
-                TextPalallel.setText(String.valueOf(courseselect.getParalelo()));
-
-                TextQuota.setText(String.valueOf(courseselect.getCupo_max()));
-
-                if (courseselect.getAdmite_nuevos()) {
-                    RdYesAN.setSelected(true);
                 } else {
-                    RdNoAN.setSelected(true);
-                }
 
-                TextPalallel.setDisable(false);
-                TextPalallel.setEditable(true);
-                btnCancelar.setDisable(false);
+                    showAlert("Error", "Hubo un error", Alert.AlertType.ERROR);
 
-            }
-        });
-        
-        EditAdviser.setOnAction(new EventHandler<ActionEvent>(){
-            @Override
-            public void handle(ActionEvent t) {
-                
-                int index = TableCourse.getSelectionModel().getSelectedIndex();
-                
-                courseselect = TableCourse.getItems().get(index);
-                
-                cbxA.getSelectionModel().select(courseselect.getAsesor());
-                
-                String namecourse = optionsGrade[courseselect.getGrado()] + " "+courseselect.getParalelo();
-                
-                cbxC.getSelectionModel().select(namecourse);
-                
-                dpI.setValue(courseselect.getFechai());
-                
-                dpF.setValue(courseselect.getFechaf());
-                
-                cbxA.setDisable(false);
-                cbxC.setDisable(false);
-                dpI.setDisable(false);
-                dpF.setDisable(false);
-                
-            }
-        
-        
-        });
-        
-        DeleteAdviser.setOnAction(new EventHandler<ActionEvent>(){
-            @Override
-            public void handle(ActionEvent t) {
-                
-                int index = TableCourse.getSelectionModel().getSelectedIndex();
-                
-                Course deleteadviser = TableCourse.getItems().get(index);
-                
-                Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-
-                alert.setTitle("Confirmacion");
-                alert.setHeaderText(null);
-
-                alert.setContentText("¿Desea eliminar al asesor: "
-                        + deleteadviser.getAsesor() +" del curso "+ optionsGrade[deleteadviser.getGrado()] + " " + deleteadviser.getParalelo() + "?");
-
-                alert.initStyle(StageStyle.UTILITY);
-                Optional<ButtonType> result = alert.showAndWait();
-
-                if (result.get() == ButtonType.OK) {
-
-                    boolean rsp = advisordao.delete(deleteadviser.getAsesor());
-
-                    if (rsp) {
-
-                        Alert alert2 = new Alert(Alert.AlertType.INFORMATION);
-                        alert2.setTitle("Exito");
-                        alert2.setHeaderText(null);
-                        alert2.setContentText("Se elimino correctamente el curso");
-                        alert2.initStyle(StageStyle.UTILITY);
-                        alert2.showAndWait();
-
-                        UploadCourses();
-
-                        disableDocumentationField();
-                        enableCourseField();
-
-                    } else {
-
-                        Alert alert2 = new Alert(Alert.AlertType.ERROR);
-                        alert2.setTitle("Error");
-                        alert2.setHeaderText(null);
-                        alert2.setContentText("Hubo un error al eliminar");
-                        alert2.initStyle(StageStyle.UTILITY);
-                        alert2.showAndWait();
-                    }
                 }
             }
-        
+        });
+
+        EditCourse.setOnAction((ActionEvent t) -> {
+            int index = TableCourse.getSelectionModel().getSelectedIndex();
+
+            courseselect = TableCourse.getItems().get(index);
+
+            CboxLevelCourse.getSelectionModel().select(courseselect.getNivel());
+
+            CboxGradeCourse.getSelectionModel().select(courseselect.getGrado());
+
+            TextPalallel.setText(String.valueOf(courseselect.getParalelo()));
+
+            TextQuota.setText(String.valueOf(courseselect.getCupo_max()));
+
+            if (courseselect.getAdmite_nuevos()) {
+                RdYesAN.setSelected(true);
+            } else {
+                RdNoAN.setSelected(true);
+            }
+
+            TextPalallel.setDisable(false);
+            TextPalallel.setEditable(true);
+            btnCancelar.setDisable(false);
+
+            cbxA.setDisable(true);
+            cbxA.getSelectionModel().select("Seleccione");
+            cbxC.setDisable(true);
+            cbxC.getSelectionModel().select("Seleccione");
+            dpI.setDisable(true);
+            dpI.setValue(null);
+            dpF.setDisable(true);
+            dpF.setValue(null);
+        });
+
+        EditAdviser.setOnAction((ActionEvent t) -> {
+            int index = TableCourse.getSelectionModel().getSelectedIndex();
+
+            courseselect = TableCourse.getItems().get(index);
+
+            cbxA.getSelectionModel().select(courseselect.getAsesor());
+
+            String namecourse = optionsGrade[courseselect.getGrado()] + " " + courseselect.getParalelo();
+
+            cbxC.getSelectionModel().select(namecourse);
+
+            dpI.setValue(courseselect.getFechai());
+
+            dpF.setValue(courseselect.getFechaf());
+
+            cbxA.setDisable(false);
+            cbxC.setDisable(true);
+            dpI.setDisable(true);
+            dpF.setDisable(false);
+        });
+
+        DeleteAdviser.setOnAction((ActionEvent t) -> {
+            int index = TableCourse.getSelectionModel().getSelectedIndex();
+
+            Course deleteadviser = TableCourse.getItems().get(index);
+
+            Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+
+            alert.setTitle("Confirmacion");
+            alert.setHeaderText(null);
+
+            alert.setContentText("¿Desea eliminar al asesor: "
+                    + deleteadviser.getAsesor() + " del curso " + optionsGrade[deleteadviser.getGrado()] + " " + deleteadviser.getParalelo() + "?");
+
+            alert.initStyle(StageStyle.UTILITY);
+            Optional<ButtonType> result = alert.showAndWait();
+
+            if (result.get() == ButtonType.OK) {
+
+                boolean rsp = advisordao.delete(deleteadviser.getAsesor(), coursedao.idcourse(verifycourse(optionsGrade[deleteadviser.getGrado()] + " " + deleteadviser.getParalelo())));
+
+                if (rsp) {
+
+                    showAlert("Exito", "Se elimino correctamente el Asesor", Alert.AlertType.INFORMATION);
+
+                    UploadCourses();
+
+                    UpdateCourses();
+
+                    UpdateAdversors();
+
+                    disableDocumentationField();
+                    enableCourseField();
+
+                } else {
+
+                    showAlert("Error", "Hubo un error", Alert.AlertType.ERROR);
+                }
+            }
         });
 
         TableCourse.setContextMenu(CourseOptions);
@@ -944,169 +1189,92 @@ public class SchoolSettingsController implements Initializable {
 
         DocumentationOptions.getItems().addAll(EditDocumentation, DeleteDocumentation);
 
-        DeleteDocumentation.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent t) {
+        DeleteDocumentation.setOnAction((ActionEvent t) -> {
 
-                int index = TableDocumentation.getSelectionModel().getSelectedIndex();
+            int index = TableDocumentation.getSelectionModel().getSelectedIndex();
 
-                Documentation deleteDocumentation = TableDocumentation.getItems().get(index);
+            Documentation deleteDocumentation = TableDocumentation.getItems().get(index);
 
-                Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+            Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
 
-                alert.setTitle("Confirmacion");
-                alert.setHeaderText(null);
-                alert.setContentText("¿Desea eliminar el usuario: "
-                        + deleteDocumentation.getNombre() + "?");
+            alert.setTitle("Confirmacion");
+            alert.setHeaderText(null);
+            alert.setContentText("¿Desea eliminar el usuario: "
+                    + deleteDocumentation.getNombre() + "?");
 
-                alert.initStyle(StageStyle.UTILITY);
-                Optional<ButtonType> result = alert.showAndWait();
+            alert.initStyle(StageStyle.UTILITY);
+            Optional<ButtonType> result = alert.showAndWait();
 
-                if (result.get() == ButtonType.OK) {
+            if (result.isPresent() && result.get() == ButtonType.OK) {
 
-                    boolean rsp = documentationdao.deleteDocumentation(deleteDocumentation.getIdtipo_documento());
+                boolean rsp = documentationdao.deleteDocumentation(deleteDocumentation.getIdtipo_documento());
 
-                    if (rsp) {
+                if (rsp) {
 
-                        Alert alert2 = new Alert(Alert.AlertType.INFORMATION);
-                        alert2.setTitle("Exito");
-                        alert2.setHeaderText(null);
-                        alert2.setContentText("Se elimino correctamente el documento");
-                        alert2.initStyle(StageStyle.UTILITY);
-                        alert2.showAndWait();
+                    showAlert("Exito", "Se elimino correctamente la Documentacion", Alert.AlertType.INFORMATION);
 
-                        LoadDocumentation();
+                    LoadDocumentation();
 
-                        disableCourseField();
-                        enableDocumentationField();
+                    disableCourseField();
+                    enableDocumentationField();
 
-                    } else {
+                } else {
 
-                        Alert alert2 = new Alert(Alert.AlertType.ERROR);
-                        alert2.setTitle("Error");
-                        alert2.setHeaderText(null);
-                        alert2.setContentText("Hubo un error al eliminar");
-                        alert2.initStyle(StageStyle.UTILITY);
-                        alert2.showAndWait();
-                    }
+                    showAlert("Error", "Hubo un error", Alert.AlertType.ERROR);
                 }
-
             }
-
         });
 
-        EditDocumentation.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent t) {
+        EditDocumentation.setOnAction((ActionEvent t) -> {
+            int index = TableDocumentation.getSelectionModel().getSelectedIndex();
 
-                int index = TableDocumentation.getSelectionModel().getSelectedIndex();
+            documentationselect = TableDocumentation.getItems().get(index);
 
-                documentationselect = TableDocumentation.getItems().get(index);
+            TextNameDocumentation.setText(documentationselect.getNombre());
 
-                TextNameDocumentation.setText(documentationselect.getNombre());
-
-                if (documentationselect.isObligatorio()) {
-                    RdYesO.setSelected(true);
-                } else {
-                    RdNoO.setSelected(true);
-                }
-
-                if (documentationselect.isCartacompromiso()) {
-                    RdYesCC.setSelected(true);
-                } else {
-                    RdNoCC.setSelected(true);
-                }
-
-                btnCancelar.setDisable(false);
+            if (documentationselect.isObligatorio()) {
+                RdYesO.setSelected(true);
+            } else {
+                RdNoO.setSelected(true);
             }
+
+            if (documentationselect.isCartacompromiso()) {
+                RdYesCC.setSelected(true);
+            } else {
+                RdNoCC.setSelected(true);
+            }
+
+            btnCancelar.setDisable(false);
         });
 
         TableDocumentation.setContextMenu(DocumentationOptions);
 
-    }
+        cbxBgrades.getSelectionModel().selectedIndexProperty().addListener((observable, oldIndex, newIndex) -> {
 
-    private void showAlert(String title, String message, Alert.AlertType alertType) {
-        Alert alert = new Alert(alertType);
-        alert.setTitle(title);
-        alert.setHeaderText(null);
-        alert.setContentText(message);
-        alert.showAndWait();
-    }
+            int index = newIndex.intValue();
+            if (index >= 0) {
+                gradeFilter = String.valueOf(index);
+            } else {
+                gradeFilter = "";
+            }
+            aplicarFiltro();
+        });
 
-    private void enableCourseField() {
-        //Combo box de Nivel y Curso 
-        CboxLevelCourse.setDisable(false);
-        CboxGradeCourse.setDisable(false);
-        //Texto Paralelo y Text CupoMax
-        TextPalallel.setDisable(false);
-        TextPalallel.setEditable(false);
-        TextQuota.setDisable(false);
-        TextQuota.setEditable(false);
-        //Radio buton Admite nuevos
-        RdNoAN.setDisable(true);
-        RdYesAN.setDisable(true);
-        RdYesAN.setSelected(true);
-        //Tabla curso
-        TableCourse.setDisable(false);
-        btnSave.setDisable(false);
-        //Asesor
-        cbxA.setDisable(false);
-        cbxC.setDisable(false);
-        dpI.setDisable(false);
-        dpI.setEditable(false);
-        dpI.setValue(LocalDate.now());
-        dpF.setDisable(false);
-        dpF.setValue(LocalDate.now().plusYears(1));
-        btnAsesor.setDisable(true);
-    }
+        textBparallel.textProperty().addListener((obs, oldVal, newVal) -> {
+            parallelFilter = newVal.toLowerCase();
+            aplicarFiltro();
+        });
+        
+        textBdocument.textProperty().addListener((observable, oldValue, newValue) -> {
+            // Realiza el filtro dinámico mientras el usuario escribe
+            filteredDataD.setPredicate(documentation -> {
+                if (newValue == null || newValue.isEmpty()) {
+                    return true;
+                }
 
-    private void disableCourseField() {
-        //Combo box de Nivel y Curso 
-        CboxLevelCourse.setDisable(true);
-        CboxGradeCourse.setDisable(true);
-        //Texto Paralelo y Text CupoMax
-        TextPalallel.setDisable(true);
-        TextQuota.setDisable(true);
-        //Tabla curso
-        TableCourse.setDisable(true);
-        //Radio buton
-        RdNoAN.setDisable(true);
-        RdYesAN.setDisable(true);
-        //Asesor
-        cbxA.setDisable(true);
-        cbxC.setDisable(true);
-        dpI.setDisable(true);
-        dpF.setDisable(true);
-        btnAsesor.setDisable(true);
-
-    }
-
-    private void enableDocumentationField() {
-
-        //Text nombre documento
-        TextNameDocumentation.setEditable(true);
-        TextNameDocumentation.setDisable(false);
-        //Radio buton para ver si el documento es obligatorio
-        RdNoO.setDisable(false);
-        RdYesO.setDisable(false);
-        //Radio buton para ver si el documento tiene carta compromiso
-        RdNoCC.setDisable(false);
-        RdYesCC.setDisable(false);
-        TableDocumentation.setDisable(false);
-        btnSave.setDisable(false);
-    }
-
-    private void disableDocumentationField() {
-        //Text nombre documento
-        TextNameDocumentation.setDisable(true);
-        //Radio buton para ver si el documento es obligatorio
-        RdYesO.setDisable(true);
-        RdNoO.setDisable(true);
-        //Radio buton para ver si el documento tiene carta compromiso
-        RdNoCC.setDisable(true);
-        RdYesCC.setDisable(true);
-        //Tabla documentacio
-        TableDocumentation.setDisable(true);
+                return documentation.getNombre().toLowerCase().contains(newValue.toLowerCase());
+            });
+        });
     }
 
 }
