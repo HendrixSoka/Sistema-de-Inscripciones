@@ -4,6 +4,8 @@
  */
 package model;
 
+import java.time.LocalDate;
+
 /**
  *
  * @author mauricioteranlimari
@@ -17,6 +19,8 @@ public class Course {
     private int cupo_max;
     private boolean admite_nuevos;
     private String asesor;
+    private LocalDate fechai;
+    private LocalDate fechaf;
     
      public Course() {
     }
@@ -75,6 +79,22 @@ public class Course {
 
     public void setAsesor(String asesor) {
         this.asesor = asesor;
+    }
+
+    public LocalDate getFechai() {
+        return fechai;
+    }
+
+    public void setFechai(LocalDate fechai) {
+        this.fechai = fechai;
+    }
+
+    public LocalDate getFechaf() {
+        return fechaf;
+    }
+
+    public void setFechaf(LocalDate fechaf) {
+        this.fechaf = fechaf;
     }
     
     

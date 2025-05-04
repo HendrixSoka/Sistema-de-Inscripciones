@@ -9,7 +9,9 @@ import model.Database;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -64,7 +66,7 @@ public class CourseDao {
 
         try {
 
-            String SQL = "SELECT DISTINCT curso.*, CONCAT(usuario.nombre, ' ', usuario.apellido) "
+            String SQL = "SELECT DISTINCT curso.*, CONCAT(usuario.nombre, ' ', usuario.apellido), asesor.fecha_inicio,asesor.fecha_fin "
                     + "FROM curso "
                     + "LEFT JOIN asesor ON curso.idcurso = asesor.idcurso "
                     + "LEFT JOIN usuario ON asesor.idusuario = usuario.idusuario";
@@ -92,6 +94,20 @@ public class CourseDao {
                 } else {
                     course.setAsesor(null);
                 }
+
+                if(data.getDate(8) != null){
+                    course.setFechai(data.getDate(8).toLocalDate());
+                }else{
+                    course.setFechai(null);
+                }
+                
+                if(data.getDate(9) != null){
+                    course.setFechaf(data.getDate(9).toLocalDate());
+                }else{
+                    course.setFechaf(null);
+                }
+                
+                
 
                 listCourse.add(course);
 
@@ -162,7 +178,7 @@ public class CourseDao {
 
         } catch (Exception e) {
 
-            System.err.println("Ocurrio un error al editar el curso");
+            System.err.println("Ocurrio un error al eliminar el curso");
             System.err.println("Mensaje del error: " + e.getMessage());
             System.err.println("Detalle del error: ");
 

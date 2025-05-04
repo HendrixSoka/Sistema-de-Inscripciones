@@ -128,6 +128,7 @@ public class SchoolSettingsController implements Initializable {
     private ContextMenu DocumentationOptions;
     private Course courseselect;
     private Documentation documentationselect;
+    private Advisor advisorselected;
 
     public String[] options = {"Gestionar Curso", "Gestionar Documentacion"};
 
@@ -574,6 +575,14 @@ public class SchoolSettingsController implements Initializable {
         TableColumn advisorsCol = new TableColumn("ASESOR");
 
         advisorsCol.setCellValueFactory(new PropertyValueFactory("asesor"));
+        
+        TableColumn startdateCol = new TableColumn("FECHA INICIO");
+        
+        startdateCol.setCellValueFactory(new PropertyValueFactory("fechai"));
+        
+        TableColumn enddateCol = new TableColumn("FECHA FIN");
+        
+        enddateCol.setCellValueFactory(new PropertyValueFactory("fechaf"));
 
         TableColumn quotaCol = new TableColumn("CUPO");
 
@@ -599,7 +608,7 @@ public class SchoolSettingsController implements Initializable {
         });
 
         TableCourse.setItems(data);
-        TableCourse.getColumns().addAll(idcourseCol, levelCol, gradeCol, parallelCol,advisorsCol, quotaCol, admitsnewCol);
+        TableCourse.getColumns().addAll(idcourseCol, levelCol, gradeCol, parallelCol,advisorsCol,startdateCol,enddateCol, quotaCol, admitsnewCol);
 
     }
 
@@ -758,10 +767,12 @@ public class SchoolSettingsController implements Initializable {
         //CURSO
         CourseOptions = new ContextMenu();
 
-        MenuItem EditCourse = new MenuItem("Editar");
-        MenuItem DeleteCourse = new MenuItem("Eliminar");
+        MenuItem EditCourse = new MenuItem("Editar Curso");
+        MenuItem DeleteCourse = new MenuItem("Eliminar Curso");
+        MenuItem EditAdviser = new MenuItem("Editar Asesor");
+        MenuItem DeleteAdviser = new MenuItem("Eliminar Asesor");
 
-        CourseOptions.getItems().addAll(EditCourse, DeleteCourse);
+        CourseOptions.getItems().addAll(EditCourse, DeleteCourse,EditAdviser, DeleteAdviser);
 
         DeleteCourse.setOnAction(new EventHandler<ActionEvent>() {
             @Override
@@ -776,10 +787,8 @@ public class SchoolSettingsController implements Initializable {
                 alert.setTitle("Confirmacion");
                 alert.setHeaderText(null);
 
-                String[] grados = {"Primero", "Segundo", "Tercero", "Cuarto", "Quinto", "Sexto"};
-
                 alert.setContentText("¿Desea eliminar el curso: "
-                        + grados[deleteCourse.getGrado()] + " " + deleteCourse.getParalelo() + "?");
+                        + optionsGrade[deleteCourse.getGrado()] + " " + deleteCourse.getParalelo() + "?");
 
                 alert.initStyle(StageStyle.UTILITY);
                 Optional<ButtonType> result = alert.showAndWait();
@@ -844,6 +853,85 @@ public class SchoolSettingsController implements Initializable {
                 btnCancelar.setDisable(false);
 
             }
+        });
+        
+        EditAdviser.setOnAction(new EventHandler<ActionEvent>(){
+            @Override
+            public void handle(ActionEvent t) {
+                
+                int index = TableCourse.getSelectionModel().getSelectedIndex();
+                
+                courseselect = TableCourse.getItems().get(index);
+                
+                cbxA.getSelectionModel().select(courseselect.getAsesor());
+                
+                String namecourse = optionsGrade[courseselect.getGrado()] + " "+courseselect.getParalelo();
+                
+                cbxC.getSelectionModel().select(namecourse);
+                
+                dpI.setValue(courseselect.getFechai());
+                
+                dpF.setValue(courseselect.getFechaf());
+                
+                cbxA.setDisable(false);
+                cbxC.setDisable(false);
+                dpI.setDisable(false);
+                dpF.setDisable(false);
+                
+            }
+        
+        
+        });
+        
+        DeleteAdviser.setOnAction(new EventHandler<ActionEvent>(){
+            @Override
+            public void handle(ActionEvent t) {
+                
+                int index = TableCourse.getSelectionModel().getSelectedIndex();
+                
+                Course deleteadviser = TableCourse.getItems().get(index);
+                
+                Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+
+                alert.setTitle("Confirmacion");
+                alert.setHeaderText(null);
+
+                alert.setContentText("¿Desea eliminar al asesor: "
+                        + deleteadviser.getAsesor() +" del curso "+ optionsGrade[deleteadviser.getGrado()] + " " + deleteadviser.getParalelo() + "?");
+
+                alert.initStyle(StageStyle.UTILITY);
+                Optional<ButtonType> result = alert.showAndWait();
+
+                if (result.get() == ButtonType.OK) {
+
+                    boolean rsp = advisordao.delete(deleteadviser.getAsesor());
+
+                    if (rsp) {
+
+                        Alert alert2 = new Alert(Alert.AlertType.INFORMATION);
+                        alert2.setTitle("Exito");
+                        alert2.setHeaderText(null);
+                        alert2.setContentText("Se elimino correctamente el curso");
+                        alert2.initStyle(StageStyle.UTILITY);
+                        alert2.showAndWait();
+
+                        UploadCourses();
+
+                        disableDocumentationField();
+                        enableCourseField();
+
+                    } else {
+
+                        Alert alert2 = new Alert(Alert.AlertType.ERROR);
+                        alert2.setTitle("Error");
+                        alert2.setHeaderText(null);
+                        alert2.setContentText("Hubo un error al eliminar");
+                        alert2.initStyle(StageStyle.UTILITY);
+                        alert2.showAndWait();
+                    }
+                }
+            }
+        
         });
 
         TableCourse.setContextMenu(CourseOptions);

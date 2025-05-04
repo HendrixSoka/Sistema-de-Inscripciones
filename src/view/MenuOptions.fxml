@@ -31,7 +31,7 @@
             <ImageView fx:id="iusers" fitHeight="200.0" fitWidth="200.0" pickOnBounds="true" preserveRatio="true" />
             <Button fx:id="btnGestionarUsuarios" mnemonicParsing="false" prefHeight="46.0" prefWidth="280.0" text="GESTIONAR USUARIOS" />
             <ImageView fx:id="isettings" fitHeight="200.0" fitWidth="200.0" pickOnBounds="true" preserveRatio="true" />
-            <Button fx:id="btnConfiguracion" mnemonicParsing="false" prefHeight="70.0" prefWidth="280.0" text="CONFIGURACION" />
+            <Button fx:id="btnConfiguracion" mnemonicParsing="false" prefHeight="70.0" prefWidth="280.0" text="GESTION ACADEMICA" />
          </children>
       </VBox>
       <VBox fx:id="vbin" layoutX="1015.0" layoutY="80.0" prefHeight="540.0" prefWidth="350.0">

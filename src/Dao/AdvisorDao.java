@@ -50,5 +50,38 @@ public class AdvisorDao {
             return false;
         }
     }
+    
+    public boolean delete(String fullname){
+        try {
+
+            String SQL = "DELETE FROM asesor WHERE idusuario = ?";
+
+            Connection connection = this.AdvisorConnection.getConnection();
+
+            PreparedStatement sentence = connection.prepareStatement(SQL);
+            
+            UserDao userdao = new UserDao();
+            
+            int id = userdao.idasesor(fullname);
+            
+            sentence.setInt(1, id);
+
+            sentence.executeUpdate();
+
+            sentence.close();
+
+            return true;
+
+        } catch (Exception e) {
+
+            System.err.println("Ocurrio un error al editar el curso");
+            System.err.println("Mensaje del error: " + e.getMessage());
+            System.err.println("Detalle del error: ");
+
+            e.printStackTrace();
+
+            return false;
+        }
+    }
 
 }
