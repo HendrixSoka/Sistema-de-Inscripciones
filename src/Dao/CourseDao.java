@@ -64,7 +64,10 @@ public class CourseDao {
 
         try {
 
-            String SQL = "SELECT * FROM curso";
+            String SQL = "SELECT DISTINCT curso.*, CONCAT(usuario.nombre, ' ', usuario.apellido) "
+                    + "FROM curso "
+                    + "LEFT JOIN asesor ON curso.idcurso = asesor.idcurso "
+                    + "LEFT JOIN usuario ON asesor.idusuario = usuario.idusuario";
 
             Connection connection = this.CourseConnection.getConnection();
 
@@ -82,6 +85,13 @@ public class CourseDao {
                 course.setParalelo(data.getString(4).charAt(0));
                 course.setCupo_max(data.getInt(5));
                 course.setAdmite_nuevos(data.getBoolean(6));
+                String nameA = data.getString(7);
+
+                if (nameA != null) {
+                    course.setAsesor(nameA);
+                } else {
+                    course.setAsesor(null);
+                }
 
                 listCourse.add(course);
 
@@ -264,7 +274,7 @@ public class CourseDao {
     public int idcourse(String fullname) {
         int idcurso = 0;
         try {
-            
+
             String SQL = "SELECT idcurso FROM curso WHERE CONCAT(grado,' ',paralelo) = ?";
 
             Connection connection = this.CourseConnection.getConnection();

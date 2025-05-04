@@ -68,5 +68,15 @@ public class Course {
     public void setAdmite_nuevos(boolean admite_nuevos) {
         this.admite_nuevos = admite_nuevos;
     }
+
+    public String getAsesor() {
+        return asesor;
+    }
+
+    public void setAsesor(String asesor) {
+        this.asesor = asesor;
+    }
+    
+    
  
 }

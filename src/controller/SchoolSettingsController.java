@@ -571,9 +571,9 @@ public class SchoolSettingsController implements Initializable {
 
         parallelCol.setCellValueFactory(new PropertyValueFactory("paralelo"));
 
-        TableColumn advisors = new TableColumn("Asesor");
+        TableColumn advisorsCol = new TableColumn("ASESOR");
 
-        advisors.setCellFactory(new PropertyValueFactory("asesor"));
+        advisorsCol.setCellValueFactory(new PropertyValueFactory("asesor"));
 
         TableColumn quotaCol = new TableColumn("CUPO");
 
@@ -599,7 +599,7 @@ public class SchoolSettingsController implements Initializable {
         });
 
         TableCourse.setItems(data);
-        TableCourse.getColumns().addAll(idcourseCol, levelCol, gradeCol, parallelCol, quotaCol, admitsnewCol);
+        TableCourse.getColumns().addAll(idcourseCol, levelCol, gradeCol, parallelCol,advisorsCol, quotaCol, admitsnewCol);
 
     }
 
