@@ -19,9 +19,18 @@ public class User {
     private int cargo;
     private String usuario;
     private String contrasena;
+    private String nombre_c;
 
     public User() {
 
+    }
+
+    public String getNombre_c() {
+        return nombre_c;
+    }
+
+    public void setNombre_c(String nombre_c) {
+        this.nombre_c = nombre_c;
     }
 
     public int getId() {

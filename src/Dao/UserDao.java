@@ -191,7 +191,6 @@ public class UserDao {
             return false;
         }
     }
-    
 
     public boolean Login(String user, String password) {
 
@@ -201,7 +200,7 @@ public class UserDao {
 
             Connection connection = this.UserConnection.getConnection();
             PreparedStatement sentence = connection.prepareStatement(SQL);
-            
+
             ManageUsersController verify = new ManageUsersController();
 
             sentence.setString(1, user);
@@ -210,7 +209,7 @@ public class UserDao {
             try (ResultSet result = sentence.executeQuery()) {
                 return result.next();
 
-            } 
+            }
 
         } catch (SQLException e) {
             System.err.println("Ocurrio un error al iniciar sesion");
@@ -248,31 +247,98 @@ public class UserDao {
         alert.setContentText(message);
         alert.showAndWait();
     }
-    
+
     public String username(String user, String password) {
-    ManageUsersController en = new ManageUsersController();
-    String name = null;
-    try {
-        String SQL = "SELECT CONCAT(nombre, ' ', apellido) FROM usuario WHERE usuario = ? AND contrasena = ?";
-        
-        Connection connection = this.UserConnection.getConnection();
-        PreparedStatement sentence = connection.prepareStatement(SQL);
-      
-        sentence.setString(1, user);
-        sentence.setString(2, en.Encrypt(password));
+        ManageUsersController en = new ManageUsersController();
+        String name = null;
+        try {
+            String SQL = "SELECT CONCAT(nombre, ' ', apellido) FROM usuario WHERE usuario = ? AND contrasena = ?";
 
-        ResultSet resultSet = sentence.executeQuery();
+            Connection connection = this.UserConnection.getConnection();
+            PreparedStatement sentence = connection.prepareStatement(SQL);
 
-        if (resultSet.next()) {
-            name = resultSet.getString(1);  
+            sentence.setString(1, user);
+            sentence.setString(2, en.Encrypt(password));
+
+            ResultSet resultSet = sentence.executeQuery();
+
+            if (resultSet.next()) {
+                name = resultSet.getString(1);
+            }
+
+            sentence.close();
+
+        } catch (SQLException e) {
+            System.err.println("Error al verificar la existencia del valor: " + e.getMessage());
+            e.printStackTrace();
         }
-        
-        sentence.close();
-
-    } catch (SQLException e) {
-        System.err.println("Error al verificar la existencia del valor: " + e.getMessage());
-        e.printStackTrace();
+        return name;
     }
-    return name;
-}
+
+    public List<String> Advisors() {
+
+        List<String> ListAdvisors = new ArrayList<>();
+        try {
+
+            String SQL = "SELECT CONCAT(nombre, ' ', apellido) FROM usuario u "
+                    + "LEFT JOIN asesor a ON u.idusuario = a.idusuario "
+                    + "WHERE u.cargo = 2 "
+                    + "GROUP BY u.idusuario, u.nombre, u.apellido "
+                    + "HAVING COUNT(a.idusuario) < 2";
+
+            Connection connection = this.UserConnection.getConnection();
+            PreparedStatement sentence = connection.prepareStatement(SQL);
+
+            ResultSet data = sentence.executeQuery();
+
+            while (data.next() == true) {
+
+                ListAdvisors.add(data.getString(1));
+
+            }
+            data.close();
+            sentence.close();
+
+        } catch (Exception e) {
+            System.err.println("Ocurrio un error al listar asesores");
+            System.err.println("Mensaje del error: " + e.getMessage());
+            System.err.println("Detalle del error: ");
+
+            e.printStackTrace();
+
+        }
+        return ListAdvisors;
+    }
+
+    public int idasesor(String fullname) {
+
+        int idaser = 0;
+
+        try {
+
+            String SQL = "SELECT idusuario FROM usuario WHERE CONCAT(nombre,' ',apellido) = ?";
+
+            Connection connection = this.UserConnection.getConnection();
+
+            PreparedStatement sentence = connection.prepareStatement(SQL);
+
+            sentence.setString(1, fullname);
+
+            ResultSet data = sentence.executeQuery();
+
+            if (data.next()) {
+
+                idaser = data.getInt("idusuario");
+
+            }
+
+            data.close();
+            sentence.close();
+
+        } catch (SQLException e) {
+            System.err.println("Error al verificar la existencia del asesor");
+            e.printStackTrace();
+        }
+        return idaser;
+    }
 }

@@ -9,7 +9,9 @@ import model.Database;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -19,6 +21,8 @@ import java.util.List;
 public class CourseDao {
 
     private Database CourseConnection;
+
+    private String[] optionsGrade = {"Primero", "Segundo", "Tercero", "Cuarto", "Quinto", "Sexto"};
 
     public CourseDao() throws ClassNotFoundException {
 
@@ -62,7 +66,10 @@ public class CourseDao {
 
         try {
 
-            String SQL = "SELECT * FROM curso";
+            String SQL = "SELECT DISTINCT curso.*, CONCAT(usuario.nombre, ' ', usuario.apellido), asesor.fecha_inicio,asesor.fecha_fin "
+                    + "FROM curso "
+                    + "LEFT JOIN asesor ON curso.idcurso = asesor.idcurso "
+                    + "LEFT JOIN usuario ON asesor.idusuario = usuario.idusuario";
 
             Connection connection = this.CourseConnection.getConnection();
 
@@ -80,6 +87,27 @@ public class CourseDao {
                 course.setParalelo(data.getString(4).charAt(0));
                 course.setCupo_max(data.getInt(5));
                 course.setAdmite_nuevos(data.getBoolean(6));
+                String nameA = data.getString(7);
+
+                if (nameA != null) {
+                    course.setAsesor(nameA);
+                } else {
+                    course.setAsesor(null);
+                }
+
+                if(data.getDate(8) != null){
+                    course.setFechai(data.getDate(8).toLocalDate());
+                }else{
+                    course.setFechai(null);
+                }
+                
+                if(data.getDate(9) != null){
+                    course.setFechaf(data.getDate(9).toLocalDate());
+                }else{
+                    course.setFechaf(null);
+                }
+                
+                
 
                 listCourse.add(course);
 
@@ -141,16 +169,16 @@ public class CourseDao {
             PreparedStatement sentence = connection.prepareStatement(SQL);
 
             sentence.setInt(1, idcourse);
-            
+
             sentence.executeUpdate();
-            
+
             sentence.close();
-            
+
             return true;
 
         } catch (Exception e) {
 
-            System.err.println("Ocurrio un error al editar el curso");
+            System.err.println("Ocurrio un error al eliminar el curso");
             System.err.println("Mensaje del error: " + e.getMessage());
             System.err.println("Detalle del error: ");
 
@@ -225,6 +253,104 @@ public class CourseDao {
             e.printStackTrace();
 
             return -1;
+        }
+        return idcurso;
+    }
+
+    public List<String> CoursesAdvisors() {
+        List<String> ListCAdvisors = new ArrayList<>();
+        try {
+
+            String SQL = "SELECT c.grado,c.paralelo FROM curso c "
+                    + "LEFT JOIN asesor a ON c.idcurso = a.idcurso "
+                    + "GROUP BY c.idcurso, c.grado, c.paralelo "
+                    + "HAVING COUNT(a.idusuario) < 2";
+
+            Connection connection = this.CourseConnection.getConnection();
+            PreparedStatement sentence = connection.prepareStatement(SQL);
+
+            ResultSet data = sentence.executeQuery();
+
+            while (data.next() == true) {
+
+                ListCAdvisors.add(optionsGrade[data.getInt("grado")] + " " + data.getString("paralelo"));
+
+            }
+            data.close();
+            sentence.close();
+
+        } catch (Exception e) {
+            System.err.println("Ocurrio un error al listar cursos");
+            System.err.println("Mensaje del error: " + e.getMessage());
+            System.err.println("Detalle del error: ");
+
+            e.printStackTrace();
+
+        }
+        return ListCAdvisors;
+    }
+    
+    public List<String> CoursesAdvisorsC(int idusuario) {
+        List<String> ListCAdvisors = new ArrayList<>();
+        try {
+
+            String SQL = "SELECT c.grado,c.paralelo FROM curso c "
+                    + "LEFT JOIN asesor a ON c.idcurso = a.idcurso "
+                    + "GROUP BY c.idcurso, c.grado, c.paralelo "
+                    + "HAVING COUNT(CASE WHEN a.idusuario IS NOT NULL THEN 1 END) < 2 "
+                    + "AND SUM(CASE WHEN a.idusuario = ? THEN 1 ELSE 0 END) = 0";
+
+            Connection connection = this.CourseConnection.getConnection();
+            PreparedStatement sentence = connection.prepareStatement(SQL);
+            
+            sentence.setInt(1, idusuario);
+
+            ResultSet data = sentence.executeQuery();
+
+            while (data.next() == true) {
+
+                ListCAdvisors.add(optionsGrade[data.getInt("grado")] + " " + data.getString("paralelo"));
+
+            }
+            data.close();
+            sentence.close();
+
+        } catch (Exception e) {
+            System.err.println("Ocurrio un error al listar cursos");
+            System.err.println("Mensaje del error: " + e.getMessage());
+            System.err.println("Detalle del error: ");
+
+            e.printStackTrace();
+
+        }
+        return ListCAdvisors;
+    }
+
+    public int idcourse(String fullname) {
+        int idcurso = 0;
+        try {
+
+            String SQL = "SELECT idcurso FROM curso WHERE CONCAT(grado,' ',paralelo) = ?";
+
+            Connection connection = this.CourseConnection.getConnection();
+
+            PreparedStatement sentence = connection.prepareStatement(SQL);
+
+            sentence.setString(1, fullname);
+
+            ResultSet data = sentence.executeQuery();
+
+            if (data.next()) {
+
+                idcurso = data.getInt("idcurso");
+
+            }
+
+            data.close();
+            sentence.close();
+        } catch (Exception e) {
+            System.err.println("Error al verificar la existencia del curso");
+            e.printStackTrace();
         }
         return idcurso;
     }

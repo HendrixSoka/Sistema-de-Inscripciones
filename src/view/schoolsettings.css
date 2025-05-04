@@ -123,6 +123,12 @@ TableView {
 #VManageD{
      -fx-background-color: transparent;
 }
+#vboxAsesor{
+    -fx-spacing: 15px;
+}
+#gridpdates{
+    -fx-vgap: 20px;
+}
 #YNO{
     -fx-spacing: 35px;
 }

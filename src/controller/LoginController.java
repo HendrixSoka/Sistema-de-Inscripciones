@@ -88,7 +88,7 @@ public class LoginController implements Initializable {
         Optional<ButtonType> result = alert.showAndWait();
         if (result.isPresent() && result.get() == ButtonType.OK) {
             Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
-            stage.close();
+                stage.close();
         }
     }
 

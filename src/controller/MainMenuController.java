@@ -26,10 +26,13 @@ import java.util.Map;
 import java.util.Optional;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
+import javafx.scene.Node;
+import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.stage.Stage;
 
 public class MainMenuController implements Initializable {
 
@@ -55,7 +58,21 @@ public class MainMenuController implements Initializable {
 
         Optional<ButtonType> result = alert.showAndWait();
         if (result.isPresent() && result.get() == ButtonType.OK) {
-            Platform.exit();
+            try {
+               
+                FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/Login.fxml"));
+                Parent root = loader.load();
+
+                
+                Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+                Scene scene = new Scene(root);
+
+                stage.setScene(scene);
+                stage.centerOnScreen();
+                stage.show();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
     }
 
