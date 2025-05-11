@@ -43,6 +43,7 @@ import javafx.stage.StageStyle;
 import model.Advisor;
 import model.Course;
 import model.Documentation;
+import model.Extras;
 import model.Subject_course;
 
 /**
@@ -151,10 +152,12 @@ public class SchoolSettingsController implements Initializable {
 
     public String[] options = {"Gestionar Curso", "Gestionar Documentacion"};
 
-    public String[] optionsLevel = {"Primaria","Secundaria"};
+    public String[] optionsLevel = {"Primaria", "Secundaria"};
 
     public String[] optionsGrade = {"Primero", "Segundo", "Tercero", "Cuarto", "Quinto", "Sexto"};
-    
+
+    private Extras extras = new Extras();
+
     //Combo box para gestionar Curso o Documentacion
     @FXML
     void setOnAction(ActionEvent event) {
@@ -167,10 +170,10 @@ public class SchoolSettingsController implements Initializable {
                     cleanAdvisor();
                     enableCourseField();
                     enableadvisor();
-                    
+
                     cleanFieldsDocumentation();
                     disableDocumentationField();
-                    
+
                     cbxBgrades.setValue("Seleccione");
                     textBparallel.clear();
                     textBdocument.clear();
@@ -178,13 +181,13 @@ public class SchoolSettingsController implements Initializable {
                 case "Gestionar Documentacion" -> {
                     cleanFieldsDocumentation();
                     enableDocumentationField();
-                    
+
                     cleanFieldsCourse();
                     cleanAdvisor();
-                    
+
                     disableCourseField();
                     disableadvisor();
-                    
+
                     cbxBgrades.setValue("Seleccione");
                     textBparallel.clear();
                     textBdocument.clear();
@@ -196,6 +199,7 @@ public class SchoolSettingsController implements Initializable {
             diseble();
         }
     }
+
     //Boton cancelar
     @FXML
     void BtnCancelarOnAction(ActionEvent event) {
@@ -203,29 +207,29 @@ public class SchoolSettingsController implements Initializable {
         if (courseselect != null) {
             courseselect = null;
             cleanFieldsDocumentation();
-            
+
             cleanFieldsCourse();
             cleanAdvisor();
-            
+
             enableCourseField();
             enableadvisor();
-            
+
             btnCancelar.setDisable(true);
         } else if (documentationselect != null) {
             documentationselect = null;
-            
+
             cleanFieldsDocumentation();
-            
+
             cleanAdvisor();
             cleanFieldsCourse();
-            
+
             enableDocumentationField();
             btnCancelar.setDisable(true);
         } else if (cbxA.getSelectionModel().getSelectedIndex() != -1) {
             cleanFieldsDocumentation();
             cleanFieldsCourse();
             cleanAdvisor();
-            
+
             enableadvisor();
             enableCourseField();
             btnCancelar.setDisable(true);
@@ -241,14 +245,14 @@ public class SchoolSettingsController implements Initializable {
 
         if (selected == null) {
 
-            showAlert("Error", "Debe Seleccionar una opcion", Alert.AlertType.ERROR);
+            extras.showAlert("Advertencia", "Debe Seleccionar una opcion", Alert.AlertType.WARNING);
 
         } else if (selected.equals("Gestionar Curso")) {
 
             if (courseselect == null) {
 
                 Course course = new Course();
-                
+
                 //Seleccion del tipo de nivel Primaria o Secundaria
                 if (CboxLevelCourse.getValue().equals("Primaria")) {
                     course.setNivel(0);
@@ -275,18 +279,18 @@ public class SchoolSettingsController implements Initializable {
                 //Campo para verificar el campo de Parallelo Automatico
                 if (CboxLevelCourse.getSelectionModel().getSelectedIndex() == -1 || CboxGradeCourse.getSelectionModel().getSelectedIndex() == -1) {
 
-                    showAlert("Error", "Los campos no pueden estar vacios", Alert.AlertType.ERROR);
+                    extras.showAlert("Advertencia", "Los campos no pueden estar vacios", Alert.AlertType.WARNING);
                     return;
 
                 } else if (CboxLevelCourse.getSelectionModel().getSelectedIndex() != -1 && CboxGradeCourse.getSelectionModel().getSelectedIndex() != -1) {
                     parallel = coursedao.reeturnParallel(CboxLevelCourse.getSelectionModel().getSelectedIndex(), CboxGradeCourse.getSelectionModel().getSelectedIndex());
                     switch (parallel) {
-                        case '-' -> {
+                        case 'A' -> {
                             parallel = 'A';
                             course.setParalelo(parallel);
                         }
                         case 'Z' -> {
-                            showAlert("Error", "Maximo de cursos permitido", Alert.AlertType.ERROR);
+                            extras.showAlert("Advertencia", "Maximo de cursos permitido", Alert.AlertType.WARNING);
                             return;
                         }
                         default -> {
@@ -298,7 +302,7 @@ public class SchoolSettingsController implements Initializable {
                 //Llenado de datos a la Base de Datos
                 boolean resp = this.coursedao.register(course);
                 if (resp) {
-                    showAlert("Exito", "Se registro correctamente el curso", Alert.AlertType.INFORMATION);
+                    extras.showAlert("Exito", "Se registro correctamente el curso", Alert.AlertType.INFORMATION);
                     //Una vez creado el curso se agrega las materias ya definida
                     int tr = CboxGradeCourse.getSelectionModel().getSelectedIndex();
                     if (tr == 0 || tr == 1 || tr == 2) {
@@ -306,7 +310,7 @@ public class SchoolSettingsController implements Initializable {
                     } else if (tr == 3 || tr == 4 || tr == 5) {
                         addMaterialsForGrade(12);
                     }
-                    
+
                     //Actualizar los campos y limpiarlos
                     cleanFieldsCourse();
                     enableCourseField();
@@ -318,30 +322,36 @@ public class SchoolSettingsController implements Initializable {
 
                 } else {
 
-                    showAlert("Error", "Hubo un error", Alert.AlertType.ERROR);
+                    extras.showAlert("Error", "Hubo un error", Alert.AlertType.ERROR);
 
                 }
             } else {
 
                 if (courseselect.getNivel() == CboxLevelCourse.getSelectionModel().getSelectedIndex() && courseselect.getGrado() == CboxGradeCourse.getSelectionModel().getSelectedIndex() && String.valueOf(courseselect.getParalelo()).equals(TextPalallel.getText())) {
 
-                    showAlert("Error", "No se pueden guardar los mismos datos", Alert.AlertType.ERROR);
+                    extras.showAlert("Advertencia", "No se pueden guardar los mismos datos", Alert.AlertType.WARNING);
 
                 } else {
-                    
+
                     //Editar
                     courseselect.setNivel(CboxLevelCourse.getSelectionModel().getSelectedIndex());
                     courseselect.setGrado(CboxGradeCourse.getSelectionModel().getSelectedIndex());
-                    courseselect.setParalelo(TextPalallel.getText().charAt(0));
+
+                    if (TextPalallel.getText() != null && TextPalallel.getText().matches("[A-Z]")) {
+                        courseselect.setParalelo(TextPalallel.getText().charAt(0));
+                    } else {
+                        extras.showAlert("Advertencia", "Debe ser un paralelo valido", Alert.AlertType.WARNING);
+                        return;
+                    }
                     //Guardar en la Base de Datos los cambios
                     boolean rsp = this.coursedao.editCourse(courseselect);
 
                     if (rsp) {
-                        showAlert("Exito", "Se guardo correctamente el curso", Alert.AlertType.INFORMATION);
+                        extras.showAlert("Exito", "Se guardo correctamente el curso", Alert.AlertType.INFORMATION);
 
                         cleanFieldsCourse();
                         enableCourseField();
-                        
+
                         cleanFieldsDocumentation();
                         cleanAdvisor();
 
@@ -352,7 +362,7 @@ public class SchoolSettingsController implements Initializable {
                         btnCancelar.setDisable(true);
 
                     } else {
-                        showAlert("Error", "Hubo un error", Alert.AlertType.ERROR);
+                        extras.showAlert("Error", "Hubo un error", Alert.AlertType.ERROR);
                     }
                 }
             }
@@ -362,7 +372,7 @@ public class SchoolSettingsController implements Initializable {
 
                 if (TextNameDocumentation.getText().isEmpty() || (!RdYesO.isSelected() && !RdNoO.isSelected()) || (!RdYesCC.isSelected() && !RdNoCC.isSelected())) {
 
-                    showAlert("Error", "Los campos no pueden estar vacios", Alert.AlertType.ERROR);
+                    extras.showAlert("Advertencia", "Los campos no pueden estar vacios", Alert.AlertType.WARNING);
                     return;
 
                 }
@@ -378,7 +388,7 @@ public class SchoolSettingsController implements Initializable {
                 } else if (RdNoO.isSelected()) {
                     documentation.setObligatorio(false);
                 } else {
-                    showAlert("Error", "No puede estar vacio", Alert.AlertType.ERROR);
+                    extras.showAlert("Advertencia", "No puede estar vacio", Alert.AlertType.WARNING);
                 }
                 //Radio button para el documento si requiere carta compromiso
                 if (RdYesCC.isSelected()) {
@@ -386,16 +396,16 @@ public class SchoolSettingsController implements Initializable {
                 } else if (RdNoCC.isSelected()) {
                     documentation.setCartacompromiso(false);
                 } else {
-                    showAlert("Error", "No puede estar vacio", Alert.AlertType.ERROR);
+                    extras.showAlert("Advertencia", "No puede estar vacio", Alert.AlertType.WARNING);
                 }
-                
+
                 //Guardar en la base de datos
                 boolean resp = this.documentationdao.register(documentation);
 
                 if (resp) {
 
-                    showAlert("Exito", "Se registro correcto el documento", Alert.AlertType.INFORMATION);
-                    
+                    extras.showAlert("Exito", "Se registro correcto el documento", Alert.AlertType.INFORMATION);
+
                     //Actualizar y limpiar campos
                     cleanFieldsDocumentation();
                     enableDocumentationField();
@@ -406,7 +416,7 @@ public class SchoolSettingsController implements Initializable {
                     LoadDocumentation();
 
                 } else {
-                    showAlert("Error", "Hubo un error", Alert.AlertType.ERROR);
+                    extras.showAlert("Error", "Hubo un error", Alert.AlertType.ERROR);
                 }
             } else {
                 //Verifica las respuestas son las mismas que las seleccionadas
@@ -428,7 +438,7 @@ public class SchoolSettingsController implements Initializable {
                 if (documentationselect.getNombre().equals(TextNameDocumentation.getText()) && documentationselect.isObligatorio() == rspRd1
                         && documentationselect.isCartacompromiso() == rspRd2) {
 
-                    showAlert("Error", "No se pueden guardar los mismos datos", Alert.AlertType.ERROR);
+                    extras.showAlert("Advertencia", "No se pueden guardar los mismos datos", Alert.AlertType.WARNING);
 
                 } else {
                     //Nombre documento
@@ -439,7 +449,7 @@ public class SchoolSettingsController implements Initializable {
                     } else if (RdNoO.isSelected()) {
                         documentationselect.setObligatorio(false);
                     } else {
-                        showAlert("Error", "No puede estar vacio", Alert.AlertType.ERROR);
+                        extras.showAlert("Advertencia", "No puede estar vacio", Alert.AlertType.WARNING);
                     }
                     //Radio Button requiere carta compromiso
                     if (RdYesCC.isSelected()) {
@@ -447,14 +457,14 @@ public class SchoolSettingsController implements Initializable {
                     } else if (RdNoCC.isSelected()) {
                         documentationselect.setCartacompromiso(false);
                     } else {
-                        showAlert("Error", "No puede estar vacio", Alert.AlertType.ERROR);
+                        extras.showAlert("Advertencia", "No puede estar vacio", Alert.AlertType.WARNING);
                     }
-                    
+
                     //Guardar en la base de datos
                     boolean resp = this.documentationdao.editDocumentation(documentationselect);
                     if (resp) {
-                        
-                        showAlert("Exito", "Se guardo correctamente el documento", Alert.AlertType.INFORMATION);
+
+                        extras.showAlert("Exito", "Se guardo correctamente el documento", Alert.AlertType.INFORMATION);
                         //Actualizar y limpiar campos
                         cleanFieldsDocumentation();
                         enableDocumentationField();
@@ -468,7 +478,7 @@ public class SchoolSettingsController implements Initializable {
 
                         LoadDocumentation();
                     } else {
-                        showAlert("Error", "Hubo un error", Alert.AlertType.ERROR);
+                        extras.showAlert("Error", "Hubo un error", Alert.AlertType.ERROR);
                     }
                 }
             }
@@ -493,7 +503,7 @@ public class SchoolSettingsController implements Initializable {
 
                 //fecha inicio
                 if (dpI.getValue().isBefore(LocalDate.now())) {
-                    showAlert("Error", "Fecha invalida, no debe ser anterior a la fecha actual", Alert.AlertType.ERROR);
+                    extras.showAlert("Advertencia", "Fecha invalida, no debe ser anterior a la fecha actual", Alert.AlertType.WARNING);
                     return;
                 } else {
                     advisor.setFechainicio(dpI.getValue());
@@ -501,7 +511,7 @@ public class SchoolSettingsController implements Initializable {
 
                 //fecha fin
                 if (dpF.getValue().isBefore(LocalDate.now())) {
-                    showAlert("Error", "Fecha invalida, no debe ser anterior a la fecha actual", Alert.AlertType.ERROR);
+                    extras.showAlert("Advertencia", "Fecha invalida, no debe ser anterior a la fecha actual", Alert.AlertType.WARNING);
                     return;
                 } else {
                     advisor.setFechafin(dpF.getValue());
@@ -510,7 +520,7 @@ public class SchoolSettingsController implements Initializable {
                 boolean rsp = this.advisordao.register(advisor);
                 if (rsp) {
 
-                    showAlert("Exito", "Se registro correctamente el asesor", Alert.AlertType.INFORMATION);
+                    extras.showAlert("Exito", "Se registro correctamente el asesor", Alert.AlertType.INFORMATION);
 
                     cleanFieldsCourse();
                     cleanAdvisor();
@@ -520,29 +530,30 @@ public class SchoolSettingsController implements Initializable {
                     UpdateAdversors();
 
                 } else {
-                    showAlert("Error", "Hugo un error al guardar", Alert.AlertType.ERROR);
+                    extras.showAlert("Error", "Hugo un error al guardar", Alert.AlertType.ERROR);
 
                 }
 
             } else {
-                showAlert("Error", "Deben estar los campos seleccionados", Alert.AlertType.ERROR);
+                extras.showAlert("Advertencia", "Deben estar los campos seleccionados", Alert.AlertType.WARNING);
             }
         } else {
 
             if (dpF.getValue().isBefore(LocalDate.now())) {
-                showAlert("Error", "No puede ser una fecha menor a la actual", Alert.AlertType.ERROR);
+                extras.showAlert("Advertencia", "No puede ser una fecha menor a la actual", Alert.AlertType.WARNING);
             } else {
 
                 advisorN = cbxA.getSelectionModel().getSelectedItem();
 
                 if (advisorN.equals(courseselect.getAsesor()) && dpF.getValue().equals(courseselect.getFechaf())) {
-                    showAlert("Error", "No se puede guardar la misma informacion", Alert.AlertType.ERROR);
+                    extras.showAlert("Advertencia", "No se puede guardar la misma informacion", Alert.AlertType.WARNING);
                 } else {
 
-                    boolean rsp = advisordao.Edit(userdao.idasesor(advisorN), dpF.getValue(), coursedao.idcourse(verifycourse(cbxC.getSelectionModel().getSelectedItem())));
+                    boolean rsp;
+                    rsp = advisordao.Edit(userdao.idasesor(advisorN), dpF.getValue(), coursedao.idcourse(verifycourse(cbxC.getSelectionModel().getSelectedItem())));
 
                     if (rsp) {
-                        showAlert("Exito", "Se guardo correctamente el asesor", Alert.AlertType.INFORMATION);
+                        extras.showAlert("Exito", "Se guardo correctamente el asesor", Alert.AlertType.INFORMATION);
 
                         cleanFieldsCourse();
                         cleanAdvisor();
@@ -555,14 +566,14 @@ public class SchoolSettingsController implements Initializable {
 
                     } else {
 
-                        showAlert("Error", "Hubo un error al modificar", Alert.AlertType.ERROR);
+                        extras.showAlert("Error", "Hubo un error al modificar", Alert.AlertType.ERROR);
 
                     }
                 }
             }
         }
     }
-    
+
     //Funcion para cambiar el string de un curso a los valores de la base de datos
     private String verifycourse(String full) {
         for (int i = 0; i < optionsGrade.length; i++) {
@@ -572,9 +583,8 @@ public class SchoolSettingsController implements Initializable {
         }
         return null;
     }
-    
-    //Funcion para añadir las materias a los distintos cursos
 
+    //Funcion para añadir las materias a los distintos cursos
     private void addMaterialsForGrade(int numberOfSubjects) {
         int idcurso = coursedao.returnIdcurso();
         List<Subject_course> list = new ArrayList<>();
@@ -590,10 +600,10 @@ public class SchoolSettingsController implements Initializable {
         if (res) {
             System.out.println("Se registraron las materias correctamente");
         } else {
-            showAlert("Error", "Hubo un error", Alert.AlertType.ERROR);
+            extras.showAlert("Error", "Hubo un error", Alert.AlertType.ERROR);
         }
     }
-    
+
     //Funcion para limpiar los campos de curso 
     private void cleanFieldsCourse() {
 
@@ -606,17 +616,19 @@ public class SchoolSettingsController implements Initializable {
         btnCancelar.setDisable(true);
         cbxBgrades.getSelectionModel().select("Seleccione");
         textBparallel.clear();
-        
+
     }
+
     //Funcion para limpiar los campos de asesor
-    private void cleanAdvisor(){
-        
+    private void cleanAdvisor() {
+
         cbxA.getSelectionModel().select("Seleccione");
         cbxC.getSelectionModel().select("Seleccione");
         dpI.setValue(LocalDate.now());
         dpF.setValue(LocalDate.now().plusYears(1));
         btnAsesor.setDisable(true);
     }
+
     //Funcion para limpiar los campos de documentacion
     private void cleanFieldsDocumentation() {
 
@@ -628,17 +640,17 @@ public class SchoolSettingsController implements Initializable {
         btnCancelar.setDisable(true);
         textBdocument.clear();
     }
+
     //Cargar documentacion
     private void LoadDocumentation() {
 
         //TableDocumentation.getItems().clear();
         //TableDocumentation.getColumns().clear();
-        
         //Crea la tabla
         List<Documentation> documentations = this.documentationdao.toList();
 
         ObservableList<Documentation> data = FXCollections.observableArrayList(documentations);
-        
+
         //Para la busqueda por filtros
         filteredDataD = new FilteredList<>(data, p -> true);
         TableDocumentation.setItems(filteredDataD);
@@ -692,17 +704,17 @@ public class SchoolSettingsController implements Initializable {
         //TableDocumentation.setItems(dataD);
         TableDocumentation.getColumns().addAll(iddocumenttypeCol, nameCol, compulsoryCol, commitmentletterCol);
     }
+
     //Cargar Cursos
     public void UploadCourses() {
 
         //TableCourse.getItems().clear();
         //TableCourse.getColumns().clear();
-        
         //Crear la Tabla
         List<Course> courses = this.coursedao.toList();
 
         ObservableList<Course> data = FXCollections.observableArrayList(courses);
-        
+
         //Filtrar para la busqueda
         filteredDataC = new FilteredList<>(data, p -> true);
         TableCourse.setItems(filteredDataC);
@@ -791,19 +803,19 @@ public class SchoolSettingsController implements Initializable {
         TableCourse.getColumns().addAll(idcourseCol, levelCol, gradeCol, parallelCol, advisorsCol, startdateCol, enddateCol, quotaCol, admitsnewCol);
 
     }
-    
+
     //Funcion para la busqueda de el ultimo paralelo y si llega a la Z ya no lo permite
     private char updateText() {
         char prueba = 'A';
         if (CboxLevelCourse.getSelectionModel().getSelectedIndex() != -1 && CboxGradeCourse.getSelectionModel().getSelectedIndex() != -1) {
             prueba = coursedao.reeturnParallel(CboxLevelCourse.getSelectionModel().getSelectedIndex(), CboxGradeCourse.getSelectionModel().getSelectedIndex());
-            
+
             switch (prueba) {
                 case 'A' -> {
                     TextPalallel.setText(String.valueOf(prueba));
                 }
                 case 'Z' ->
-                    showAlert("Error", "Maximo de cursos permitido", Alert.AlertType.ERROR);
+                    extras.showAlert("Error", "Maximo de cursos permitido", Alert.AlertType.ERROR);
                 default -> {
                     prueba++;
                     TextPalallel.setText(String.valueOf(prueba));
@@ -813,7 +825,7 @@ public class SchoolSettingsController implements Initializable {
         //System.out.println("PRUEBA: "+prueba);
         return prueba;
     }
-    
+
     //Funcion para desactivar todos los campos
     private void diseble() {
         //Curso
@@ -847,6 +859,7 @@ public class SchoolSettingsController implements Initializable {
         textBparallel.setDisable(true);
         cbxBgrades.setDisable(true);
     }
+
     //Funcion para controlar los asesores 
     private void UpdateAdversors() {
 
@@ -861,6 +874,7 @@ public class SchoolSettingsController implements Initializable {
             cbxA.setValue("Seleccione");
         }
     }
+
     //Funcion para controlar los cursos
     private void UpdateCourses() {
 
@@ -879,14 +893,7 @@ public class SchoolSettingsController implements Initializable {
             cbxC.setValue("Seleccione");
         }
     }
-    //Funcion para Alertas
-    private void showAlert(String title, String message, Alert.AlertType alertType) {
-        Alert alert = new Alert(alertType);
-        alert.setTitle(title);
-        alert.setHeaderText(null);
-        alert.setContentText(message);
-        alert.showAndWait();
-    }
+
     //Funcion para habilitar los campos de curso
     private void enableCourseField() {
         //Combo box de Nivel y Curso 
@@ -908,8 +915,9 @@ public class SchoolSettingsController implements Initializable {
         cbxBgrades.setDisable(false);
         textBparallel.setDisable(false);
     }
+
     //Funcion para habilitar los campos de asesor
-    private void enableadvisor(){
+    private void enableadvisor() {
         //Asesor
         cbxA.setDisable(false);
         cbxC.setDisable(false);
@@ -925,6 +933,7 @@ public class SchoolSettingsController implements Initializable {
         cbxBgrades.setDisable(false);
         textBparallel.setDisable(false);
     }
+
     //Funcion para Desabilitar los campos de curso
     private void disableCourseField() {
         //Combo box de Nivel y Curso 
@@ -942,8 +951,9 @@ public class SchoolSettingsController implements Initializable {
         cbxBgrades.setDisable(true);
         textBparallel.setDisable(true);
     }
+
     //Funcio para desabilitar los campos de asesor
-    private void disableadvisor(){
+    private void disableadvisor() {
         //Asesor
         cbxA.setDisable(true);
         cbxC.setDisable(true);
@@ -956,6 +966,7 @@ public class SchoolSettingsController implements Initializable {
         cbxBgrades.setDisable(true);
         textBparallel.setDisable(true);
     }
+
     //Funcion para habilitar los campos de documentacion
     private void enableDocumentationField() {
 
@@ -973,6 +984,7 @@ public class SchoolSettingsController implements Initializable {
         //Busqueda
         textBdocument.setDisable(false);
     }
+
     //Funcion para desabilitar los campo de documentacion
     private void disableDocumentationField() {
         //Text nombre documento
@@ -988,6 +1000,7 @@ public class SchoolSettingsController implements Initializable {
         //Busqueda
         textBdocument.setDisable(true);
     }
+
     //Funcion para filtrar busqueda de la tabla curso
     private void aplicarFiltro() {
         filteredDataC.setPredicate(course -> {
@@ -1009,8 +1022,8 @@ public class SchoolSettingsController implements Initializable {
             return matchesGrade && matchesParallel;
         });
     }
-    //Metodo Initialize
 
+    //Metodo Initialize
     @Override
     public void initialize(URL url, ResourceBundle rb) {
 
@@ -1098,13 +1111,19 @@ public class SchoolSettingsController implements Initializable {
         //lista de los cursos
         UpdateCourses();
 
+        TextNameDocumentation.textProperty().addListener((obs, oldText, newText) -> {
+            if (newText.length() > 100) {
+                TextNameDocumentation.setText(oldText);
+            }
+        });
+
         textBparallel.setTextFormatter(new TextFormatter<String>(change -> {
             String newText = change.getControlNewText();
 
             if (newText.matches("[A-Z]?")) {
                 return change;
             } else {
-                showAlert("Error", "Solo paralelos validos", Alert.AlertType.ERROR);
+                extras.showAlert("Advertencia", "Solo paralelos validos", Alert.AlertType.WARNING);
                 textBparallel.clear();
             }
             return null;
@@ -1144,43 +1163,33 @@ public class SchoolSettingsController implements Initializable {
 
             Course deleteCourse = TableCourse.getItems().get(index);
 
-            Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-
-            alert.setTitle("Confirmacion");
-            alert.setHeaderText(null);
-
-            alert.setContentText("¿Desea eliminar el curso: "
-                    + optionsGrade[deleteCourse.getGrado()] + " " + deleteCourse.getParalelo() + "?");
-
-            alert.initStyle(StageStyle.UTILITY);
-            Optional<ButtonType> result = alert.showAndWait();
-
-            if (result.get() == ButtonType.OK) {
+            if (extras.showConfirmation("¿Desea eliminar el curso: " + optionsGrade[deleteCourse.getGrado()] + " " + deleteCourse.getParalelo() + "?")) {
 
                 boolean rsp = coursedao.deleteCourse(deleteCourse.getIdcurso());
 
                 if (rsp) {
 
-                    showAlert("Exito", "Se elimino correctamente el Curso", Alert.AlertType.INFORMATION);
+                    extras.showAlert("Exito", "Se elimino correctamente el Curso", Alert.AlertType.INFORMATION);
 
                     cleanAdvisor();
                     cleanFieldsCourse();
-                    
+
                     enableCourseField();
                     enableadvisor();
-                    
+
                     UpdateCourses();
                     UploadCourses();
 
                 } else {
 
-                    showAlert("Error", "Hubo un error", Alert.AlertType.ERROR);
+                    extras.showAlert("Error", "Hubo un error", Alert.AlertType.ERROR);
 
                 }
             }
         });
 
         EditCourse.setOnAction((ActionEvent t) -> {
+
             int index = TableCourse.getSelectionModel().getSelectedIndex();
 
             courseselect = TableCourse.getItems().get(index);
@@ -1202,10 +1211,10 @@ public class SchoolSettingsController implements Initializable {
             TextPalallel.setDisable(false);
             TextPalallel.setEditable(true);
             btnCancelar.setDisable(false);
-            
+
             cleanAdvisor();
             disableadvisor();
-            
+
         });
 
         EditAdviser.setOnAction((ActionEvent t) -> {
@@ -1213,24 +1222,29 @@ public class SchoolSettingsController implements Initializable {
 
             courseselect = TableCourse.getItems().get(index);
 
-            cbxA.getSelectionModel().select(courseselect.getAsesor());
+            if (courseselect.getAsesor() != null) {
 
-            String namecourse = optionsGrade[courseselect.getGrado()] + " " + courseselect.getParalelo();
+                cbxA.getSelectionModel().select(courseselect.getAsesor());
 
-            cbxC.getSelectionModel().select(namecourse);
-            
-            disableCourseField();
+                String namecourse = optionsGrade[courseselect.getGrado()] + " " + courseselect.getParalelo();
 
-            dpI.setValue(courseselect.getFechai());
+                cbxC.getSelectionModel().select(namecourse);
 
-            dpF.setValue(courseselect.getFechaf());
+                disableCourseField();
 
-            cbxA.setDisable(false);
-            cbxC.setDisable(true);
-            dpI.setDisable(true);
-            dpF.setDisable(false);
-            
-            btnCancelar.setDisable(false);
+                dpI.setValue(courseselect.getFechai());
+
+                dpF.setValue(courseselect.getFechaf());
+
+                cbxA.setDisable(false);
+                cbxC.setDisable(true);
+                dpI.setDisable(true);
+                dpF.setDisable(false);
+
+                btnCancelar.setDisable(false);
+            } else {
+                extras.showAlert("Advertencia", "El curso no tiene Asesor", Alert.AlertType.WARNING);
+            }
         });
 
         DeleteAdviser.setOnAction((ActionEvent t) -> {
@@ -1238,41 +1252,34 @@ public class SchoolSettingsController implements Initializable {
 
             Course deleteadviser = TableCourse.getItems().get(index);
 
-            Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+            if (deleteadviser.getAsesor() != null) {
+                if (extras.showConfirmation("¿Desea eliminar el asesor: " + deleteadviser.getAsesor() + " del curso " + optionsGrade[deleteadviser.getGrado()] + " " + deleteadviser.getParalelo() + "?")) {
 
-            alert.setTitle("Confirmacion");
-            alert.setHeaderText(null);
+                    boolean rsp = advisordao.delete(deleteadviser.getAsesor(), coursedao.idcourse(verifycourse(optionsGrade[deleteadviser.getGrado()] + " " + deleteadviser.getParalelo())));
 
-            alert.setContentText("¿Desea eliminar al asesor: "
-                    + deleteadviser.getAsesor() + " del curso " + optionsGrade[deleteadviser.getGrado()] + " " + deleteadviser.getParalelo() + "?");
+                    if (rsp) {
 
-            alert.initStyle(StageStyle.UTILITY);
-            Optional<ButtonType> result = alert.showAndWait();
+                        extras.showAlert("Exito", "Se elimino correctamente el Asesor", Alert.AlertType.INFORMATION);
 
-            if (result.get() == ButtonType.OK) {
+                        UploadCourses();
 
-                boolean rsp = advisordao.delete(deleteadviser.getAsesor(), coursedao.idcourse(verifycourse(optionsGrade[deleteadviser.getGrado()] + " " + deleteadviser.getParalelo())));
+                        UpdateCourses();
 
-                if (rsp) {
+                        UpdateAdversors();
 
-                    showAlert("Exito", "Se elimino correctamente el Asesor", Alert.AlertType.INFORMATION);
+                        cleanAdvisor();
+                        cleanFieldsCourse();
 
-                    UploadCourses();
+                        enableCourseField();
+                        enableadvisor();
 
-                    UpdateCourses();
+                    } else {
 
-                    UpdateAdversors();
-                    
-                    cleanAdvisor();
-                    cleanFieldsCourse();
-                    
-                    enableCourseField();
-                    enableadvisor();
-
-                } else {
-
-                    showAlert("Error", "Hubo un error", Alert.AlertType.ERROR);
+                        extras.showAlert("Error", "Hubo un error", Alert.AlertType.ERROR);
+                    }
                 }
+            } else {
+                extras.showAlert("Advertencia", "El curso no tiene Asesor", Alert.AlertType.WARNING);
             }
         });
 
@@ -1292,33 +1299,23 @@ public class SchoolSettingsController implements Initializable {
 
             Documentation deleteDocumentation = TableDocumentation.getItems().get(index);
 
-            Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-
-            alert.setTitle("Confirmacion");
-            alert.setHeaderText(null);
-            alert.setContentText("¿Desea eliminar el usuario: "
-                    + deleteDocumentation.getNombre() + "?");
-
-            alert.initStyle(StageStyle.UTILITY);
-            Optional<ButtonType> result = alert.showAndWait();
-
-            if (result.isPresent() && result.get() == ButtonType.OK) {
+            if (extras.showConfirmation("¿Desea eliminar el documento: " + deleteDocumentation.getNombre() + "?")) {
 
                 boolean rsp = documentationdao.deleteDocumentation(deleteDocumentation.getIdtipo_documento());
 
                 if (rsp) {
 
-                    showAlert("Exito", "Se elimino correctamente la Documentacion", Alert.AlertType.INFORMATION);
+                    extras.showAlert("Exito", "Se elimino correctamente la Documentacion", Alert.AlertType.INFORMATION);
 
                     LoadDocumentation();
-                    
+
                     cleanFieldsDocumentation();
-                   
+
                     enableDocumentationField();
 
                 } else {
 
-                    showAlert("Error", "Hubo un error", Alert.AlertType.ERROR);
+                    extras.showAlert("Error", "Hubo un error", Alert.AlertType.ERROR);
                 }
             }
         });
@@ -1362,7 +1359,7 @@ public class SchoolSettingsController implements Initializable {
             parallelFilter = newVal.toLowerCase();
             aplicarFiltro();
         });
-        
+
         textBdocument.textProperty().addListener((observable, oldValue, newValue) -> {
             // Realiza el filtro dinámico mientras el usuario escribe
             filteredDataD.setPredicate(documentation -> {

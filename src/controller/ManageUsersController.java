@@ -121,6 +121,7 @@ public class ManageUsersController implements Initializable {
                 alert.setContentText("Todos los campos deben ser llenados.");
                 alert.initStyle(StageStyle.UTILITY);
                 alert.showAndWait();
+                
                 return;
             }
 
