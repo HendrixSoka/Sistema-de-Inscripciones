@@ -15,7 +15,7 @@ public class Database {
     private static final String driver = "com.mysql.cj.jdbc.Driver";
     
     //CONEXION LOCAL MAURICIO NO BORRAR
-    
+    //////////////////////////////////////
     /*private Connection connection;
     
     private String usuario = "root";
@@ -27,13 +27,14 @@ public class Database {
     private String url = "jdbc:mysql://"+servidor+":"+puerto+"/"+nombreDB+"?serverTimezone=UTC&useSSL=false";
     
     private String driver = "com.mysql.cj.jdbc.Driver";*/
+    //////////////////////////////////////
 
     public Database() throws ClassNotFoundException, SQLException {
         try {
             Class.forName(driver);
             
             //CONEXION LOCAL MAURICIO NO BORRAR
-            
+            //////////////////////////////////////
             /*connection = DriverManager.getConnection(url,usuario,password);
             
             if(connection != null){
@@ -41,6 +42,7 @@ public class Database {
                 System.out.println("CONEXION EXITOSA");
                 
             }*/
+            //////////////////////////////////////
         } catch (ClassNotFoundException e) {
             System.err.println("Error al cargar el driver de MySQL");
             throw e;
