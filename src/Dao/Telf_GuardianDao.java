@@ -16,7 +16,7 @@ import model.Telf_Guardian;
 public class Telf_GuardianDao {
     private Database connection;
 
-    public Telf_GuardianDao() throws ClassNotFoundException {
+    public Telf_GuardianDao() throws ClassNotFoundException, SQLException {
         this.connection = new Database();
     }
 

@@ -9,6 +9,7 @@ import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.sql.SQLException;
 import java.util.ResourceBundle;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -101,7 +102,7 @@ public class ManageUsersController implements Initializable {
 
     public boolean civalid(String number, String cm, int dp) {
         boolean numberValid = number != null && number.matches("\\d{5,8}");
-        boolean cmValid = cm == null || cm.matches("[A-Z]{1,2}");
+        boolean cmValid = cm == null || cm.trim().isEmpty() || cm.matches("[A-Z]{1,2}");
         boolean dpValid = dp != -1;
         return numberValid && cmValid && dpValid;
     }
@@ -133,17 +134,18 @@ public class ManageUsersController implements Initializable {
             String cicomplete;
 
             if (civalid(TextCiUser.getText(), textcom.getText(), cbxexp.getSelectionModel().getSelectedIndex())) {
-                if (textcom.getText() == null) {
+                if (textcom.getText() == null || textcom.getText().trim().isEmpty()) {
                     cicomplete = TextCiUser.getText() + "-" + Integer.toString(cbxexp.getSelectionModel().getSelectedIndex());
                 } else {
                     cicomplete = TextCiUser.getText() + "-" + textcom.getText() + "-" + Integer.toString(cbxexp.getSelectionModel().getSelectedIndex());
                 }
                 usuario.setCedula_identidad(cicomplete);
             } else {
+                System.out.println("EL CI es: "+TextCiUser.getText()+", el complemento: "+textcom.getText()+" y el dep: "+cbxexp.getSelectionModel().getSelectedIndex());
                 Alert alert = new Alert(Alert.AlertType.WARNING);
                 alert.setTitle("Error");
                 alert.setHeaderText(null);
-                alert.setContentText("C.I. Invalido revise los paramtros");
+                alert.setContentText("C.I. Invalido revise los parametros");
                 alert.initStyle(StageStyle.UTILITY);
                 alert.showAndWait();
                 TextCiUser.clear();
@@ -469,6 +471,8 @@ public class ManageUsersController implements Initializable {
         try {
             this.userdao = new UserDao();
         } catch (ClassNotFoundException ex) {
+            Logger.getLogger(ManageUsersController.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (SQLException ex) {
             Logger.getLogger(ManageUsersController.class.getName()).log(Level.SEVERE, null, ex);
         }
 

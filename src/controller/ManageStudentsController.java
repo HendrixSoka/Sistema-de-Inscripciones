@@ -22,6 +22,7 @@ import model.Student;
 import Dao.StudentDao;
 import Dao.GuardianDao;
 import Dao.Student_GuardianDao;
+import java.sql.SQLException;
 import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -70,6 +71,8 @@ public class ManageStudentsController implements Initializable, MainControllerAw
             this.student_GuardianDao = new Student_GuardianDao();
         } catch (ClassNotFoundException ex) {
             Logger.getLogger(ManageUsersController.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (SQLException ex) {
+            Logger.getLogger(ManageStudentsController.class.getName()).log(Level.SEVERE, null, ex);
         }
         LoadStudents();
         OptionsStudents = new ContextMenu();

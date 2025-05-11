@@ -10,6 +10,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.util.ArrayList;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.List;
 
 /**
@@ -20,7 +21,7 @@ public class DocumentationDao {
     
      private Database DocumentationConnection;
 
-    public DocumentationDao() throws ClassNotFoundException {
+    public DocumentationDao() throws ClassNotFoundException, SQLException {
         
         this.DocumentationConnection = new Database();
         

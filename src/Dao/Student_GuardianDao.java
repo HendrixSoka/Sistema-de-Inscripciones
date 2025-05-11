@@ -17,7 +17,7 @@ public class Student_GuardianDao {
 
     private Database connection;
 
-    public Student_GuardianDao() throws ClassNotFoundException {
+    public Student_GuardianDao() throws ClassNotFoundException, SQLException {
         this.connection = new Database();
     }
 

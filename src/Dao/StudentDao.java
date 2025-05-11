@@ -22,7 +22,7 @@ public class StudentDao {
     
     private Statement statement;
 
-    public StudentDao() throws ClassNotFoundException {
+    public StudentDao() throws ClassNotFoundException, SQLException {
         this.StudentConnection = new Database();
         this.verify = new ManageStudentsController();
     }

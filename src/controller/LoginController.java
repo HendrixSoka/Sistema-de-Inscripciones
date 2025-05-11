@@ -7,6 +7,7 @@ package controller;
 import Dao.UserDao;
 import java.io.IOException;
 import java.net.URL;
+import java.sql.SQLException;
 import java.util.Optional;
 import java.util.ResourceBundle;
 import javafx.animation.PauseTransition;
@@ -93,7 +94,7 @@ public class LoginController implements Initializable {
     }
 
     @FXML
-    void BtnLoginOnAction(ActionEvent event) {
+    void BtnLoginOnAction(ActionEvent event) throws SQLException {
         if (TextUser.getText().isEmpty() || TextPassword.getText().isEmpty()) {
             showAlert("Error", "Los campos no pueden estar vacios", Alert.AlertType.WARNING);
             return;

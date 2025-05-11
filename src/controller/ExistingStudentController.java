@@ -16,6 +16,7 @@ import java.net.URL;
 import java.security.NoSuchAlgorithmException;
 import java.time.ZoneId;
 import java.sql.Date;
+import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
 import java.util.ResourceBundle;
@@ -165,6 +166,8 @@ public class ExistingStudentController implements Initializable, MainControllerA
             this.studentdao = new StudentDao();
         } catch (ClassNotFoundException ex) {
             Logger.getLogger(ManageUsersController.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (SQLException ex) {
+            Logger.getLogger(ExistingStudentController.class.getName()).log(Level.SEVERE, null, ex);
         }
         ObservableList<String> ol = FXCollections.observableArrayList("Masculino", "Femenino");
         CboGender.setItems(ol);

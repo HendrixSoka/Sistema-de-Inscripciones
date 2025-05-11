@@ -6,6 +6,7 @@ package Dao;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import java.time.LocalDate;
 import model.Advisor;
 import model.Database;
@@ -18,7 +19,7 @@ public class AdvisorDao {
 
     private Database AdvisorConnection;
 
-    public AdvisorDao() throws ClassNotFoundException {
+    public AdvisorDao() throws ClassNotFoundException, SQLException {
         this.AdvisorConnection = new Database();
     }
     

@@ -19,7 +19,7 @@ public class GuardianDao {
     private Database guardianConnection;
     private Telf_GuardianDao contacto;
 
-    public GuardianDao() throws ClassNotFoundException {
+    public GuardianDao() throws ClassNotFoundException, SQLException {
         this.guardianConnection = new Database();
         this.contacto = new Telf_GuardianDao();
     }

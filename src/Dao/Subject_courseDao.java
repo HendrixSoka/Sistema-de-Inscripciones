@@ -6,6 +6,7 @@ package Dao;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import java.util.List;
 import model.Database;
 import model.Subject_course;
@@ -18,7 +19,7 @@ public class Subject_courseDao {
 
     private Database ScourseConnection;
 
-    public Subject_courseDao() throws ClassNotFoundException {
+    public Subject_courseDao() throws ClassNotFoundException, SQLException {
         this.ScourseConnection = new Database();
     }
 

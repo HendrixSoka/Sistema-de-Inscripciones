@@ -24,7 +24,7 @@ public class UserDao {
     private Database UserConnection;
     private ManageUsersController verify;
 
-    public UserDao() throws ClassNotFoundException {
+    public UserDao() throws ClassNotFoundException, SQLException {
         this.UserConnection = new Database();
         this.verify = new ManageUsersController();
     }

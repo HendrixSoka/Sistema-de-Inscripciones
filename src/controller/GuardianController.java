@@ -24,6 +24,7 @@ import model.Student_Guardian;
 import Dao.Student_GuardianDao;
 import interfaces.DataReceiver;
 import interfaces.MainControllerAware;
+import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -130,6 +131,8 @@ public class GuardianController implements Initializable,MainControllerAware,Dat
             this.student_GuardianDao = new Student_GuardianDao();
         } catch (ClassNotFoundException ex) {
             Logger.getLogger(ManageUsersController.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (SQLException ex) {
+            Logger.getLogger(GuardianController.class.getName()).log(Level.SEVERE, null, ex);
         }
     }    
     @FXML

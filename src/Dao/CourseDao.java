@@ -9,6 +9,7 @@ import model.Database;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Date;
@@ -24,7 +25,7 @@ public class CourseDao {
 
     private String[] optionsGrade = {"Primero", "Segundo", "Tercero", "Cuarto", "Quinto", "Sexto"};
 
-    public CourseDao() throws ClassNotFoundException {
+    public CourseDao() throws ClassNotFoundException, SQLException {
 
         this.CourseConnection = new Database();
 
