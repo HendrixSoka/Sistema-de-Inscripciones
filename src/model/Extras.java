@@ -14,7 +14,7 @@ import javafx.stage.StageStyle;
  * @author mauricioteranlimari
  */
 public class Extras {
-    public void showAlert(String title, String message, Alert.AlertType alertType) {
+    public static void showAlert(String title, String message, Alert.AlertType alertType) {
         Alert alert = new Alert(alertType);
         alert.setTitle(title);
         alert.setHeaderText(null);
@@ -22,7 +22,7 @@ public class Extras {
         alert.showAndWait();
     }
     
-    public boolean showConfirmation(String mensaje) {
+    public static boolean showConfirmation(String mensaje) {
         Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
         alert.setTitle("Confirmación");
         alert.setHeaderText(null);

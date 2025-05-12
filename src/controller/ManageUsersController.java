@@ -23,7 +23,6 @@ import javafx.scene.control.TextField;
 import java.util.Arrays;
 import java.util.Base64;
 import java.util.List;
-import java.util.Optional;
 import java.util.Random;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -31,16 +30,14 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javafx.collections.transformation.FilteredList;
 import javafx.scene.control.Alert;
-import javafx.scene.control.ButtonType;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.cell.PropertyValueFactory;
-import javafx.scene.layout.VBox;
-import javafx.stage.StageStyle;
 import javax.crypto.Cipher;
 import javax.crypto.spec.SecretKeySpec;
+import model.Extras;
 import model.User;
 
 /**
@@ -50,13 +47,6 @@ import model.User;
  */
 public class ManageUsersController implements Initializable {
 
-    /**
-     * Initializes the controller class.
-     */
-    @FXML
-    private VBox VboxBtnUsers;
-    @FXML
-    private Button BtnAdd;
     @FXML
     private Button BtnCancelar;
     @FXML
@@ -94,11 +84,11 @@ public class ManageUsersController implements Initializable {
 
     private FilteredList<User> filteredData;
 
-    private ObservableList<User> data;
-
     private static final String EMAIL_REGEX = "^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$";
 
-    private String[] departments = {"LP", "SCZ", "CBBA", "OR", "PT", "CH", "TJA", "BE", "PD"};
+    private final String[] departments = {"LP", "SCZ", "CBBA", "OR", "PT", "CH", "TJA", "BE", "PD"};
+
+    String[] cargos = {"Director/a", "Secretario/a", "Asesor/a", "Regente/Regenta"};
 
     public boolean civalid(String number, String cm, int dp) {
         boolean numberValid = number != null && number.matches("\\d{5,8}");
@@ -115,13 +105,8 @@ public class ManageUsersController implements Initializable {
                     || TextCiUser.getText().isEmpty() || TextPhoneUser.getText().isEmpty()
                     || TextEmailUser.getText().isEmpty() || TextPasswordUser.getText().isEmpty()) {
 
-                Alert alert = new Alert(Alert.AlertType.WARNING);
-                alert.setTitle("Error");
-                alert.setHeaderText(null);
-                alert.setContentText("Todos los campos deben ser llenados.");
-                alert.initStyle(StageStyle.UTILITY);
-                alert.showAndWait();
-                
+                Extras.showAlert("Advertencia", "Todos los campos deben ser llenados", Alert.AlertType.WARNING);
+
                 return;
             }
 
@@ -142,13 +127,7 @@ public class ManageUsersController implements Initializable {
                 }
                 usuario.setCedula_identidad(cicomplete);
             } else {
-                System.out.println("EL CI es: "+TextCiUser.getText()+", el complemento: "+textcom.getText()+" y el dep: "+cbxexp.getSelectionModel().getSelectedIndex());
-                Alert alert = new Alert(Alert.AlertType.WARNING);
-                alert.setTitle("Error");
-                alert.setHeaderText(null);
-                alert.setContentText("C.I. Invalido revise los parametros");
-                alert.initStyle(StageStyle.UTILITY);
-                alert.showAndWait();
+                Extras.showAlert("Advertencia", "C.I. Invalido revise los parametros", Alert.AlertType.WARNING);
                 TextCiUser.clear();
                 textcom.clear();
                 cbxexp.getSelectionModel().select("Seleccione");
@@ -158,25 +137,17 @@ public class ManageUsersController implements Initializable {
             if (VerifyNumberUser(TextPhoneUser.getText())) {
                 usuario.setCelular(TextPhoneUser.getText());
             } else {
-                Alert alert = new Alert(Alert.AlertType.WARNING);
-                alert.setTitle("Error");
-                alert.setHeaderText(null);
-                alert.setContentText("Numero de celular invalido");
-                alert.initStyle(StageStyle.UTILITY);
-                alert.showAndWait();
+                Extras.showAlert("Advertencia", "Numero de celular invalido", Alert.AlertType.WARNING);
                 TextPhoneUser.clear();
+                return;
             }
             //Correo, verifica si es valido
             if (VerifyEmailUser(TextEmailUser.getText())) {
                 usuario.setCorreo(TextEmailUser.getText());
             } else {
-                Alert alert = new Alert(Alert.AlertType.WARNING);
-                alert.setTitle("Error");
-                alert.setHeaderText(null);
-                alert.setContentText("Formato de correo invalido");
-                alert.initStyle(StageStyle.UTILITY);
-                alert.showAndWait();
+                Extras.showAlert("Advertencia", "Formato de correo invalido", Alert.AlertType.WARNING);
                 TextEmailUser.clear();
+                return;
             }
             //Agrega cargo
             String selectedCargo = CboCharge.getValue();
@@ -194,36 +165,24 @@ public class ManageUsersController implements Initializable {
             boolean rsp = this.userdao.register(usuario);
 
             if (rsp) {
-                Alert alert = new Alert(Alert.AlertType.INFORMATION);
-                alert.setTitle("Exito");
-                alert.setHeaderText(null);
-                alert.setContentText("Se registro correctamente el usuario");
-                alert.initStyle(StageStyle.UTILITY);
-                alert.showAndWait();
+
+                Extras.showAlert("Exito", "Se registro correctamente el usuario", Alert.AlertType.INFORMATION);
 
                 ClearFiels();
                 LoadUsers();
+                loadCharges();
 
             } else {
-                Alert alert = new Alert(Alert.AlertType.ERROR);
-                alert.setTitle("Error");
-                alert.setHeaderText(null);
-                alert.setContentText("Hubo un error al guardar");
-                alert.initStyle(StageStyle.UTILITY);
-                alert.showAndWait();
+
+                Extras.showAlert("Error", "hubo un error", Alert.AlertType.ERROR);
+
             }
         } else {
 
             if (TextFnameUser.getText().isEmpty() || TextLnameUser.getText().isEmpty()
                     || TextCiUser.getText().isEmpty() || TextPhoneUser.getText().isEmpty()
                     || TextEmailUser.getText().isEmpty() || TextPasswordUser.getText().isEmpty()) {
-
-                Alert alert = new Alert(Alert.AlertType.WARNING);
-                alert.setTitle("Error");
-                alert.setHeaderText(null);
-                alert.setContentText("Todos los campos deben ser llenados.");
-                alert.initStyle(StageStyle.UTILITY);
-                alert.showAndWait();
+                Extras.showAlert("Advertencia", "Todos los campos deben ser llenados", Alert.AlertType.WARNING);
                 return;
             }
 
@@ -241,27 +200,20 @@ public class ManageUsersController implements Initializable {
             boolean rsp = this.userdao.Edit(selectUser);
 
             if (rsp) {
-                Alert alert = new Alert(Alert.AlertType.INFORMATION);
-                alert.setTitle("Exito");
-                alert.setHeaderText(null);
-                alert.setContentText("Se guardo correctamente el usuario");
-                alert.initStyle(StageStyle.UTILITY);
-                alert.showAndWait();
+
+                Extras.showAlert("Exito", "Se guardo correctamente el usuario", Alert.AlertType.INFORMATION);
 
                 ClearFiels();
                 LoadUsers();
+                loadCharges();
 
                 selectUser = null;
 
                 BtnCancelar.setDisable(true);
 
             } else {
-                Alert alert = new Alert(Alert.AlertType.ERROR);
-                alert.setTitle("Error");
-                alert.setHeaderText(null);
-                alert.setContentText("Hubo un error al modificar");
-                alert.initStyle(StageStyle.UTILITY);
-                alert.showAndWait();
+
+                Extras.showAlert("Error", "hubo un error", Alert.AlertType.ERROR);
             }
         }
     }
@@ -456,14 +408,25 @@ public class ManageUsersController implements Initializable {
         }
     }
 
-    @Override
-    public void initialize(URL url, ResourceBundle rb) {
-
-        String[] cargos = {"Director/a", "Secretario/a", "Asesor/a", "Regente/Regenta"};
+    private void loadCharges() {
         ObservableList<String> items = FXCollections.observableArrayList(cargos);
+
+        if (userdao.ExistDirector() >= 2) {
+            items.remove("Director/a");
+        }
+        if (userdao.ExistSecretary() >= 2) {
+            items.remove("Secretario/a");
+        }
+        if (userdao.ExistRegent() >= 4) {
+            items.remove("Regente/Regenta");
+        }
+
         CboCharge.setItems(items);
         CboCharge.setValue("Seleccione");
-        TextUserUser.setEditable(false);
+    }
+
+    @Override
+    public void initialize(URL url, ResourceBundle rb) {
 
         ObservableList<String> departments = FXCollections.observableArrayList(this.departments);
         cbxexp.setItems(departments);
@@ -477,7 +440,10 @@ public class ManageUsersController implements Initializable {
             Logger.getLogger(ManageUsersController.class.getName()).log(Level.SEVERE, null, ex);
         }
 
+        //loadCharges();
+        loadCharges();
         LoadUsers();
+
         TextFnameUser.textProperty().addListener((observable, oldValue, newValue) -> {
             if (!newValue.trim().isEmpty()) {
                 String generatedUsername = GenerateUser(newValue);
@@ -487,6 +453,49 @@ public class ManageUsersController implements Initializable {
             }
         });
         OptionsUsers = new ContextMenu();
+
+        //Verificacion de campos
+        TextFnameUser.textProperty().addListener((obs, oldText, newText) -> {
+            if (newText.length() > 100) {
+                TextFnameUser.setText(oldText);
+            }
+        });
+        TextLnameUser.textProperty().addListener((obs, oldText, newText) -> {
+            if (newText.length() > 100) {
+                TextLnameUser.setText(oldText);
+            }
+        });
+        TextCiUser.textProperty().addListener((obs, oldText, newText) -> {
+            if (!newText.matches("\\d*") || newText.length() > 8) {
+                TextCiUser.setText(oldText);
+            }
+        });
+        textcom.textProperty().addListener((obs, oldText, newText) -> {
+            if (!newText.matches("[A-Z]*") || newText.length() > 2) {
+                textcom.setText(oldText);
+            }
+        });
+        TextPhoneUser.textProperty().addListener((obs, oldText, newText) -> {
+            if (!newText.matches("[0-9]*") || newText.length() > 8) {
+                TextPhoneUser.setText(oldText);
+            }
+        });
+        TextEmailUser.textProperty().addListener((obs, oldText, newText) -> {
+            // Verifica que no exceda los 150 caracteres y que sea un correo válido
+            if (newText.length() > 150) {
+                TextEmailUser.setText(oldText);
+            }
+        });
+        TextPasswordUser.textProperty().addListener((obs, oldText, newText) -> {
+            try {
+                byte[] utf8Bytes = newText.getBytes("UTF-8");
+                if (utf8Bytes.length > 96) {
+                    TextPasswordUser.setText(oldText);
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        });
 
         MenuItem edit = new MenuItem("Editar");
         MenuItem delete = new MenuItem("Eliminar");
@@ -500,8 +509,23 @@ public class ManageUsersController implements Initializable {
 
             TextFnameUser.setText(selectUser.getNombre());
             TextLnameUser.setText(selectUser.getApellido());
-            TextCiUser.setText(selectUser.getCedula_identidad());
+
+            String cedula = selectUser.getCedula_identidad();
+            String[] partes = cedula.split("-");
+
+            TextCiUser.setText(partes[0]);
             TextCiUser.setEditable(false);
+
+            if (partes.length == 3) {
+                textcom.setText(partes[1]);
+                cbxexp.getSelectionModel().select(Integer.parseInt(partes[2]));
+            } else if (partes.length == 2) {
+                textcom.setText("");
+                cbxexp.getSelectionModel().select(Integer.parseInt(partes[1]));
+            }
+            textcom.setEditable(false);
+            cbxexp.setDisable(true);
+
             TextPhoneUser.setText(selectUser.getCelular());
             TextEmailUser.setText(selectUser.getCorreo());
             CboCharge.getSelectionModel().select(selectUser.getCargo());
@@ -517,40 +541,20 @@ public class ManageUsersController implements Initializable {
 
             User deleteUser = tblUser.getItems().get(index);
 
-            Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-
-            alert.setTitle("Confirmacion");
-            alert.setHeaderText(null);
-            alert.setContentText("¿Desea eliminar el usuario: "
-                    + deleteUser.getNombre() + " " + deleteUser.getApellido()
-                    + "?");
-            alert.initStyle(StageStyle.UTILITY);
-
-            Optional<ButtonType> result = alert.showAndWait();
-
-            if (result.get() == ButtonType.OK) {
+            if (Extras.showConfirmation("¿Desea eliminar el usuario: " + deleteUser.getNombre() + " " + deleteUser.getApellido() + "?")) {
 
                 boolean rsp = userdao.Detele(deleteUser.getId());
 
                 if (rsp) {
 
-                    Alert alert2 = new Alert(Alert.AlertType.INFORMATION);
-                    alert2.setTitle("Exito");
-                    alert2.setHeaderText(null);
-                    alert2.setContentText("Se elimino correctamente el usuario");
-                    alert2.initStyle(StageStyle.UTILITY);
-                    alert2.showAndWait();
-
+                    Extras.showAlert("Exito", "Se elimino correctamente el usuario", Alert.AlertType.INFORMATION);
                     LoadUsers();
+                    loadCharges();
 
                 } else {
 
-                    Alert alert2 = new Alert(Alert.AlertType.ERROR);
-                    alert2.setTitle("Error");
-                    alert2.setHeaderText(null);
-                    alert2.setContentText("Hubo un error al eliminar");
-                    alert2.initStyle(StageStyle.UTILITY);
-                    alert2.showAndWait();
+                    Extras.showAlert("Error", "Hubo un error", Alert.AlertType.ERROR);
+
                 }
             }
         });

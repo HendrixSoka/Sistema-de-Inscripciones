@@ -341,4 +341,82 @@ public class UserDao {
         }
         return idaser;
     }
+
+    public int ExistDirector() {
+        try {
+            String SQL = "SELECT COUNT(*) FROM usuario WHERE cargo = 0";
+
+            Connection connection = this.UserConnection.getConnection();
+            PreparedStatement sentence = connection.prepareStatement(SQL);
+
+            ResultSet data = sentence.executeQuery();
+
+            if (data.next()) {
+                return data.getInt(1);
+            }
+
+            data.close();
+            sentence.close();
+
+            return 0;
+
+        } catch (SQLException e) {
+            System.err.println("Error al verificar la existencia de directores");
+            e.printStackTrace();
+            return -1;
+        }
+
+    }
+
+    public int ExistSecretary() {
+        try {
+            String SQL = "SELECT COUNT(*) FROM usuario WHERE cargo = 1";
+
+            Connection connection = this.UserConnection.getConnection();
+            PreparedStatement sentence = connection.prepareStatement(SQL);
+
+            ResultSet data = sentence.executeQuery();
+
+            if (data.next()) {
+                return data.getInt(1);
+            }
+
+            data.close();
+            sentence.close();
+
+            return 0;
+
+        } catch (SQLException e) {
+            System.err.println("Error al verificar la existencia de secretarios");
+            e.printStackTrace();
+            return -1;
+        }
+
+    }
+    
+     public int ExistRegent() {
+        try {
+            String SQL = "SELECT COUNT(*) FROM usuario WHERE cargo = 3";
+
+            Connection connection = this.UserConnection.getConnection();
+            PreparedStatement sentence = connection.prepareStatement(SQL);
+
+            ResultSet data = sentence.executeQuery();
+
+            if (data.next()) {
+                return data.getInt(1);
+            }
+
+            data.close();
+            sentence.close();
+
+            return 0;
+
+        } catch (SQLException e) {
+            System.err.println("Error al verificar la existencia de Regentes");
+            e.printStackTrace();
+            return -1;
+        }
+
+    }
 }
