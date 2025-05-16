@@ -192,7 +192,7 @@ public class UserDao {
         }
     }
 
-    public boolean Login(String user, String password) {
+    public User Login(String user, String password) {
 
         try {
 
@@ -207,8 +207,24 @@ public class UserDao {
             sentence.setString(2, verify.Encrypt(password));
 
             try (ResultSet result = sentence.executeQuery()) {
-                return result.next();
+                if (result.next()) {
 
+                    User loggedInUser = new User();
+
+                    loggedInUser.setId(result.getInt("idusuario"));
+                    loggedInUser.setNombre(result.getString("nombre"));
+                    loggedInUser.setApellido(result.getString("apellido"));
+                    loggedInUser.setCedula_identidad(result.getString("cedula_identidad"));
+                    loggedInUser.setCelular(result.getString("celular"));
+                    loggedInUser.setCorreo(result.getString("correo"));
+                    loggedInUser.setCargo(result.getInt("cargo"));
+                    loggedInUser.setUsuario(result.getString("usuario"));
+                    loggedInUser.setContrasena(result.getString("contrasena"));
+
+                    return loggedInUser;
+                } else {
+                    return null; // Usuario no encontrado
+                }
             }
 
         } catch (SQLException e) {
@@ -218,7 +234,7 @@ public class UserDao {
 
             e.printStackTrace();
 
-            return false;
+            return null;
         }
     }
 
@@ -393,8 +409,8 @@ public class UserDao {
         }
 
     }
-    
-     public int ExistRegent() {
+
+    public int ExistRegent() {
         try {
             String SQL = "SELECT COUNT(*) FROM usuario WHERE cargo = 3";
 

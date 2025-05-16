@@ -19,20 +19,18 @@ import javafx.scene.Parent;
 import javafx.scene.layout.HBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.Hyperlink;
-
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
-import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
-import javafx.scene.control.ButtonType;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.stage.Stage;
+import model.Extras;
+import model.User;
 
 public class MainMenuController implements Initializable {
 
@@ -48,28 +46,39 @@ public class MainMenuController implements Initializable {
 
     @FXML
     public Label textuser;
-    
+
+    private User logged;
+
+    public void setLogged(User logged) {
+        this.logged = logged;
+    }
+
+    public User getLogged() {
+        return logged;
+    }
+
+    public void init() {
+        if (logged != null) {
+            textuser.setText("Usuario: " + logged.getNombre() + " " + logged.getApellido());
+        }
+    }
+
     @FXML
     void btnexitAction(ActionEvent event) {
-        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-        alert.setTitle("Confirmar salida");
-        alert.setHeaderText(null);
-        alert.setContentText("¿Seguro que deseas salir?");
 
-        Optional<ButtonType> result = alert.showAndWait();
-        if (result.isPresent() && result.get() == ButtonType.OK) {
+        if (Extras.showConfirmation("¿Seguro que deseas salir?")) {
             try {
-               
+
                 FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/Login.fxml"));
                 Parent root = loader.load();
 
-                
                 Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
                 Scene scene = new Scene(root);
 
                 stage.setScene(scene);
                 stage.centerOnScreen();
                 stage.show();
+
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -86,6 +95,7 @@ public class MainMenuController implements Initializable {
         pageMap.put("Menu Principal", "MenuOptions");
         loadView("MenuOptions");
         updateBreadcrumb();
+
     }
 
     public void setSubController(Object subController) {
@@ -96,16 +106,18 @@ public class MainMenuController implements Initializable {
 
     public void loadView(String pageName) {
         try {
-
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/" + pageName + ".fxml"));
             Parent root = loader.load();
 
+            // Obtener el controlador del FXML
             Object subController = loader.getController();
 
-            if (subController instanceof MainControllerAware) {
-                ((MainControllerAware) subController).setMainController(this);
+            // Verificar si el controlador implementa MainControllerAware
+            if (subController instanceof MainControllerAware mainControllerAware) {
+                mainControllerAware.setMainController(this);
             }
 
+            // Limpiar el contenido actual
             contentPane.getChildren().clear();
 
             // Añadir la nueva vista cargada
@@ -116,6 +128,7 @@ public class MainMenuController implements Initializable {
             AnchorPane.setBottomAnchor(root, 0.0);
             AnchorPane.setLeftAnchor(root, 0.0);
             AnchorPane.setRightAnchor(root, 0.0);
+
             System.out.println("Vista cargada: " + pageName);
 
         } catch (IOException e) {
@@ -183,23 +196,36 @@ public class MainMenuController implements Initializable {
 
             Object controller = loader.getController();
             System.out.println("Controlador cargado: " + controller);
+            
+            boolean canLoad = true;
 
-            if (controller instanceof DataReceiver) {
+            if (controller instanceof DataReceiver dataReceiver) {
                 System.out.println("Enviando datos al controlador");
-                ((DataReceiver) controller).onDataReceived(data);
+                dataReceiver.onDataReceived(data);
+                if (controller instanceof ManageGradesController mgc) {
+                    if (mgc.getAdvisor() == null || mgc.getAdvisor().getCargo() != 2) {
+                        Extras.showAlert("Advertencia", "Usted No es un Asesor", Alert.AlertType.WARNING);
+                        canLoad = false;
+                    }
+                }
             } else {
                 System.out.println("El controlador no implementa DataReceiver");
             }
 
-            contentPane.getChildren().clear();
-            contentPane.getChildren().add(root);
+            if (canLoad) {
+                
+                contentPane.getChildren().clear();
+                contentPane.getChildren().add(root);
 
-            AnchorPane.setTopAnchor(root, 0.0);
-            AnchorPane.setBottomAnchor(root, 0.0);
-            AnchorPane.setLeftAnchor(root, 0.0);
-            AnchorPane.setRightAnchor(root, 0.0);
+                AnchorPane.setTopAnchor(root, 0.0);
+                AnchorPane.setBottomAnchor(root, 0.0);
+                AnchorPane.setLeftAnchor(root, 0.0);
+                AnchorPane.setRightAnchor(root, 0.0);
 
-            System.out.println("Vista cargada: " + pageName);
+                System.out.println("Vista cargada: " + pageName);
+            } else {
+                System.out.println("No se carga la vista porque el usuario no es asesor.");
+            }
         } catch (IOException e) {
             System.out.println("Error al cargar la vista: " + pageName);
             e.printStackTrace();

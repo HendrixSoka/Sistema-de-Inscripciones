@@ -8,7 +8,6 @@ import Dao.UserDao;
 import java.io.IOException;
 import java.net.URL;
 import java.sql.SQLException;
-import java.util.Optional;
 import java.util.ResourceBundle;
 import javafx.animation.PauseTransition;
 import javafx.application.Platform;
@@ -24,7 +23,6 @@ import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
-import javafx.scene.control.ButtonType;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
@@ -33,6 +31,8 @@ import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.util.Duration;
+import model.Extras;
+import model.User;
 
 public class LoginController implements Initializable {
 
@@ -79,17 +79,14 @@ public class LoginController implements Initializable {
     @FXML
     private AnchorPane mainPane;
 
+    private User user;
+
     @FXML
     void BtnCloseOnAction(ActionEvent event) {
-        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-        alert.setTitle("Confirmar salida");
-        alert.setHeaderText(null);
-        alert.setContentText("¿Seguro que deseas salir?");
 
-        Optional<ButtonType> result = alert.showAndWait();
-        if (result.isPresent() && result.get() == ButtonType.OK) {
+        if (Extras.showConfirmation("¿Seguro que deseas salir?")) {
             Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
-                stage.close();
+            stage.close();
         }
     }
 
@@ -100,33 +97,46 @@ public class LoginController implements Initializable {
             return;
         }
         try {
+
             UserDao userdao = new UserDao();
-            boolean Sucesslogin = userdao.Login(TextUser.getText(), TextPassword.getText());
 
-            if (Sucesslogin) {
-                
-                FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/MainMenu.fxml"));
-                Parent root = loader.load(); 
+            this.user = userdao.Login(TextUser.getText(), TextPassword.getText());
 
-                MainMenuController controller = loader.getController();
-                
-                controller.textuser.setText("Usuario: " + userdao.username(TextUser.getText(), TextPassword.getText()) ); 
+            if (user != null) {
 
-                Stage stage = (Stage) BtnLogin.getScene().getWindow();
-                Scene scene = new Scene(root);
-                stage.setTitle("Sistema de Registro de Estudiantes");
-                stage.setScene(scene);
-                stage.setMaximized(true);
-                stage.show();
+                openMainMenu();
 
             } else {
                 showAlert("Error", "Usuario o Contraseña Incorrectos", Alert.AlertType.ERROR);
             }
-        } catch (IOException | ClassNotFoundException e) {
+        } catch (ClassNotFoundException e) {
             showAlert("Error", "Problema en la base de datos", Alert.AlertType.ERROR);
             e.printStackTrace();
         }
 
+    }
+
+    private void openMainMenu() {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/MainMenu.fxml"));
+
+            Parent root = loader.load();
+
+            MainMenuController mainMenuController = loader.getController();
+            mainMenuController.setLogged(user);
+            mainMenuController.init();
+
+            Stage stage = (Stage) BtnLogin.getScene().getWindow();
+            Scene scene = new Scene(root);
+            stage.setTitle("Sistema de Registro de Estudiantes");
+            stage.setScene(scene);
+            stage.setMaximized(true);
+            stage.show();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+            showAlert("Error", "No se pudo cargar el menú principal", Alert.AlertType.ERROR);
+        }
     }
 
     private void showAlert(String title, String message, Alert.AlertType alertType) {

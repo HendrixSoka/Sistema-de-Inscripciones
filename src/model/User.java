@@ -105,4 +105,11 @@ public class User {
         this.contrasena = contrasena;
     }
 
+    @Override
+    public String toString() {
+        return "User{" + "id=" + id + ", nombre=" + nombre + ", apellido=" + apellido + ", cedula_identidad=" + cedula_identidad + ", celular=" + celular + ", correo=" + correo + ", cargo=" + cargo + ", usuario=" + usuario + ", contrasena=" + contrasena + ", nombre_c=" + nombre_c + '}';
+    }
+    
+    
+
 }

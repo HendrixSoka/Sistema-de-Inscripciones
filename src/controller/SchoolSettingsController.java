@@ -572,7 +572,7 @@ public class SchoolSettingsController implements Initializable {
     }
 
     //Funcion para cambiar el string de un curso a los valores de la base de datos
-    private String verifycourse(String full) {
+    public String verifycourse(String full) {
         for (int i = 0; i < optionsGrade.length; i++) {
             if (full.contains(optionsGrade[i])) {
                 return full.replace(optionsGrade[i], String.valueOf(i));

@@ -35,8 +35,8 @@ public class MenuOptionsController implements Initializable, MainControllerAware
 
     @FXML
     private Button btnGestionarUsuarios;
-    
-      @FXML
+
+    @FXML
     private ImageView ihelp;
 
     @FXML
@@ -54,36 +54,30 @@ public class MenuOptionsController implements Initializable, MainControllerAware
     @FXML
     private ImageView iusers;
 
-    private Map<String, String> pageMap = new HashMap<>();
+    private final Map<String, String> pageMap = new HashMap<>();
 
     private MainMenuController mainController;
 
     @Override
-    public void setMainController(MainMenuController mainController) {
-        this.mainController = mainController;
-    }
-
-    @Override
     public void initialize(URL url, ResourceBundle rb) {
-        
+
         Image student = new Image(getClass().getResourceAsStream("/resources/icons/student.gif"));
         istudents.setImage(student);
-        
+
         Image note = new Image(getClass().getResourceAsStream("/resources/icons/note.gif"));
         inotes.setImage(note);
-        
+
         Image user = new Image(getClass().getResourceAsStream("/resources/icons/user.gif"));
         iusers.setImage(user);
-        
+
         Image setting = new Image(getClass().getResourceAsStream("/resources/icons/setting.gif"));
         isettings.setImage(setting);
-        
+
         Image report = new Image(getClass().getResourceAsStream("/resources/icons/report.gif"));
         ireports.setImage(report);
-        
+
         Image help = new Image(getClass().getResourceAsStream("/resources/icons/help.gif"));
         ihelp.setImage(help);
-        
 
         pageMap.put("Gestionar Estudiantes", "ManageStudents");
         pageMap.put("Configuracion", "SchoolSettings");
@@ -98,16 +92,25 @@ public class MenuOptionsController implements Initializable, MainControllerAware
         btnGestionarNotas.setOnAction(e -> navigateTo("Gestionar Notas"));
         btnAyuda.setOnAction(e -> navigateTo("Ayuda"));
         btnGestionarUsuarios.setOnAction(e -> navigateTo("Gestionar Usuarios"));
+
     }
 
     public void navigateTo(String pageName) {
         System.out.println("Presionado " + pageName);
         if (mainController != null) {
-            mainController.loadView(pageMap.get(pageName));
+            if (pageName.equals("Gestionar Notas")) {
+                mainController.loadSceneWithData("ManageGrades", mainController.getLogged());
+            } else {
+                mainController.loadView(pageMap.get(pageName));
+            }
             mainController.addPage(pageName, pageMap.get(pageName));
         } else {
             System.out.println("Error: MainMenuController no está disponible.");
         }
     }
 
+    @Override
+    public void setMainController(MainMenuController mainController) {
+        this.mainController = mainController;
+    }
 }
