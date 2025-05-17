@@ -9,29 +9,41 @@ import Dao.CourseDao;
 import Dao.ListCourseDao;
 import interfaces.MainControllerAware;
 import interfaces.DataReceiver;
+import java.io.File;
 import java.net.URL;
 import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.ResourceBundle;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javafx.beans.property.ReadOnlyObjectWrapper;
+import javafx.beans.property.ReadOnlyStringWrapper;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
+import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
-import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.stage.FileChooser;
+import javafx.stage.Stage;
 import model.Course;
+import model.Extras;
 import model.ListCourse;
+import model.StudentNotes;
 import model.User;
 
 /**
@@ -45,10 +57,28 @@ public class ManageGradesController implements Initializable, MainControllerAwar
     private ComboBox<String> CbxCourses;
 
     @FXML
-    private TableView<ListCourse> TableNotes;
+    private TableView<StudentNotes> TableNotes;
 
     @FXML
     private Label TextAdvisor;
+
+    @FXML
+    private Button BtnUploadFile;
+
+    @FXML
+    void OpenFile(ActionEvent event) {
+
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Seleccione el Archivo Excel");
+        fileChooser.getExtensionFilters().addAll(new FileChooser.ExtensionFilter("Archivos Excel", "*.xls", "*.xlsx"));
+        Stage stage = (Stage) BtnUploadFile.getScene().getWindow();
+
+        File selectedFile = fileChooser.showOpenDialog(stage);
+
+        if (selectedFile != null) {
+            Extras.showAlert("Exito", "Archivo Subido Correctamente", Alert.AlertType.INFORMATION);
+        }
+    }
 
     private Map<String, String> pageMap = new HashMap<>();
 
@@ -67,6 +97,8 @@ public class ManageGradesController implements Initializable, MainControllerAwar
     private SchoolSettingsController st;
 
     public String[] optionsGrade = {"Primero", "Segundo", "Tercero", "Cuarto", "Quinto", "Sexto"};
+
+    private final String[] departments = {"LP", "SCZ", "CBBA", "OR", "PT", "CH", "TJA", "BE", "PD"};
 
     public void setAdvisor(User user) {
         this.advisor = user;
@@ -116,28 +148,105 @@ public class ManageGradesController implements Initializable, MainControllerAwar
         TableNotes.getColumns().clear();
 
         List<ListCourse> lista = null;
-        
+
         try {
             lista = listcoursedao.listnotes(idcurso, LocalDate.now().getYear());
         } catch (SQLException ex) {
             Logger.getLogger(ManageGradesController.class.getName()).log(Level.SEVERE, null, ex);
         }
 
-        ObservableList<ListCourse> data = FXCollections.observableArrayList(lista);
+        Map<String, StudentNotes> studentmap = new LinkedHashMap<>();
+        Set<String> materiasSet = new LinkedHashSet<>();
 
-        TableColumn<ListCourse, Number> idCol = new TableColumn<>("NUMERO LISTA");
+        for (ListCourse course : lista) {
+            String key = course.getNameStudent() + "|" + course.getCedula_identidad();
+            materiasSet.add(course.getNameMateria());
 
-        idCol.setCellValueFactory(cellData -> {
-            return new ReadOnlyObjectWrapper<>(TableNotes.getItems().indexOf(cellData.getValue()) + 1);
+            StudentNotes estudiante = studentmap.get(key);
+            if (estudiante == null) {
+                estudiante = new StudentNotes(course.getNameStudent(), course.getCedula_identidad());
+                studentmap.put(key, estudiante);
+            }
+            // Asignar nota (convertir BigDecimal a String)
+            estudiante.setNota(course.getNameMateria(),
+                    course.getNota() != null ? course.getNota().toString() : "");
+        }
+
+        List<StudentNotes> estudiantesOrdenados = new ArrayList<>(studentmap.values());
+        estudiantesOrdenados.sort(Comparator.comparing(s -> {
+            String[] partes = s.getNombreCompleto().split(" ");
+            int len = partes.length;
+            String primerApellido = len > 1 ? partes[len - 2] : "";
+            String segundoApellido = partes[len - 1];
+            return (primerApellido + " " + segundoApellido).toLowerCase();
+        }));
+
+        ObservableList<StudentNotes> data = FXCollections.observableArrayList(estudiantesOrdenados);
+
+        // Columna número
+        TableColumn<StudentNotes, Number> idCol = new TableColumn<>("N°");
+        idCol.setCellValueFactory(cd
+                -> new ReadOnlyObjectWrapper<>(TableNotes.getItems().indexOf(cd.getValue()) + 1)
+        );
+
+        // Columna nombre completo
+        TableColumn<StudentNotes, String> nameCol = new TableColumn<>("Estudiante");
+        nameCol.setCellValueFactory(cd -> new ReadOnlyStringWrapper(cd.getValue().getNombreCompleto()));
+
+        // Columna CI
+        TableColumn<StudentNotes, String> ciCol = new TableColumn<>("CI");
+        ciCol.setCellValueFactory(cd -> new ReadOnlyStringWrapper(cd.getValue().getCi()));
+
+        ciCol.setCellFactory(col -> new TableCell<StudentNotes, String>() {
+            @Override
+            protected void updateItem(String item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty || item == null || !item.contains("-")) {
+                    setText(null);
+                } else {
+                    try {
+                        String[] parts = item.split("-");
+
+                        switch (parts.length) {
+                            case 2 -> {
+                                String base = parts[0];
+                                int index = Integer.parseInt(parts[1]);
+                                if (index >= 0 && index < departments.length) {
+                                    setText(base + "-" + departments[index]);
+                                } else {
+                                    setText(item);
+                                }
+                            }
+                            case 3 -> {
+                                String base = parts[0];
+                                String letra = parts[1];
+                                int index = Integer.parseInt(parts[2]);
+                                if (index >= 0 && index < departments.length) {
+                                    setText(base + "-" + letra + "-" + departments[index]);
+                                } else {
+                                    setText(item);
+                                }
+                            }
+                            default ->
+                                setText(item);
+                        }
+
+                    } catch (NumberFormatException e) {
+                        setText(item);
+                    }
+                }
+            }
         });
+        TableNotes.getColumns().addAll(idCol, nameCol, ciCol);
 
-        TableColumn name = new TableColumn("ESTUDIANTE");
-
-        name.setCellValueFactory(new PropertyValueFactory("NameStudent"));
+        // Columnas dinámicas para materias
+        for (String materia : materiasSet) {
+            TableColumn<StudentNotes, String> colMateria = new TableColumn<>(materia);
+            colMateria.setCellValueFactory(cd -> cd.getValue().notaProperty(materia));
+            TableNotes.getColumns().add(colMateria);
+        }
 
         TableNotes.setItems(data);
-
-        TableNotes.getColumns().addAll(idCol, name);
 
     }
 
@@ -165,21 +274,13 @@ public class ManageGradesController implements Initializable, MainControllerAwar
 
         CbxCourses.setOnAction(event -> {
             String seleccionado = CbxCourses.getSelectionModel().getSelectedItem();
-            System.out.println("Curso seleccionado: " + seleccionado);
-
             this.idcurso = coursedao.idcourse(st.verifycourse(seleccionado));
 
-            System.out.println("El id del curso es: " + idcurso);
-            
-            
-            if(!CbxCourses.getSelectionModel().isEmpty()){
+            if (!CbxCourses.getSelectionModel().isEmpty()) {
                 LoadList();
             }
-            
 
         });
-
-        
 
     }
 
