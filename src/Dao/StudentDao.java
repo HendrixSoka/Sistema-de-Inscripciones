@@ -236,6 +236,42 @@ public class StudentDao {
             return false;
         }
     }
+    
+    public List<Student> getEstudiantesPorGradoParaleloYNivel(int grado, String paralelo, int nivel) {
+    List<Student> lista = new ArrayList<>();
+    String sql = "SELECT e.* FROM estudiante e " +
+                 "JOIN inscripcion i ON e.idestudiante = i.id_estudiante " +
+                 "JOIN curso c ON i.id_curso = c.idcurso " +
+                 "WHERE c.grado = ? AND c.paralelo = ? AND c.nivel = ?";
+
+        try (Connection conn = this.StudentConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setInt(1, grado);
+            stmt.setString(2, paralelo);
+            stmt.setInt(3, nivel);
+
+            ResultSet rs = stmt.executeQuery();
+
+            while (rs.next()) {
+                Student e = new Student();
+                e.setId(rs.getInt("idestudiante"));
+                e.setNombre(rs.getString("nombre"));
+                e.setApellido(rs.getString("apellido"));
+                e.setCedula_identidad(rs.getString("cedula_identidad"));
+                e.setFecha_nacimiento(rs.getDate("fecha_nacimiento"));
+                e.setGenero(rs.getInt("genero"));
+                e.setDireccion(rs.getString("direccion"));
+                e.setCorreo(rs.getString("correo"));
+                lista.add(e);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return lista;
+    }
+
 
     private void showAlert(String title, String message, Alert.AlertType alertType) {
         Alert alert = new Alert(alertType);

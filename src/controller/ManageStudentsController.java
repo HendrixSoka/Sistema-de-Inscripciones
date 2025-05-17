@@ -22,6 +22,11 @@ import model.Student;
 import Dao.StudentDao;
 import Dao.GuardianDao;
 import Dao.Student_GuardianDao;
+import java.awt.Desktop;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -32,6 +37,9 @@ import javafx.scene.control.ContextMenu;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.TextField;
 import javafx.stage.StageStyle;
+import com.itextpdf.text.*;
+import com.itextpdf.text.pdf.*;
+import java.io.InputStream;
 
 public class ManageStudentsController implements Initializable, MainControllerAware {
 
@@ -72,6 +80,7 @@ public class ManageStudentsController implements Initializable, MainControllerAw
             Logger.getLogger(ManageUsersController.class.getName()).log(Level.SEVERE, null, ex);
         }
         LoadStudents();
+        
         OptionsStudents = new ContextMenu();
         MenuItem editE = new MenuItem("Editar Estudiante");
         
@@ -147,7 +156,7 @@ public class ManageStudentsController implements Initializable, MainControllerAw
                     alert2.showAndWait();
                 }
             }
-            
+            generarCarta(deleteStudent.getNombre()+" "+deleteStudent.getApellido(), deleteStudent.getCedula_identidad());
         });
 
         TblStudent.setContextMenu(OptionsStudents);
@@ -175,7 +184,8 @@ public class ManageStudentsController implements Initializable, MainControllerAw
     }
     
     public void LoadStudents() {
-        TblStudent.getItems().clear();
+        
+        TblStudent.setItems(FXCollections.observableArrayList()); 
         TblStudent.getColumns().clear();
 
         List<Student> students = this.studentDao.tolist();
@@ -223,5 +233,82 @@ public class ManageStudentsController implements Initializable, MainControllerAw
         TblStudent.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
     }
 
-    
+    public void generarCarta(String nombre, String ci) {
+        try {
+            Document doc = new Document();
+            String nombreArchivo = "constancia_retiro_" + nombre.replace(" ", "_") + ".pdf";
+            PdfWriter.getInstance(doc, new FileOutputStream(nombreArchivo));
+            doc.open();
+
+            // Logo de la unidad educativa
+            try {
+                InputStream logoStream = getClass().getResourceAsStream("/resources/icons/logoC.png");
+                byte[] logoBytes = logoStream.readAllBytes(); // desde Java 9+
+                Image logo = Image.getInstance(logoBytes);
+
+                logo.scaleToFit(80, 80);
+                logo.setAlignment(Image.ALIGN_LEFT);
+                doc.add(logo);
+            } catch (Exception e) {
+                System.out.println("No se pudo cargar el logo. Se continúa sin imagen.");
+            }
+
+            // Nombre de la unidad educativa
+            Paragraph nombreUnidad = new Paragraph("UNIDAD EDUCATIVA “JORGE OBLITAS”",
+                    FontFactory.getFont(FontFactory.HELVETICA_BOLD, 14));
+            nombreUnidad.setAlignment(Element.ALIGN_CENTER);
+            nombreUnidad.setSpacingAfter(10);
+            doc.add(nombreUnidad);
+
+
+            // Título de la carta
+            Paragraph titulo = new Paragraph("CONSTANCIA DE RETIRO",
+                    FontFactory.getFont(FontFactory.HELVETICA_BOLD, 16));
+            titulo.setAlignment(Element.ALIGN_CENTER);
+            titulo.setSpacingAfter(20);
+            doc.add(titulo);
+
+            // Fecha actual
+            String fecha = LocalDate.now().format(DateTimeFormatter.ofPattern("dd 'de' MMMM 'de' yyyy"));
+
+            // Cuerpo del documento
+            Font cuerpoFont = FontFactory.getFont(FontFactory.HELVETICA, 12);
+            String cuerpoTexto =
+                    "Por medio de la presente, la Unidad Educativa “Jorge Oblitas” hace constar que el/la estudiante " +
+                    nombre + ", portador(a) del C.I. Nº " + ci + ", ha sido retirado(a) oficialmente de esta institución educativa " +
+                    "con fecha " + fecha + ".\n\n" +
+                    "Esta constancia se emite a solicitud del/de la interesado(a) para los fines que estime conveniente.";
+
+            Paragraph cuerpo = new Paragraph(cuerpoTexto, cuerpoFont);
+            cuerpo.setAlignment(Element.ALIGN_JUSTIFIED);
+            cuerpo.setSpacingAfter(30);
+            doc.add(cuerpo);
+
+            // "Atentamente," alineado a la izquierda
+            Paragraph atentamente = new Paragraph("Atentamente,", cuerpoFont);
+            atentamente.setAlignment(Element.ALIGN_LEFT);
+            atentamente.setSpacingBefore(40);
+            doc.add(atentamente);
+
+            // Firma alineada al centro sin línea
+            Paragraph firma = new Paragraph("\n\n\n\nFirma del Responsable\nDirección de la Unidad Educativa", cuerpoFont);
+            firma.setAlignment(Element.ALIGN_CENTER);
+            doc.add(firma);
+
+
+            // Lugar y fecha al final
+            Paragraph lugarFecha = new Paragraph("Oruro, " + fecha, cuerpoFont);
+            lugarFecha.setAlignment(Element.ALIGN_RIGHT);
+            lugarFecha.setSpacingBefore(20);
+            doc.add(lugarFecha);
+
+            doc.close();
+
+            // Abrir el PDF automáticamente
+            Desktop.getDesktop().open(new File(nombreArchivo));
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 }
