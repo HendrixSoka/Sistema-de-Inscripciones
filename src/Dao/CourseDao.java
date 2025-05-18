@@ -23,6 +23,8 @@ public class CourseDao {
 
     private String[] optionsGrade = {"Primero", "Segundo", "Tercero", "Cuarto", "Quinto", "Sexto"};
 
+    private String[] optionsLevel = {"Primaria","Secundaria"};
+    
     public CourseDao() throws ClassNotFoundException, SQLException {
 
         this.CourseConnection = new Database();
@@ -245,7 +247,7 @@ public class CourseDao {
             sentence.close();
 
         } catch (Exception e) {
-            System.err.println("Ocurrio un error al buscar paralelo");
+            System.err.println("Ocurrio un error al retornar id curso");
             System.err.println("Mensaje del error: " + e.getMessage());
             System.err.println("Detalle del error: ");
 
@@ -260,7 +262,7 @@ public class CourseDao {
         List<String> ListCAdvisors = new ArrayList<>();
         try {
 
-            String SQL = "SELECT c.grado,c.paralelo FROM curso c "
+            String SQL = "SELECT c.grado,c.paralelo,c.nivel FROM curso c "
                     + "LEFT JOIN asesor a ON c.idcurso = a.idcurso "
                     + "GROUP BY c.idcurso, c.grado, c.paralelo "
                     + "HAVING COUNT(a.idusuario) < 2";
@@ -272,7 +274,7 @@ public class CourseDao {
 
             while (data.next() == true) {
 
-                ListCAdvisors.add(optionsGrade[data.getInt("grado")] + " " + data.getString("paralelo"));
+                ListCAdvisors.add(optionsGrade[data.getInt("grado")] + " " + data.getString("paralelo")+"("+optionsLevel[data.getInt("nivel")]+")");
 
             }
             data.close();
@@ -293,7 +295,7 @@ public class CourseDao {
         List<String> ListCAdvisors = new ArrayList<>();
         try {
 
-            String SQL = "SELECT c.grado,c.paralelo FROM curso c "
+            String SQL = "SELECT c.grado,c.paralelo,c.nivel FROM curso c "
                     + "LEFT JOIN asesor a ON c.idcurso = a.idcurso "
                     + "GROUP BY c.idcurso, c.grado, c.paralelo "
                     + "HAVING COUNT(CASE WHEN a.idusuario IS NOT NULL THEN 1 END) < 2 "
@@ -308,7 +310,7 @@ public class CourseDao {
 
             while (data.next() == true) {
 
-                ListCAdvisors.add(optionsGrade[data.getInt("grado")] + " " + data.getString("paralelo"));
+                ListCAdvisors.add(optionsGrade[data.getInt("grado")] + " " + data.getString("paralelo")+"("+optionsLevel[data.getInt("nivel")]+")");
 
             }
             data.close();
@@ -325,17 +327,19 @@ public class CourseDao {
         return ListCAdvisors;
     }
 
-    public int idcourse(String fullname) {
+    public int idcourse(int level,String fullname) {
         int idcurso = 0;
         try {
 
-            String SQL = "SELECT idcurso FROM curso WHERE CONCAT(grado,' ',paralelo) = ?";
+            String SQL = "SELECT idcurso FROM curso WHERE CONCAT(grado,' ',paralelo) = ? "
+                    + "AND nivel = ?";
 
             Connection connection = this.CourseConnection.getConnection();
 
             PreparedStatement sentence = connection.prepareStatement(SQL);
 
             sentence.setString(1, fullname);
+            sentence.setInt(2, level);
 
             ResultSet data = sentence.executeQuery();
 

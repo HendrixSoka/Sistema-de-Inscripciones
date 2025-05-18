@@ -10,12 +10,17 @@ import Dao.ListCourseDao;
 import interfaces.MainControllerAware;
 import interfaces.DataReceiver;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.net.URL;
 import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -45,6 +50,13 @@ import model.Extras;
 import model.ListCourse;
 import model.StudentNotes;
 import model.User;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellType;
+import org.apache.poi.ss.usermodel.CellValue;
+import org.apache.poi.ss.usermodel.FormulaEvaluator;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.xssf.usermodel.XSSFSheet;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 /**
  * FXML Controller class
@@ -68,18 +80,39 @@ public class ManageGradesController implements Initializable, MainControllerAwar
     @FXML
     void OpenFile(ActionEvent event) {
 
-        FileChooser fileChooser = new FileChooser();
-        fileChooser.setTitle("Seleccione el Archivo Excel");
-        fileChooser.getExtensionFilters().addAll(new FileChooser.ExtensionFilter("Archivos Excel", "*.xls", "*.xlsx"));
-        Stage stage = (Stage) BtnUploadFile.getScene().getWindow();
+        if (!CbxCourses.getSelectionModel().isEmpty()) {
+            FileChooser fileChooser = new FileChooser();
+            fileChooser.setTitle("Seleccione el Archivo Excel");
+            fileChooser.getExtensionFilters().addAll(new FileChooser.ExtensionFilter("Archivos Excel", "*.xls", "*.xlsx"));
+            Stage stage = (Stage) BtnUploadFile.getScene().getWindow();
 
-        File selectedFile = fileChooser.showOpenDialog(stage);
+            File selectedFile = fileChooser.showOpenDialog(stage);
 
-        if (selectedFile != null) {
-            Extras.showAlert("Exito", "Archivo Subido Correctamente", Alert.AlertType.INFORMATION);
+            if (selectedFile != null) {
+
+                if (ReadAdvisors(selectedFile) == false) {
+                    Extras.showAlert("Advertencia", "Revise el documento, el asesor no coincide", Alert.AlertType.ERROR);
+                    return;
+                }
+
+                if (ReadCourse(selectedFile)) {
+                    if (CbxCourses.getSelectionModel().getSelectedItem().toUpperCase().equals(grado + " " + paralelo + "(" + nivel + ")") == false) {
+                        Extras.showAlert("Advertencia", "EL curso seleccionado no coincide con el del archivo", Alert.AlertType.WARNING);
+                        return;
+                    }
+                }
+
+                List<String> notas = readnotes(selectedFile);
+
+                if (notas != null) {
+                    notas.forEach(System.out::println);
+                }
+            }
+        } else {
+            Extras.showAlert("Advertencia", "Debe seleccionar un curso!", Alert.AlertType.WARNING);
         }
-    }
 
+    }
     private Map<String, String> pageMap = new HashMap<>();
 
     private MainMenuController mainController;
@@ -94,7 +127,15 @@ public class ManageGradesController implements Initializable, MainControllerAwar
 
     private int idcurso;
 
+    private String nivel;
+
+    private String grado;
+
+    private char paralelo;
+
     private SchoolSettingsController st;
+
+    private String[] optionsLevel = {"Primaria", "Secundaria"};
 
     public String[] optionsGrade = {"Primero", "Segundo", "Tercero", "Cuarto", "Quinto", "Sexto"};
 
@@ -117,8 +158,10 @@ public class ManageGradesController implements Initializable, MainControllerAwar
 
             for (Course curso : cursos) {
                 int grado = curso.getGrado();
+                int nivel = curso.getNivel();
                 String gradoTexto = (grado >= 0 && grado < optionsGrade.length) ? optionsGrade[grado] : "Desconocido";
-                listaCursosFormateados.add(gradoTexto + " " + curso.getParalelo());
+                String nivelTexto = (nivel >= 0 && nivel < optionsLevel.length) ? optionsLevel[nivel] : "Desconocido";
+                listaCursosFormateados.add(gradoTexto + " " + curso.getParalelo() + "(" + nivelTexto + ")");
             }
 
             ObservableList<String> observableCursos = FXCollections.observableArrayList(listaCursosFormateados);
@@ -128,8 +171,196 @@ public class ManageGradesController implements Initializable, MainControllerAwar
         }
     }
 
+    private List<String> readnotes(File archivo) {
+        List<String> listaNotas = new ArrayList<>();
+
+        List<ListCourse> lista = null;
+
+        Set<String> ciExistentes = new HashSet<>();
+        try {
+            lista = listcoursedao.listnotes(idcurso, LocalDate.now().getYear());
+            for (ListCourse lc : lista) {
+                ciExistentes.add(lc.getCedula_identidad());
+            }
+        } catch (SQLException ex) {
+            Logger.getLogger(ManageGradesController.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
+        try {
+
+            FileInputStream input = new FileInputStream(archivo);
+            XSSFWorkbook libro = new XSSFWorkbook(input);
+
+            XSSFSheet hoja = libro.getSheetAt(0);
+
+            FormulaEvaluator evaluator = libro.getCreationHelper().createFormulaEvaluator();
+
+            int columnasNotas = ("PRIMERO".equals(grado) || "SEGUNDO".equals(grado) || "TERCERO".equals(grado)) ? 13 : 12;
+
+            for (int i = 6; i <= hoja.getLastRowNum() && listaNotas.size() < 30; i++) {
+                Row fila = hoja.getRow(i);
+                if (fila == null) {
+                    continue;
+                }
+
+                Cell celdaNombre = fila.getCell(1);
+                if (celdaNombre == null || celdaNombre.getCellType() != CellType.STRING || celdaNombre.getStringCellValue().trim().isEmpty()) {
+                    break;
+                }
+
+                StringBuilder linea = new StringBuilder();
+
+                linea.append(celdaNombre.getStringCellValue().trim()).append(",");
+
+                Cell celdaCedula = fila.getCell(2);
+                String ci = (celdaCedula != null ? celdaCedula.getStringCellValue().trim() : "");
+
+                if (!ciExistentes.contains(ci)) {
+                    Extras.showAlert("Error", "Revise el ci de los estudiantes: " + ci, Alert.AlertType.ERROR);
+                    return null;
+                } else {
+                    linea.append(ci).append(",");
+                }
+
+                for (int j = 3; j < 3 + columnasNotas; j++) {
+                    Cell celda = fila.getCell(j);
+                    int nota = 0;
+
+                    if (celda != null) {
+                        switch (celda.getCellType()) {
+                            case NUMERIC ->
+                                nota = (int) celda.getNumericCellValue();
+                            case FORMULA -> {
+                                CellValue valor = evaluator.evaluate(celda);
+                                if (valor != null && valor.getCellType() == CellType.NUMERIC) {
+                                    nota = (int) valor.getNumberValue();
+                                }
+                            }
+                        }
+                    }
+
+                    linea.append(nota);
+                    if (j < 2 + columnasNotas) {
+                        linea.append(",");
+                    }
+                }
+
+                listaNotas.add(linea.toString());
+            }
+
+            libro.close();
+            input.close();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return listaNotas;
+    }
+
+    private boolean ReadCourse(File archivo) {
+
+        try {
+            FileInputStream input = new FileInputStream(archivo);
+            XSSFWorkbook libro = new XSSFWorkbook(input);
+
+            XSSFSheet hoja = libro.getSheetAt(0);
+
+            Row fila = hoja.getRow(1);
+
+            if (fila == null) {
+                Extras.showAlert("Error", "No se encontró la fila 2 en el archivo.", Alert.AlertType.ERROR);
+                return false;
+            }
+
+            // Celda 2B -> índice 1
+            Cell celdaNivel = fila.getCell(1);
+            // Celda 2C -> índice 2
+            Cell celdaGrado = fila.getCell(2);
+            // Celda 2D -> índice 3
+            Cell celdaParalelo = fila.getCell(3);
+
+            if (celdaNivel == null || celdaNivel.getCellType() != CellType.STRING
+                    || celdaGrado == null || celdaGrado.getCellType() != CellType.STRING
+                    || celdaParalelo == null || celdaParalelo.getCellType() != CellType.STRING
+                    || celdaParalelo.getStringCellValue().trim().length() != 1) {
+
+                Extras.showAlert("Error", "Verifique que las celdas nivel, grado y paralelo contengan texto válido", Alert.AlertType.ERROR);
+                //return false;
+            } else {
+
+                this.nivel = celdaNivel.getStringCellValue().trim();
+                this.grado = celdaGrado.getStringCellValue().trim();
+                this.paralelo = celdaParalelo.getStringCellValue().trim().charAt(0);
+
+                return true;
+            }
+
+            input.close();
+            libro.close();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return false;
+    }
+
+    private boolean ReadAdvisors(File archivo) {
+
+        boolean allowedAdvisor = false;
+        try {
+            FileInputStream input = new FileInputStream(archivo);
+            XSSFWorkbook libro = new XSSFWorkbook(input);
+
+            XSSFSheet hoja = libro.getSheetAt(0);
+
+            Row fila = hoja.getRow(2);
+
+            if (fila == null) {
+                System.err.println("Error: La fila 3 no existe.");
+
+            }
+
+            Cell celda3B = fila.getCell(1);
+            if (celda3B == null || celda3B.getCellType() != CellType.STRING || celda3B.getStringCellValue().trim().isEmpty()) {
+                Extras.showAlert("Error", "Revise el campo del asesor 1", Alert.AlertType.ERROR);
+
+            }
+
+            String asesor3B = celda3B.getStringCellValue().trim();
+
+            Cell celda4B = fila.getCell(2);
+            String asesor4B = null;
+            if (celda4B != null && celda4B.getCellType() == CellType.STRING && !celda4B.getStringCellValue().trim().isEmpty()) {
+                asesor4B = celda4B.getStringCellValue().trim();
+            }
+
+            String nameadvisor = advisor.getNombre() + " " + advisor.getApellido();
+
+            boolean asesor3BV = asesor3B.equals(nameadvisor);
+            boolean asesor4BV = asesor4B != null && asesor4B.equals(nameadvisor);
+
+            if (asesor3BV || asesor4BV) {
+                System.out.println("Hola asesor: " + nameadvisor);
+                allowedAdvisor = true;
+            } else {
+                Extras.showAlert("Error", "Usted no puede subir las notas", Alert.AlertType.ERROR);
+            }
+
+            input.close();
+            libro.close();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return allowedAdvisor;
+
+    }
+
     @Override
-    public void onDataReceived(Object data) {
+    public void onDataReceived(Object data
+    ) {
         if (data instanceof User user) {
             this.advisor = user;
             System.out.println("Usuario recibido: " + advisor.getNombre() + " " + advisor.getApellido());
@@ -138,7 +369,8 @@ public class ManageGradesController implements Initializable, MainControllerAwar
     }
 
     @Override
-    public void setMainController(MainMenuController mainController) {
+    public void setMainController(MainMenuController mainController
+    ) {
         this.mainController = mainController;
     }
 
@@ -150,6 +382,7 @@ public class ManageGradesController implements Initializable, MainControllerAwar
         List<ListCourse> lista = null;
 
         try {
+
             lista = listcoursedao.listnotes(idcurso, LocalDate.now().getYear());
         } catch (SQLException ex) {
             Logger.getLogger(ManageGradesController.class.getName()).log(Level.SEVERE, null, ex);
@@ -274,8 +507,7 @@ public class ManageGradesController implements Initializable, MainControllerAwar
 
         CbxCourses.setOnAction(event -> {
             String seleccionado = CbxCourses.getSelectionModel().getSelectedItem();
-            this.idcurso = coursedao.idcourse(st.verifycourse(seleccionado));
-
+            this.idcurso = coursedao.idcourse(st.verifylevel(seleccionado), st.verifycourse(seleccionado));
             if (!CbxCourses.getSelectionModel().isEmpty()) {
                 LoadList();
             }

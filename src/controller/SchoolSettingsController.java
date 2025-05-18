@@ -154,7 +154,6 @@ public class SchoolSettingsController implements Initializable {
     public String[] optionsGrade = {"Primero", "Segundo", "Tercero", "Cuarto", "Quinto", "Sexto"};
 
     //private Extras extras = new Extras();
-
     //Combo box para gestionar Curso o Documentacion
     @FXML
     void setOnAction(ActionEvent event) {
@@ -496,7 +495,7 @@ public class SchoolSettingsController implements Initializable {
                 advisor.setIdusuario(userdao.idasesor(cbxA.getSelectionModel().getSelectedItem()));
 
                 //id del curso
-                advisor.setIdcurso(coursedao.idcourse(verifycourse(cbxC.getSelectionModel().getSelectedItem())));
+                advisor.setIdcurso(coursedao.idcourse(verifylevel(cbxC.getSelectionModel().getSelectedItem()),verifycourse(cbxC.getSelectionModel().getSelectedItem())));
 
                 //fecha inicio
                 if (dpI.getValue().isBefore(LocalDate.now())) {
@@ -547,7 +546,7 @@ public class SchoolSettingsController implements Initializable {
                 } else {
 
                     boolean rsp;
-                    rsp = advisordao.Edit(userdao.idasesor(advisorN), dpF.getValue(), coursedao.idcourse(verifycourse(cbxC.getSelectionModel().getSelectedItem())));
+                    rsp = advisordao.Edit(userdao.idasesor(advisorN), dpF.getValue(), coursedao.idcourse(verifylevel(cbxC.getSelectionModel().getSelectedItem()),verifycourse(cbxC.getSelectionModel().getSelectedItem())));
 
                     if (rsp) {
                         Extras.showAlert("Exito", "Se guardo correctamente el asesor", Alert.AlertType.INFORMATION);
@@ -573,12 +572,29 @@ public class SchoolSettingsController implements Initializable {
 
     //Funcion para cambiar el string de un curso a los valores de la base de datos
     public String verifycourse(String full) {
+        full = full.replaceAll("\\s*\\(.*?\\)", "").trim();
         for (int i = 0; i < optionsGrade.length; i++) {
             if (full.contains(optionsGrade[i])) {
                 return full.replace(optionsGrade[i], String.valueOf(i));
             }
         }
         return null;
+    }
+
+    public int verifylevel(String full) {
+        if (full == null) {
+            return -1;  
+        }
+        full = full.toLowerCase();
+
+        if (full.contains("(primaria)")) {
+            return 0;
+        } else if (full.contains("(secundaria)")) {
+            return 1;
+        } else {
+            return -1;
+        }
+
     }
 
     //Funcion para añadir las materias a los distintos cursos
@@ -1252,7 +1268,7 @@ public class SchoolSettingsController implements Initializable {
             if (deleteadviser.getAsesor() != null) {
                 if (Extras.showConfirmation("¿Desea eliminar el asesor: " + deleteadviser.getAsesor() + " del curso " + optionsGrade[deleteadviser.getGrado()] + " " + deleteadviser.getParalelo() + "?")) {
 
-                    boolean rsp = advisordao.delete(deleteadviser.getAsesor(), coursedao.idcourse(verifycourse(optionsGrade[deleteadviser.getGrado()] + " " + deleteadviser.getParalelo())));
+                    boolean rsp = advisordao.delete(deleteadviser.getAsesor(), coursedao.idcourse(deleteadviser.getNivel(), verifycourse(optionsGrade[deleteadviser.getGrado()] + " " + deleteadviser.getParalelo())));
 
                     if (rsp) {
 

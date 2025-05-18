@@ -14,7 +14,6 @@ import java.util.List;
 import model.Advisor;
 import model.Course;
 import model.Database;
-import model.User;
 
 /**
  *
@@ -130,7 +129,7 @@ public class AdvisorDao {
         List<Course> result = new ArrayList<>();
 
         try {
-            String SQL = "SELECT c.grado, c.paralelo FROM curso c"
+            String SQL = "SELECT c.grado, c.paralelo,c.nivel FROM curso c"
                     + " JOIN asesor a ON c.idcurso = a.idcurso"
                     + " JOIN usuario u ON a.idusuario = u.idusuario "
                     + " WHERE CONCAT(u.nombre,' ',u.apellido) = ?"
@@ -149,6 +148,7 @@ public class AdvisorDao {
 
                 course.setGrado(data.getInt(1));
                 course.setParalelo(data.getString(2).charAt(0));
+                course.setNivel(data.getInt(3));
                 
 
                 result.add(course);

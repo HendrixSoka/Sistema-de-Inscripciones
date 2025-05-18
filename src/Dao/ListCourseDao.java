@@ -12,6 +12,7 @@ import model.ListCourse;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.ResultSet;
+import java.time.LocalDate;
 
 /**
  *
@@ -19,13 +20,11 @@ import java.sql.ResultSet;
  */
 public class ListCourseDao {
 
-    private Database ListConnection;
+    private final Database ListConnection;
 
     public ListCourseDao() throws ClassNotFoundException, SQLException {
         this.ListConnection = new Database();
     }
-    
-    
 
     public List<ListCourse> listnotes(int idcurso, int gestion) throws SQLException {
 
@@ -46,7 +45,7 @@ public class ListCourseDao {
             Connection connection = this.ListConnection.getConnection();
 
             PreparedStatement sentence = connection.prepareStatement(SQL);
-            
+
             sentence.setInt(1, idcurso);
             sentence.setInt(2, gestion);
 
