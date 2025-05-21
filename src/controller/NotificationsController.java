@@ -13,7 +13,7 @@ import javafx.fxml.Initializable;
  *
  * @author intel
  */
-public class RstudentsController implements Initializable {
+public class NotificationsController implements Initializable {
 
     /**
      * Initializes the controller class.

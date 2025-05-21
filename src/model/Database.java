@@ -13,7 +13,7 @@ public class Database {
     private static final String user = "root";
     private static final String password = "dWblBrkXyDkFdTmPYHRVxIVnxSImvQXO";
     private static final String driver = "com.mysql.cj.jdbc.Driver";
-    
+    private Connection connection;
     //CONEXION LOCAL MAURICIO NO BORRAR
     //////////////////////////////////////
     /*private Connection connection;
@@ -32,7 +32,7 @@ public class Database {
     public Database() throws ClassNotFoundException, SQLException {
         try {
             Class.forName(driver);
-            
+            connection = DriverManager.getConnection(url,user,password);
             //CONEXION LOCAL MAURICIO NO BORRAR
             //////////////////////////////////////
             /*connection = DriverManager.getConnection(url,user,password);

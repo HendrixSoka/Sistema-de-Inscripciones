@@ -46,8 +46,7 @@ public class MainMenuController implements Initializable {
 
     @FXML
     public Label textuser;
-
-    private User logged;
+    public User logged;
 
     public void setLogged(User logged) {
         this.logged = logged;

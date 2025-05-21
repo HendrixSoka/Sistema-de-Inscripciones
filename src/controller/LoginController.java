@@ -5,6 +5,7 @@
 package controller;
 
 import Dao.UserDao;
+import model.User;
 import java.io.IOException;
 import java.net.URL;
 import java.sql.SQLException;
@@ -105,7 +106,6 @@ public class LoginController implements Initializable {
             if (user != null) {
 
                 openMainMenu();
-
             } else {
                 showAlert("Error", "Usuario o Contraseña Incorrectos", Alert.AlertType.ERROR);
             }

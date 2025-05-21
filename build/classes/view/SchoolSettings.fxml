@@ -16,15 +16,21 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.shape.Rectangle?>
 
-<AnchorPane id="AnchorPane" prefHeight="700.0" prefWidth="1440.0" styleClass="mainFxmlClass" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controller.SchoolSettingsController">
+<AnchorPane id="AnchorPane" prefHeight="622.0" prefWidth="1170.0" styleClass="mainFxmlClass" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controller.SchoolSettingsController">
     <stylesheets>
         <URL value="@schoolsettings.css" />
     </stylesheets>
     <children>
+<<<<<<< HEAD
         <Rectangle arcHeight="25.0" arcWidth="25.0" fill="#529e62" height="64.0" layoutX="528.0" layoutY="592.0" stroke="BLACK" strokeType="INSIDE" width="384.0" />
         <Rectangle arcHeight="25.0" arcWidth="25.0" fill="#529e62" height="250.0" layoutX="15.0" layoutY="330.0" stroke="BLACK" strokeType="INSIDE" width="1400.0" />
         <Rectangle arcHeight="25.0" arcWidth="25.0" fill="#529e62" height="250.0" layoutX="15.0" layoutY="60.0" stroke="BLACK" strokeType="INSIDE" width="1400.0" />
         <HBox fx:id="ManageC" layoutX="36.0" layoutY="76.0" prefHeight="220.0" prefWidth="1353.0">
+=======
+        <Rectangle arcHeight="25.0" arcWidth="25.0" fill="#529e62" height="250.0" layoutX="15.0" layoutY="298.0" stroke="BLACK" strokeType="INSIDE" width="1128.0" AnchorPane.leftAnchor="15.0" />
+        <Rectangle arcHeight="25.0" arcWidth="25.0" fill="#529e62" height="250.0" layoutX="15.0" layoutY="38.0" stroke="BLACK" strokeType="INSIDE" width="1128.0" AnchorPane.leftAnchor="15.0" />
+        <HBox fx:id="ManageC" layoutX="30.0" layoutY="53.0" prefHeight="220.0" prefWidth="1111.0">
+>>>>>>> hendrix
             <children>
                 <VBox prefHeight="214.0" prefWidth="379.0">
                     <children>
@@ -89,7 +95,7 @@
                 <TableView fx:id="TableCourse" prefHeight="220.0" prefWidth="624.0" />
             </children>
         </HBox>
-        <HBox fx:id="ManageD" layoutX="37.0" layoutY="347.0" prefHeight="215.0" prefWidth="1363.0">
+        <HBox fx:id="ManageD" layoutX="30.0" layoutY="316.0" prefHeight="215.0" prefWidth="1111.0" AnchorPane.leftAnchor="30.0" AnchorPane.topAnchor="316.0">
             <children>
                 <VBox fx:id="VManageD" prefHeight="215.0" prefWidth="537.0">
                     <children>
@@ -125,11 +131,11 @@
                         </GridPane>
                     </children>
                 </VBox>
-                <TableView fx:id="TableDocumentation" prefHeight="215.0" prefWidth="577.0" />
+                <TableView fx:id="TableDocumentation" prefHeight="215.0" prefWidth="512.0" />
             </children>
         </HBox>
-        <ComboBox fx:id="CboxSelect" layoutX="18.0" layoutY="16.0" onAction="#setOnAction" prefWidth="150.0" />
-        <HBox fx:id="HboxBtnC" layoutX="545.0" layoutY="599.0" prefHeight="45.0" prefWidth="350.0">
+        <ComboBox fx:id="CboxSelect" layoutX="18.0" layoutY="16.0" onAction="#setOnAction" prefWidth="150.0" AnchorPane.leftAnchor="5.0" AnchorPane.topAnchor="5.0" />
+        <HBox fx:id="HboxBtnC" layoutX="411.0" layoutY="557.0" prefHeight="45.0" prefWidth="350.0" AnchorPane.bottomAnchor="20.0">
             <children>
                 <Button fx:id="btnSave" mnemonicParsing="false" onAction="#btnSaveOnAction" prefWidth="232.0" text="GUARDAR" />
                 <Button fx:id="btnCancelar" mnemonicParsing="false" onAction="#BtnCancelarOnAction" prefHeight="39.0" prefWidth="250.0" text="CANCELAR" />

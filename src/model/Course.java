@@ -6,10 +6,6 @@ package model;
 
 import java.time.LocalDate;
 
-/**
- *
- * @author mauricioteranlimari
- */
 public class Course {
 
     private int idcurso;
@@ -72,7 +68,6 @@ public class Course {
     public void setAdmite_nuevos(boolean admite_nuevos) {
         this.admite_nuevos = admite_nuevos;
     }
-
     public String getAsesor() {
         return asesor;
     }
@@ -96,7 +91,4 @@ public class Course {
     public void setFechaf(LocalDate fechaf) {
         this.fechaf = fechaf;
     }
-    
-    
- 
 }

@@ -46,7 +46,7 @@
             </GridPane>
          </children>
       </VBox>
-      <VBox layoutX="613.0" layoutY="14.0" prefHeight="184.0" prefWidth="462.0">
+      <VBox layoutX="612.0" prefHeight="184.0" prefWidth="462.0">
          <children>
             <Label text="Telefonos" />
             <GridPane prefHeight="125.0" prefWidth="613.0">
@@ -102,7 +102,7 @@
             </GridPane>
          </children>
       </VBox>
-      <VBox layoutX="613.0" layoutY="308.0" prefHeight="160.0" prefWidth="439.0">
+      <VBox layoutX="612.0" layoutY="297.0" prefHeight="160.0" prefWidth="439.0">
          <children>
             <Label text="Telefonos" />
             <GridPane prefHeight="125.0" prefWidth="613.0">

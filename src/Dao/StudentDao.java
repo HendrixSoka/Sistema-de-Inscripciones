@@ -74,6 +74,41 @@ public class StudentDao {
             return -1;
         }
     }
+    public Student SearchbyId(int idBuscado) {
+        Student student = null;
+
+        try {
+            String SQL = "SELECT * FROM estudiante WHERE idestudiante = ?";
+            Connection connection = this.StudentConnection.getConnection();
+            PreparedStatement sentence = connection.prepareStatement(SQL);
+            sentence.setInt(1, idBuscado);
+
+            ResultSet data = sentence.executeQuery();
+
+            if (data.next()) {
+                student = new Student();
+                student.setId(data.getInt(1));
+                student.setNombre(data.getString(2));
+                student.setApellido(data.getString(3));
+                student.setFecha_nacimiento(data.getDate(4));
+                student.setCedula_identidad(data.getString(5));
+                student.setGenero(data.getInt(6));
+                student.setDireccion(data.getString(7));
+                student.setCorreo(data.getString(8));
+            }
+
+            data.close();
+            sentence.close();
+
+        } catch (SQLException e) {
+            System.err.println("Ocurrió un error al buscar el estudiante por ID");
+            System.err.println("Mensaje del error: " + e.getMessage());
+            e.printStackTrace();
+        }
+
+        return student;
+    }
+
 
     public List<Student> tolist() {
 
@@ -201,6 +236,42 @@ public class StudentDao {
             return false;
         }
     }
+    
+    public List<Student> getEstudiantesPorGradoParaleloYNivel(int grado, String paralelo, int nivel) {
+    List<Student> lista = new ArrayList<>();
+    String sql = "SELECT e.* FROM estudiante e " +
+                 "JOIN inscripcion i ON e.idestudiante = i.id_estudiante " +
+                 "JOIN curso c ON i.id_curso = c.idcurso " +
+                 "WHERE c.grado = ? AND c.paralelo = ? AND c.nivel = ?";
+
+        try (Connection conn = this.StudentConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setInt(1, grado);
+            stmt.setString(2, paralelo);
+            stmt.setInt(3, nivel);
+
+            ResultSet rs = stmt.executeQuery();
+
+            while (rs.next()) {
+                Student e = new Student();
+                e.setId(rs.getInt("idestudiante"));
+                e.setNombre(rs.getString("nombre"));
+                e.setApellido(rs.getString("apellido"));
+                e.setCedula_identidad(rs.getString("cedula_identidad"));
+                e.setFecha_nacimiento(rs.getDate("fecha_nacimiento"));
+                e.setGenero(rs.getInt("genero"));
+                e.setDireccion(rs.getString("direccion"));
+                e.setCorreo(rs.getString("correo"));
+                lista.add(e);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return lista;
+    }
+
 
     private void showAlert(String title, String message, Alert.AlertType alertType) {
         Alert alert = new Alert(alertType);

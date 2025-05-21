@@ -3,9 +3,9 @@
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
-            <file>file:/Users/mauricioteranlimari/Desktop/Sistema-de-Inscripciones/src/controller/ManageGradesController.java</file>
-            <file>file:/Users/mauricioteranlimari/Desktop/Sistema-de-Inscripciones/src/Dao/ListCourseDao.java</file>
-            <file>file:/Users/mauricioteranlimari/Desktop/Sistema-de-Inscripciones/src/controller/SchoolSettingsController.java</file>
+            <file>file:/C:/Users/intel/Documents/NetBeansProjects/GestionadorInscripciones/src/Dao/AdvisorDao.java</file>
+            <file>file:/C:/Users/intel/Documents/NetBeansProjects/GestionadorInscripciones/src/model/Database.java</file>
+            <file>file:/C:/Users/intel/Documents/NetBeansProjects/GestionadorInscripciones/src/controller/LoginController.java</file>
         </group>
     </open-files>
 </project-private>

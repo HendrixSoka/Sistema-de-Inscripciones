@@ -15,10 +15,6 @@ import java.util.ArrayList;
 import java.util.List;
 import javafx.scene.control.Alert;
 
-/**
- *
- * @author mauricioteranlimari
- */
 public class UserDao {
 
     private Database UserConnection;
@@ -192,38 +188,31 @@ public class UserDao {
         }
     }
 
-    public User Login(String user, String password) {
+    public User Login(String username, String password) {
+        User user = null;
 
         try {
-
             String SQL = "SELECT * FROM usuario WHERE usuario = ? AND contrasena = ?";
 
             Connection connection = this.UserConnection.getConnection();
-            PreparedStatement sentence = connection.prepareStatement(SQL);
+            PreparedStatement statement = connection.prepareStatement(SQL);
 
-            ManageUsersController verify = new ManageUsersController();
+            ManageUsersController verify = new ManageUsersController(); 
+            statement.setString(1, username);
+            statement.setString(2, verify.Encrypt(password));
 
-            sentence.setString(1, user);
-            sentence.setString(2, verify.Encrypt(password));
-
-            try (ResultSet result = sentence.executeQuery()) {
+            try (ResultSet result = statement.executeQuery()) {
                 if (result.next()) {
-
-                    User loggedInUser = new User();
-
-                    loggedInUser.setId(result.getInt("idusuario"));
-                    loggedInUser.setNombre(result.getString("nombre"));
-                    loggedInUser.setApellido(result.getString("apellido"));
-                    loggedInUser.setCedula_identidad(result.getString("cedula_identidad"));
-                    loggedInUser.setCelular(result.getString("celular"));
-                    loggedInUser.setCorreo(result.getString("correo"));
-                    loggedInUser.setCargo(result.getInt("cargo"));
-                    loggedInUser.setUsuario(result.getString("usuario"));
-                    loggedInUser.setContrasena(result.getString("contrasena"));
-
-                    return loggedInUser;
-                } else {
-                    return null; // Usuario no encontrado
+                    user = new User();
+                    user.setId(result.getInt(1));
+                    user.setNombre(result.getString(2));
+                    user.setApellido(result.getString(3));
+                    user.setCedula_identidad(result.getString(4));
+                    user.setCelular(result.getString(5));
+                    user.setCorreo(result.getString(6));
+                    user.setCargo(result.getInt(7));
+                    user.setUsuario(result.getString(8));
+                    user.setContrasena(result.getString(9));
                 }
             }
 
@@ -231,12 +220,12 @@ public class UserDao {
             System.err.println("Ocurrio un error al iniciar sesion");
             System.err.println("Mensaje del error: " + e.getMessage());
             System.err.println("Detalle del error: ");
-
             e.printStackTrace();
-
-            return null;
         }
+
+        return user;
     }
+
 
     private boolean isValueExists(String field, String value) {
         try {
