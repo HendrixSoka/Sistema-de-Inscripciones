@@ -9,14 +9,14 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 public class Database {
 
-    /*private static final String url = "jdbc:mysql://nozomi.proxy.rlwy.net:21344/railway";
+    private static final String url = "jdbc:mysql://nozomi.proxy.rlwy.net:21344/railway";
     private static final String user = "root";
     private static final String password = "dWblBrkXyDkFdTmPYHRVxIVnxSImvQXO";
-    private static final String driver = "com.mysql.cj.jdbc.Driver";*/
+    private static final String driver = "com.mysql.cj.jdbc.Driver";
     
     //CONEXION LOCAL MAURICIO NO BORRAR
     //////////////////////////////////////
-    private Connection connection;
+    /*private Connection connection;
     
     private String user = "root";
     private String password = "1793";
@@ -26,7 +26,7 @@ public class Database {
     
     private String url = "jdbc:mysql://"+servidor+":"+puerto+"/"+nombreDB+"?allowPublicKeyRetrieval=true&useSSL=false";
     
-    private String driver = "com.mysql.cj.jdbc.Driver";
+    private String driver = "com.mysql.cj.jdbc.Driver";*/
     //////////////////////////////////////
 
     public Database() throws ClassNotFoundException, SQLException {
@@ -35,13 +35,13 @@ public class Database {
             
             //CONEXION LOCAL MAURICIO NO BORRAR
             //////////////////////////////////////
-            connection = DriverManager.getConnection(url,user,password);
+            /*connection = DriverManager.getConnection(url,user,password);
             
             if(connection != null){
                 
                 System.out.println("CONEXION EXITOSA");
                 
-            }
+            }*/
             //////////////////////////////////////
         } catch (ClassNotFoundException e) {
             System.err.println("Error al cargar el driver de MySQL");
