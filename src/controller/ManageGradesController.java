@@ -17,10 +17,8 @@ import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Comparator;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -107,6 +105,20 @@ public class ManageGradesController implements Initializable, MainControllerAwar
                 if (notas != null) {
                     notas.forEach(System.out::println);
                 }
+
+                if (notas != null && !notas.isEmpty()) {
+                    if (listcoursedao.NotesExist(idcurso, LocalDate.now().getYear())) {
+                        Extras.showAlert("Advertencia", "Las para este curso ya fueron subidas", Alert.AlertType.WARNING);
+                        return;
+                    }
+                    boolean rsp = listcoursedao.SaveNotes(notas, this.idcurso, LocalDate.now().getYear());
+                    if (rsp) {
+                        Extras.showAlert("Exito", "Notas subidas correctamente", Alert.AlertType.INFORMATION);
+                        LoadList();
+                    } else {
+                        Extras.showAlert("Error", "Error al subir notas", Alert.AlertType.ERROR);
+                    }
+                }
             }
         } else {
             Extras.showAlert("Advertencia", "Debe seleccionar un curso!", Alert.AlertType.WARNING);
@@ -141,12 +153,37 @@ public class ManageGradesController implements Initializable, MainControllerAwar
 
     private final String[] departments = {"LP", "SCZ", "CBBA", "OR", "PT", "CH", "TJA", "BE", "PD"};
 
+    private String PasswordMod = "DiseñoSistemas2025";
+
     public void setAdvisor(User user) {
         this.advisor = user;
     }
 
     public User getAdvisor() {
         return advisor;
+    }
+
+    public String convertCi(String ci) {
+        if (ci == null || !ci.contains("-")) {
+            return null;
+        }
+
+        int lastDashIndex = ci.lastIndexOf("-");
+        if (lastDashIndex == -1 || lastDashIndex == ci.length() - 1) {
+            return null;
+        }
+
+        String ciBase = ci.substring(0, lastDashIndex).trim();
+        String sufijo = ci.substring(lastDashIndex + 1).trim();
+
+        // Buscar el índice del sufijo
+        for (int i = 0; i < departments.length; i++) {
+            if (departments[i].equalsIgnoreCase(sufijo)) {
+                return ciBase + "-" + i;
+            }
+        }
+
+        return null;
     }
 
     public void init() {
@@ -213,7 +250,7 @@ public class ManageGradesController implements Initializable, MainControllerAwar
                 linea.append(celdaNombre.getStringCellValue().trim()).append(",");
 
                 Cell celdaCedula = fila.getCell(2);
-                String ci = (celdaCedula != null ? celdaCedula.getStringCellValue().trim() : "");
+                String ci = convertCi(celdaCedula != null ? celdaCedula.getStringCellValue().trim() : "");
 
                 if (!ciExistentes.contains(ci)) {
                     Extras.showAlert("Error", "Revise el ci de los estudiantes: " + ci, Alert.AlertType.ERROR);
